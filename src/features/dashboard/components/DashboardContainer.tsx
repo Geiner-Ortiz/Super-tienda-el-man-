@@ -31,19 +31,19 @@ export function DashboardContainer() {
     }, [setStats, setLoading]);
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-            <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12 space-y-12">
+            <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
                 <div>
-                    <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                    <h1 className="text-5xl font-black text-gray-900 dark:text-white tracking-tight italic">
                         Súper Tienda El Maná
                     </h1>
-                    <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
-                        Control total de tus ventas y ganancias (20%)
+                    <p className="mt-3 text-xl text-gray-500 dark:text-gray-400 font-medium pb-2">
+                        Control total de tus ventas y ganancias <span className="text-secondary-500 font-bold">(20%)</span>
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-widest">En Vivo</span>
+                <div className="flex items-center gap-3 bg-white dark:bg-gray-900 px-4 py-2 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+                    <span className="flex h-2.5 w-2.5 rounded-full bg-primary-500 animate-pulse" />
+                    <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">En Vivo</span>
                 </div>
             </header>
 

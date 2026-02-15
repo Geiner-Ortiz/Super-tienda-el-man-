@@ -76,17 +76,14 @@ export function Sidebar() {
 
   return (
     <aside data-tour="sidebar" className="fixed left-0 top-0 bottom-0 w-64 bg-primary-500 text-white flex flex-col z-40">
-      {/* Logo */}
       <div className="p-6 border-b border-white/10">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-secondary-500 rounded-xl flex items-center justify-center">
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+          <div className="w-10 h-10 bg-secondary-500 rounded-xl flex items-center justify-center shadow-lg shadow-secondary-500/20">
+            <ShopIcon className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="font-heading font-semibold text-lg">Súper Tienda El Maná</h1>
-            <p className="text-xs text-white/60">Bendiciones y Calidad</p>
+            <h1 className="font-heading font-semibold text-lg tracking-tight">Súper Tienda El Maná</h1>
+            <p className="text-[10px] text-white/50 uppercase tracking-widest font-medium">Bendiciones y Calidad</p>
           </div>
         </Link>
       </div>
@@ -262,10 +259,10 @@ function HelpIcon({ className }: { className?: string }) {
   )
 }
 
-function ScaleIcon({ className }: { className?: string }) {
+function ShopIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
     </svg>
   )
 }

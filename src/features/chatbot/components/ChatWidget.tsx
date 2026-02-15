@@ -12,47 +12,26 @@ interface Message {
   quickReplies?: string[]
 }
 
-interface LeadData {
-  fullName?: string
-  email?: string
-  phone?: string
-  caseType?: string
-  description?: string
-  urgency?: 'low' | 'medium' | 'high'
-}
+// No longer need LeadData for grocery store
 
-const CASE_TYPES = [
-  'Derecho Civil',
-  'Derecho Penal',
-  'Derecho Familiar',
-  'Derecho Laboral',
-  'Derecho Mercantil',
-  'Otro'
-]
+// No longer need legacy case types.
 
 const INITIAL_MESSAGE: Message = {
   id: '1',
   type: 'bot',
-  content: 'Hola, soy el asistente virtual de Súper Tienda El Maná. Estoy aquí para ayudarte a calcular tus ganancias y gestionar tus ventas.',
+  content: '¡Hola! 🙌 Bienvenido a Súper Tienda El Maná. Soy tu asistente inteligente. \n\n¿En qué puedo ayudarte hoy? Puedo darte información de la tienda o ayudarte a usar el sistema.',
   timestamp: new Date(),
-  quickReplies: ['¿Cómo funciona?', 'Registrar venta', 'Ver ganancias']
+  quickReplies: ['¿Cómo registro una venta?', 'Ver mis ganancias', 'Horarios']
 }
 
-const FAQ_RESPONSES: Record<string, string> = {
-  'horarios de atención': 'Nuestro horario de atención es de Lunes a Viernes de 9:00 AM a 6:00 PM. Los sábados atendemos de 9:00 AM a 1:00 PM.',
-  'ver servicios': 'Ofrecemos servicios en: Derecho Civil, Derecho Penal, Derecho Familiar, Derecho Laboral y Derecho Mercantil. ¿En qué área necesitas asesoría?',
-  'precios': 'Nuestras consultas iniciales tienen un costo desde $500 MXN. El precio final depende del tipo de caso y la complejidad. ¿Te gustaría agendar una consulta inicial?',
-  'ubicación': 'Nuestras oficinas están ubicadas en el centro de la ciudad. También ofrecemos consultas virtuales por videollamada.',
-}
+// FAQ logic is now handled by AI, but we keep a few quick keywords if needed
+const DEFAULT_QUICK_REPLIES = ['¿Cómo funciona?', 'Horarios', 'Ubicación'];
 
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const [leadData, setLeadData] = useState<LeadData>({})
-  const [currentStep, setCurrentStep] = useState<'greeting' | 'name' | 'email' | 'phone' | 'case_type' | 'description' | 'urgency' | 'confirm' | 'done'>('greeting')
-  const [showDisclaimer, setShowDisclaimer] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -94,119 +73,31 @@ export function ChatWidget() {
     processUserInput(text.toLowerCase())
   }
 
-  const processUserInput = (text: string) => {
-    // Check for FAQs
-    for (const [key, response] of Object.entries(FAQ_RESPONSES)) {
-      if (text.includes(key)) {
-        addBotMessage(response, currentStep === 'greeting' ? ['Agendar cita', 'Más información'] : undefined)
-        return
+  const processUserInput = async (text: string) => {
+    setIsTyping(true)
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [...messages, { id: 'current', type: 'user', content: text, timestamp: new Date() }]
+        }),
+      })
+
+      const data = await response.json()
+      if (data.error) {
+        addBotMessage(data.error)
+      } else {
+        addBotMessage(data.text)
       }
-    }
-
-    // Handle booking flow
-    if (text.includes('agendar') || text.includes('cita') || currentStep !== 'greeting') {
-      handleBookingFlow(text)
-      return
-    }
-
-    // Default response
-    addBotMessage(
-      '¿En qué puedo ayudarte hoy?',
-      ['Agendar cita', 'Ver servicios', 'Horarios de atención', 'Precios']
-    )
-  }
-
-  const handleBookingFlow = (text: string) => {
-    switch (currentStep) {
-      case 'greeting':
-        setCurrentStep('name')
-        addBotMessage('Para agendar tu cita, necesito algunos datos. ¿Cuál es tu nombre completo?')
-        break
-
-      case 'name':
-        setLeadData(prev => ({ ...prev, fullName: text }))
-        setCurrentStep('email')
-        addBotMessage(`Gracias, ${text}. ¿Cuál es tu correo electrónico?`)
-        break
-
-      case 'email':
-        if (!text.includes('@')) {
-          addBotMessage('Por favor, ingresa un correo electrónico válido.')
-          return
-        }
-        setLeadData(prev => ({ ...prev, email: text }))
-        setCurrentStep('phone')
-        addBotMessage('¿Cuál es tu número de teléfono de contacto?')
-        break
-
-      case 'phone':
-        setLeadData(prev => ({ ...prev, phone: text }))
-        setCurrentStep('case_type')
-        addBotMessage('¿En qué área legal necesitas asesoría?', CASE_TYPES)
-        break
-
-      case 'case_type':
-        const caseType = CASE_TYPES.find(t => t.toLowerCase() === text.toLowerCase()) || text
-        setLeadData(prev => ({ ...prev, caseType }))
-        setCurrentStep('description')
-        addBotMessage('Cuéntame brevemente sobre tu caso. ¿Cuál es la situación que necesitas resolver?')
-        break
-
-      case 'description':
-        setLeadData(prev => ({ ...prev, description: text }))
-        setCurrentStep('urgency')
-        addBotMessage('¿Qué tan urgente es tu caso?', ['Baja - Puedo esperar', 'Media - Esta semana', 'Alta - Lo antes posible'])
-        break
-
-      case 'urgency':
-        let urgency: 'low' | 'medium' | 'high' = 'medium'
-        if (text.includes('baja') || text.includes('esperar')) urgency = 'low'
-        else if (text.includes('alta') || text.includes('antes posible')) urgency = 'high'
-
-        setLeadData(prev => ({ ...prev, urgency }))
-        setCurrentStep('confirm')
-
-        const finalData = { ...leadData, urgency }
-        addBotMessage(
-          `Perfecto, estos son tus datos:\n\n` +
-          `Nombre: ${finalData.fullName}\n` +
-          `Email: ${finalData.email}\n` +
-          `Teléfono: ${finalData.phone}\n` +
-          `Área: ${finalData.caseType}\n` +
-          `Urgencia: ${urgency === 'high' ? 'Alta' : urgency === 'medium' ? 'Media' : 'Baja'}\n\n` +
-          `¿Los datos son correctos?`,
-          ['Sí, confirmar', 'No, corregir datos']
-        )
-        break
-
-      case 'confirm':
-        if (text.includes('sí') || text.includes('confirmar') || text.includes('si')) {
-          setCurrentStep('done')
-          addBotMessage(
-            '¡Excelente! Hemos registrado tu solicitud. Un abogado especializado se pondrá en contacto contigo dentro de las próximas 24 horas para agendar tu consulta.\n\n' +
-            'También puedes agendar directamente desde nuestra plataforma si ya tienes una cuenta.',
-            ['Crear cuenta', 'Iniciar sesión']
-          )
-          // Here you would typically save the lead to the database
-          console.log('Lead captured:', leadData)
-        } else {
-          setCurrentStep('name')
-          setLeadData({})
-          addBotMessage('Sin problema, empecemos de nuevo. ¿Cuál es tu nombre completo?')
-        }
-        break
-
-      case 'done':
-        if (text.includes('crear cuenta')) {
-          window.location.href = '/signup'
-        } else if (text.includes('iniciar sesión')) {
-          window.location.href = '/login'
-        } else {
-          addBotMessage('¿Hay algo más en lo que pueda ayudarte?', ['Nueva consulta', 'Crear cuenta', 'Cerrar chat'])
-        }
-        break
+    } catch (error) {
+      addBotMessage('Lo siento, tuve un problema al conectarme con el servidor. ¿Podrías intentar de nuevo?')
+    } finally {
+      setIsTyping(false)
     }
   }
+
+  // Legacy booking flow removed
 
   const handleQuickReply = (reply: string) => {
     handleSend(reply)
@@ -231,10 +122,8 @@ export function ChatWidget() {
       {/* Header */}
       <div className="bg-primary-500 text-white p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-secondary-500 rounded-full flex items-center justify-center">
-            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+          <div className="w-10 h-10 bg-secondary-500 rounded-full flex items-center justify-center shadow-lg shadow-secondary-500/20">
+            <ShopIcon className="w-5 h-5 text-white" />
           </div>
           <div>
             <h3 className="font-semibold">Súper Tienda El Maná Asistente</h3>
@@ -249,26 +138,7 @@ export function ChatWidget() {
         </button>
       </div>
 
-      {/* Legal Disclaimer */}
-      {showDisclaimer && (
-        <div className="bg-warning-50 border-b border-warning-200 p-3">
-          <div className="flex items-start gap-2">
-            <AlertIcon className="w-5 h-5 text-warning-600 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-xs text-warning-800">
-                <strong>Aviso Legal:</strong> Este asistente virtual NO proporciona asesoría legal.
-                Su propósito es facilitar la programación de citas y responder preguntas generales.
-              </p>
-              <button
-                onClick={() => setShowDisclaimer(false)}
-                className="text-xs text-warning-600 underline mt-1"
-              >
-                Entendido
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Knowledge Disclaimer Removal - Bot is now smarter */}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
@@ -381,10 +251,10 @@ function AlertIcon({ className }: { className?: string }) {
   )
 }
 
-function ScaleIcon({ className }: { className?: string }) {
+function ShopIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
     </svg>
   )
 }
