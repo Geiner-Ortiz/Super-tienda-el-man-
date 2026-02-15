@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import type { UserRole } from '@/types/database'
 import { useTour } from '@/components/onboarding'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
+import { BananaIcon } from '@/components/public/icons'
 
 interface NavItem {
   href: string
@@ -78,8 +79,8 @@ export function Sidebar() {
     <aside data-tour="sidebar" className="fixed left-0 top-0 bottom-0 w-64 bg-primary-500 text-white flex flex-col z-40">
       <div className="p-6 border-b border-white/10">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-secondary-500 rounded-xl flex items-center justify-center shadow-lg shadow-secondary-500/20">
-            <ShopIcon className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg shadow-yellow-500/20">
+            <BananaIcon className="w-6 h-6 text-white" />
           </div>
           <div>
             <h1 className="font-heading font-semibold text-lg tracking-tight">Súper Tienda El Maná</h1>

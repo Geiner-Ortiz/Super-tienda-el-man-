@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     siteName: siteConfig.firmName,
     type: 'website',
   },
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({

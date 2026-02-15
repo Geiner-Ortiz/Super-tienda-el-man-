@@ -242,3 +242,11 @@ export function ValueIcon({ icon, className }: { icon: string; className?: strin
     default: return <ScaleIcon className={className} />
   }
 }
+export function BananaIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14.36 21.071c-4.242 0-8.485-4.243-8.485-8.485 0-2.121.848-4.142 2.357-5.657L11.889 3.272a.5.5 0 01.707 0l1.415 1.415a.5.5 0 010 .707L10.354 9.05a4 4 0 000 5.657c1.562 1.562 4.095 1.562 5.657 0l3.535-3.535a.5.5 0 01.707 0l1.415 1.415a.5.5 0 010 .707l-3.536 3.535a8 8 0 01-5.657 2.357c-.707 0-1.414-.078-2.075-.23" />
+      <path d="M12 3l1.5 1.5" />
+    </svg>
+  )
+}
