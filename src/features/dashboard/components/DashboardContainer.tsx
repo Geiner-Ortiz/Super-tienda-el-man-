@@ -30,7 +30,15 @@ export function DashboardContainer({ overrideUserId }: Props) {
     // Determine which profile to use
     const profile = isSupportMode ? impersonatedUser : (isMaestroView ? remoteProfile : currentProfile);
 
-    const storeName = profile?.store_name || (isSupportMode ? impersonatedUser?.storeName : 'Tu Súper Tienda');
+    // Safe access to store name for TS
+    let displayStoreName = 'Tu Súper Tienda';
+    if (isSupportMode && impersonatedUser) {
+        displayStoreName = impersonatedUser.storeName;
+    } else if (profile && 'store_name' in profile && profile.store_name) {
+        displayStoreName = profile.store_name;
+    }
+
+    const storeName = displayStoreName;
     const profitMargin = profile && 'profit_margin' in profile && profile.profit_margin ? `${(profile.profit_margin * 100).toFixed(0)}%` : '20%';
 
     const MOTIVATIONAL_PHRASES = [
