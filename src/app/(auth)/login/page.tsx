@@ -14,11 +14,12 @@ export default function LoginPage() {
       </div>
 
       <div className="text-center lg:text-left flex flex-col lg:flex-row items-center gap-4">
-        <div className="hidden lg:flex w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-yellow-600 items-center justify-center shadow-lg shadow-yellow-500/20">
+        <div className="lg:hidden w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20">
           <BananaIcon className="w-10 h-10 text-white" />
         </div>
         <div>
-          <p className="mt-1 text-foreground-secondary">Inicia sesión en tu cuenta para continuar</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-foreground leading-tight">Inicia sesión en tu cuenta para continuar</h1>
+          <p className="mt-2 text-lg text-foreground-secondary">Gestiona tu tienda con éxito y claridad total</p>
         </div>
       </div>
 

@@ -5,10 +5,10 @@ import { SignupForm } from '@/features/auth/components'
 export default function SignupPage() {
   return (
     <div className="space-y-8">
-      {/* Logo móvil */}
-      <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg">
-          <BananaIcon className="w-8 h-8 text-white" />
+      {/* Logo móvil simplificado */}
+      <div className="lg:hidden flex flex-col items-center justify-center gap-4 mb-8">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20 text-white">
+          <BananaIcon className="w-10 h-10" />
         </div>
         <span className="text-3xl font-black text-primary-500 tracking-tight">Tu Súper Tienda</span>
       </div>
