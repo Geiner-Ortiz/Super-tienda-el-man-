@@ -34,7 +34,7 @@ export function SupportModeBanner() {
                 </div>
 
                 <Button
-                    variant="default"
+                    variant="primary"
                     size="sm"
                     onClick={handleExit}
                     className="bg-slate-900 text-white hover:bg-slate-800 font-bold px-4 py-1.5 h-auto rounded-lg shadow-lg border border-white/10"

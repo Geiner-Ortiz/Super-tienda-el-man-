@@ -35,7 +35,7 @@ export default function AdminDashboard() {
     const [clientStats, setClientStats] = useState<ClientStats | null>(null)
     const [isLoadingStats, setIsLoadingStats] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
-    const { startSupportMode } = useAdminStore()
+    const { startSupportMode, isSupportMode, impersonatedUser } = useAdminStore()
     const router = useRouter()
 
     useEffect(() => {

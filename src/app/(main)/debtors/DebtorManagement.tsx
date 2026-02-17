@@ -10,14 +10,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 
-interface Debtor {
-    id: string
-    name: string
-    phone: string
-    amount: number
-    is_paid?: boolean
-    created_at: string
-}
 
 interface DebtorManagementProps {
     initialDebtors: Debtor[]
