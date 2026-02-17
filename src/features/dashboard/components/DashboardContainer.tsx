@@ -39,7 +39,14 @@ export function DashboardContainer({ overrideUserId }: Props) {
     }
 
     const storeName = displayStoreName;
-    const profitMargin = profile && 'profit_margin' in profile && profile.profit_margin ? `${(profile.profit_margin * 100).toFixed(0)}%` : '20%';
+
+    // Safe access to profit margin for TS
+    let displayProfitMargin = '20%';
+    if (!isSupportMode && profile && 'profit_margin' in profile && profile.profit_margin) {
+        displayProfitMargin = `${(profile.profit_margin * 100).toFixed(0)}%`;
+    }
+
+    const profitMargin = displayProfitMargin;
 
     const MOTIVATIONAL_PHRASES = [
         "Un negocio organizado es el primer paso hacia la libertad financiera.",
