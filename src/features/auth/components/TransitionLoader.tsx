@@ -9,7 +9,7 @@ interface Props {
 
 export function TransitionLoader({ message }: Props) {
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/95 backdrop-blur-2xl">
             <div className="flex flex-col items-center gap-8 max-w-md px-6 text-center">
                 <motion.div
                     initial={{ scale: 0.5, opacity: 0 }}
@@ -42,7 +42,7 @@ export function TransitionLoader({ message }: Props) {
                     transition={{ delay: 0.3 }}
                     className="space-y-4"
                 >
-                    <h2 className="text-3xl font-black text-foreground tracking-tight leading-tight">
+                    <h2 className="text-3xl font-black text-foreground tracking-tight leading-tight animate-pulse">
                         {message}
                     </h2>
                     <div className="flex justify-center gap-1.5">

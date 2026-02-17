@@ -13,7 +13,7 @@ export default function LoginSuccessPage() {
 
         const timer = setTimeout(() => {
             router.push('/dashboard')
-        }, 2500)
+        }, 3000)
 
         return () => clearTimeout(timer)
     }, [router])

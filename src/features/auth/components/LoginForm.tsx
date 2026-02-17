@@ -42,6 +42,8 @@ export function LoginForm() {
       setError(result.error)
       setLoading(false)
     } else {
+      // Artificial delay to ensure loader is seen before redirect
+      await new Promise(resolve => setTimeout(resolve, 800))
       router.push('/login/success')
       router.refresh()
     }
