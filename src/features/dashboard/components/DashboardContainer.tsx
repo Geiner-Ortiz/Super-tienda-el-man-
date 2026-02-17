@@ -10,7 +10,7 @@ import { SalesList } from '../../sales/components/SalesList';
 import { AddSaleForm } from '../../sales/components/AddSaleForm';
 
 export function DashboardContainer() {
-    const { profile, loading: authLoading } = useAuth();
+    const { user, profile, loading: authLoading } = useAuth();
     const { setFinancialData, setLoading, recentSales, isLoading: storeLoading } = useDashboardStore();
 
     const storeName = profile?.store_name || 'Tú Súper Tienda';
@@ -26,6 +26,7 @@ export function DashboardContainer() {
     ];
 
     // Usar el ID del usuario para que la frase sea consistente durante el día
+    const userId = user?.id;
     const phraseIndex = userId ? (userId.charCodeAt(0) + userId.charCodeAt(userId.length - 1)) % MOTIVATIONAL_PHRASES.length : 0;
     const dailyPhrase = MOTIVATIONAL_PHRASES[phraseIndex];
 

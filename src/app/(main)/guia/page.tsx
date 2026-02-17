@@ -86,11 +86,12 @@ export default function UserGuidePage() {
 
             {/* Support Button */}
             <div className="text-center">
-                <Button asChild className="w-full h-14 rounded-2xl text-lg font-bold shadow-lg shadow-primary-500/20">
-                    <Link href="/dashboard">
-                        ¡Entendido! Vamos a trabajar
-                    </Link>
-                </Button>
+                <Link
+                    href="/dashboard"
+                    className="inline-flex items-center justify-center w-full h-14 rounded-2xl text-lg font-bold bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 shadow-lg shadow-primary-500/20 transition-all duration-200"
+                >
+                    ¡Entendido! Vamos a trabajar
+                </Link>
             </div>
         </div>
     )

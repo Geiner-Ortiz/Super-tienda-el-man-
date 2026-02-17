@@ -44,11 +44,12 @@ export default function CheckEmailPage() {
       </div>
 
       <div className="pt-4">
-        <Button asChild className="w-full h-12 text-base font-bold rounded-xl shadow-lg shadow-primary-500/20">
-          <Link href="/login">
-            Ir a Iniciar Sesión
-          </Link>
-        </Button>
+        <Link
+          href="/login"
+          className="inline-flex items-center justify-center w-full h-12 text-base font-bold rounded-xl bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 shadow-lg shadow-primary-500/20 transition-all duration-200"
+        >
+          Ir a Iniciar Sesión
+        </Link>
         <p className="mt-6 text-xs text-foreground-muted">
           ¿No recibiste el correo? Revisa tu carpeta de spam o{' '}
           <button className="font-medium text-accent-500 hover:text-accent-600 hover:underline">

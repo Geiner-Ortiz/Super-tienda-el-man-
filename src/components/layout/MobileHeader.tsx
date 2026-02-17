@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { BananaIcon, HelpCircleIcon, MenuIcon } from '@/components/public/icons'
 import { Button } from '@/components/ui/button'
 
@@ -26,11 +27,13 @@ export function MobileHeader({ onMenuClick, storeName }: Props) {
             </div>
 
             <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 rounded-xl" asChild>
-                    <a href="/guia">
-                        <HelpCircleIcon className="w-5 h-5" />
-                    </a>
-                </Button>
+                <Link
+                    href="/guia"
+                    className="flex items-center justify-center w-10 h-10 text-white hover:bg-white/10 rounded-xl transition-colors"
+                    title="Ver Guía de Uso"
+                >
+                    <HelpCircleIcon className="w-5 h-5" />
+                </Link>
             </div>
         </header>
     )

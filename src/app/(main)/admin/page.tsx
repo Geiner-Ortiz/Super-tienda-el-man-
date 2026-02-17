@@ -1,6 +1,11 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { adminService } from '@/features/admin/services/adminService'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 interface ClientProfile {
     id: string

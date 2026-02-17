@@ -259,7 +259,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   No, quedarme
                 </Button>
                 <Button
-                  variant="destructive"
+                  variant="danger"
                   className="rounded-xl bg-error-600 hover:bg-error-700 text-white border-none"
                   onClick={confirmLogout}
                 >

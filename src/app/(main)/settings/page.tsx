@@ -100,13 +100,15 @@ export default function SettingsPage() {
                             Margen de Ganancia (%)
                         </label>
                         <div className="flex items-center gap-3">
-                            <Input
-                                type="number"
-                                value={profile.profit_margin}
-                                onChange={(e) => setProfile({ ...profile, profit_margin: Number(e.target.value) })}
-                                className="w-32"
-                                suffix="%"
-                            />
+                            <div className="flex items-center gap-2">
+                                <Input
+                                    type="number"
+                                    value={profile.profit_margin}
+                                    onChange={(e) => setProfile({ ...profile, profit_margin: Number(e.target.value) })}
+                                    className="w-32"
+                                />
+                                <span className="text-lg font-bold text-gray-500">%</span>
+                            </div>
                             <p className="text-xs text-foreground-muted">
                                 Este porcentaje se aplicará a todas las nuevas ventas registradas.
                             </p>
