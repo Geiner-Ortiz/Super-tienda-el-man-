@@ -1,13 +1,14 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { BananaIcon } from '@/components/public/icons'
 
 export default function CheckEmailPage() {
   return (
     <div className="space-y-8 text-center">
       {/* Logo móvil */}
       <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-        <div className="w-10 h-10 rounded-xl bg-primary-500 flex items-center justify-center">
-          <span className="text-white font-black text-lg">ST</span>
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center">
+          <BananaIcon className="w-6 h-6 text-white" />
         </div>
         <span className="text-xl font-bold text-primary-500">Tu Súper Tienda</span>
       </div>

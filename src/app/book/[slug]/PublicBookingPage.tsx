@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { AppointmentType, Availability } from '@/types/database'
-// No icon import needed for ST logo
+import { BananaIcon } from '@/components/public/icons'
 
 interface LawyerInfo {
   id: string
@@ -555,8 +555,8 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
       <footer className="bg-primary-900 text-white py-8 mt-12">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
-              <span className="text-white font-black text-lg">ST</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg shadow-yellow-500/20">
+              <BananaIcon className="w-6 h-6 text-white" />
             </div>
             <span className="font-semibold">Tu Súper Tienda</span>
           </div>

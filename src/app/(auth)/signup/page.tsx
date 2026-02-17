@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { BananaIcon } from '@/components/public/icons'
 import { SignupForm } from '@/features/auth/components'
 
 export default function SignupPage() {
@@ -6,8 +7,8 @@ export default function SignupPage() {
     <div className="space-y-8">
       {/* Logo móvil */}
       <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-        <div className="w-12 h-12 rounded-xl bg-primary-500 flex items-center justify-center shadow-lg">
-          <span className="text-white font-black text-xl">ST</span>
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg">
+          <BananaIcon className="w-8 h-8 text-white" />
         </div>
         <span className="text-3xl font-black text-primary-500 tracking-tight">Tu Súper Tienda</span>
       </div>

@@ -8,6 +8,7 @@ import type { UserRole } from '@/types/database'
 import { useTour } from '@/components/onboarding'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
 import {
+  BananaIcon,
   HomeIcon,
   UsersIcon,
   CalculatorIcon,
@@ -115,8 +116,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       >
         <div className="p-6 border-b border-white/10 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-3" onClick={() => onClose?.()}>
-            <div className="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
-              <span className="text-white font-black text-xl tracking-tighter">ST</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg shadow-yellow-500/20">
+              <BananaIcon className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="font-heading font-semibold text-lg tracking-tight">Tu Súper Tienda</h1>
