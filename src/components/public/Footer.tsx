@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { siteConfig } from '@/config/siteConfig'
-import { ScaleIcon, PhoneIcon, MailIcon, MapPinIcon, ClockIcon, FacebookIcon, InstagramIcon, LinkedInIcon } from './icons'
+import { BananaIcon, PhoneIcon, MailIcon, MapPinIcon, ClockIcon, FacebookIcon, InstagramIcon, LinkedInIcon } from './icons'
 
 export function Footer() {
   const { contact, social, services } = siteConfig
@@ -14,7 +14,7 @@ export function Footer() {
           {/* Column 1: About */}
           <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <ScaleIcon className="w-7 h-7 text-teal-400" />
+              <BananaIcon className="w-7 h-7 text-yellow-500" />
               <span className="font-heading text-lg font-bold text-white">{siteConfig.firmName}</span>
             </Link>
             <p className="text-body-sm text-gray-400 leading-relaxed mb-4">

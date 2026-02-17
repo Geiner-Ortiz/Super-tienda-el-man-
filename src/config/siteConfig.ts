@@ -101,9 +101,9 @@ export interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  firmName: 'Súper Tienda El Maná',
-  firmSlogan: 'Bendiciones y Calidad en tu Mesa',
-  firmDescription: 'Sistema de control de ventas y ganancias para tu tienda.',
+  firmName: 'Tú Súper Tienda',
+  firmSlogan: 'Tu Negocio, Tu Control',
+  firmDescription: 'Sistema de control de ventas y ganancias inteligente.',
   founderName: '',
   founderTitle: '',
   founderBio: '',
@@ -113,7 +113,7 @@ export const siteConfig: SiteConfig = {
     phone: '',
     phoneDisplay: '',
     whatsappNumber: '',
-    email: 'contacto@supertiendaelmana.com',
+    email: 'contacto@supertienda.com',
     address: '',
     city: '',
     country: 'Colombia',
@@ -134,9 +134,9 @@ export const siteConfig: SiteConfig = {
   },
 
   seo: {
-    siteTitle: 'Súper Tienda El Maná | Control de Ventas',
-    titleTemplate: '%s | Súper Tienda El Maná',
-    defaultDescription: 'Control total de ventas y ganancias nítidas del 20%.',
+    siteTitle: 'Tú Súper Tienda | Control de Ventas',
+    titleTemplate: '%s | Tú Súper Tienda',
+    defaultDescription: 'Control total de ventas y ganancias nítidas para tu negocio.',
     locale: 'es_CO',
   },
 

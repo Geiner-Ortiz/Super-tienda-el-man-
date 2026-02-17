@@ -1,78 +1,92 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { siteConfig } from "@/config/siteConfig";
-
-const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
-const genAI = new GoogleGenerativeAI(apiKey || "");
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
+    const apiKey = process.env.OPENAI_API_KEY;
+
     if (!apiKey) {
         return NextResponse.json(
-            { error: "Gemini API Key not configured. Please add GOOGLE_GEMINI_API_KEY to .env.local" },
+            { error: "OpenAI API Key not configured. Please add OPENAI_API_KEY to .env.local" },
             { status: 500 }
         );
     }
 
+    const openai = new OpenAI({ apiKey });
+
     try {
         const { messages } = await req.json();
+        const lastMessage = messages[messages.length - 1].content.toLowerCase();
+        const supabase = await createClient();
 
-        // Use gemini-2.0-flash as it is confirmed available for this key
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash"
-        });
+        // 1. Contexto para Ventas
+        let extraContext = "";
+
+        if (lastMessage.includes('venta') || lastMessage.includes('ganancia') || lastMessage.includes('cuanto') || lastMessage.includes('gané')) {
+            const { data: sales } = await supabase.from('sales').select('amount, profit, sale_date').order('created_at', { ascending: false }).limit(20);
+
+            if (sales && sales.length > 0) {
+                extraContext += `\nDATOS DE VENTAS RECIENTES (Últimas 20):\n${sales.map(s => `- Fecha: ${s.sale_date}, Monto: $${s.amount}, Ganancia(20%): $${s.profit}`).join('\n')}\n`;
+            }
+        }
+
+        // 2. Contexto para Deudores
+        if (lastMessage.includes('debe') || lastMessage.includes('deuda') || lastMessage.includes('cobrar') || lastMessage.includes('morosos')) {
+            const { data: debtors } = await supabase.from('debtors').select('name, amount, phone');
+
+            if (debtors && debtors.length > 0) {
+                extraContext += `\nDATOS DE CLIENTES QUE DEBEN (MOROSOS):\n${debtors.map(d => `- ${d.name} debe $${d.amount} (Tel: ${d.phone})`).join('\n')}\n`;
+            }
+        }
+
+        // 3. Contexto para Gastos (Contabilidad)
+        if (lastMessage.includes('gasto') || lastMessage.includes('egreso') || lastMessage.includes('pagué') || lastMessage.includes('pago') || lastMessage.includes('factura')) {
+            const { data: expenses } = await supabase.from('expenses').select('category, type, amount, expense_date').order('expense_date', { ascending: false }).limit(10);
+
+            if (expenses && expenses.length > 0) {
+                extraContext += `\nDATOS DE GASTOS RECIENTES:\n${expenses.map(e => `- Fecha: ${e.expense_date}, Tipo: ${e.type} (${e.category}), Monto: $${e.amount}`).join('\n')}\n`;
+            }
+        }
 
         const systemPrompt = `
       Eres el asistente virtual de "${siteConfig.firmName}".
-      Slogan: "${siteConfig.firmSlogan}"
-      Descripción: "${siteConfig.firmDescription}"
-      Ubicación: ${siteConfig.contact.city || 'Desconocida'}, ${siteConfig.contact.country}
-      Horarios: ${siteConfig.contact.officeHours}
-      Contacto: ${siteConfig.contact.email}
-
-      Tu objetivo es ayudar a los clientes con información de la tienda. 
-      Responde de forma amable, servicial y profesional.
-      Usa un tono acogedor, como el de una tienda de barrio premium en Colombia.
+      Tu objetivo es ayudar al dueño de la tienda a gestionar su negocio.
       
-      Reglas:
-      1. Solo responde preguntas relacionadas con la tienda y su funcionamiento.
-      2. No inventes precios específicos si no los tienes en tu contexto (por ahora solo sabes información general).
-      3. Si te preguntan por ganancias, explica que el sistema calcula un 20% automático para el dueño.
-      4. Si el usuario quiere registrar una venta, dile que puede hacerlo desde el botón "Nueva Venta" en el Dashboard.
-      5. Si no sabes algo, pide amablemente que contacten al personal de la tienda.
-      6. MUY IMPORTANTE: NO hables de leyes, abogados, bufetes o citas legales. Eres un asistente DE TIENDA DE ABARROTES. Si alguien menciona temas legales, redirígelos amablemente a temas de la tienda.
+      Reglas de respuesta:
+      1. Si te preguntan por ventas o deudores, usa los DATOS RECIENTES proporcionados en el contexto.
+      2. Sé preciso con los números. Si preguntan por la ganancia total de un día, suma los valores correspondientes.
+      3. Mantén un tono amable, profesional y colombiano (puedes usar palabras como 'vecino', 'bendiciones', 'claro que sí').
+      4. Si no hay datos para una consulta específica, dile que no encuentras registros.
+      5. Responde de forma concisa pero útil.
+      
+      CONTEXTO EMPRESARIAL:
+      - Ganancia automática: 20% sobre cada venta bruta.
+      - Ubicación: ${siteConfig.contact.city || 'Colombia'}
+      
+      DATOS EN TIEMPO REAL:
+      ${extraContext || 'No hay datos de ventas o deudas para este contexto específico.'}
     `;
 
-        // Combine system prompt and history into a simple prompt for stability
-        const context = `
-      CONTEXTO DEL SISTEMA:
-      ${systemPrompt}
-      
-      HISTORIAL DE CONVERSACIÓN:
-      ${messages.slice(0, -1).map((m: any) => `${m.type === 'user' ? 'Usuario' : 'Asistente'}: ${m.content}`).join('\n')}
-      
-      MENSAJE ACTUAL DEL USUARIO:
-      ${messages[messages.length - 1].content}
-      
-      RESPUESTA DEL ASISTENTE:
-    `;
-
-        const result = await model.generateContent(context);
-        const response = await result.response;
-        const text = response.text();
-
-        return NextResponse.json({ text });
-    } catch (error: any) {
-        console.error("Chat API Error Detailed:", {
-            message: error.message,
-            stack: error.stack,
-            response: error.response ? {
-                status: error.response.status,
-                statusText: error.response.statusText,
-                data: error.response.data
-            } : 'No response object'
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                { role: "system", content: systemPrompt },
+                ...messages.map((m: any) => ({
+                    role: m.type === 'user' ? 'user' : 'assistant',
+                    content: m.content
+                }))
+            ],
+            temperature: 0.7,
         });
+
+        const responseText = response.choices[0].message.content;
+
+        return NextResponse.json({ text: responseText });
+    } catch (error: any) {
+        console.error("OpenAI API Error:", error);
         return NextResponse.json(
-            { error: "Lo siento, tuve un problema al procesar tu mensaje. Por favor intenta de nuevo." },
+            { error: "Error procesando tu mensaje con OpenAI. Revisa tu API Key o saldo." },
             { status: 500 }
         );
     }

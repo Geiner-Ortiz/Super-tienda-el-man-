@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { AppointmentType, Availability } from '@/types/database'
+import { BananaIcon } from '@/components/public/icons'
 
 interface LawyerInfo {
   id: string
@@ -161,8 +162,10 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
       {/* Header */}
       <div className="bg-primary-500 text-white py-8">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="flex items-center gap-2 mb-4">
-            <ScaleIcon className="w-8 h-8 text-secondary-400" />
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20">
+              <BananaIcon className="w-8 h-8 text-white" />
+            </div>
             <span className="text-xl font-semibold">LexAgenda</span>
           </div>
           <h1 className="text-3xl font-bold">Agenda tu Consulta Legal</h1>
@@ -215,19 +218,17 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
             <div className="flex items-center justify-between mb-8">
               {['service', 'datetime', 'info', 'confirm'].map((s, i) => (
                 <div key={s} className="flex items-center">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    step === s || ['service', 'datetime', 'info', 'confirm'].indexOf(step) > i
-                      ? 'bg-accent-500 text-white'
-                      : 'bg-gray-200 text-foreground-secondary'
-                  }`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step === s || ['service', 'datetime', 'info', 'confirm'].indexOf(step) > i
+                    ? 'bg-accent-500 text-white'
+                    : 'bg-gray-200 text-foreground-secondary'
+                    }`}>
                     {i + 1}
                   </div>
                   {i < 3 && (
-                    <div className={`w-16 h-1 ${
-                      ['service', 'datetime', 'info', 'confirm'].indexOf(step) > i
-                        ? 'bg-accent-500'
-                        : 'bg-gray-200'
-                    }`} />
+                    <div className={`w-16 h-1 ${['service', 'datetime', 'info', 'confirm'].indexOf(step) > i
+                      ? 'bg-accent-500'
+                      : 'bg-gray-200'
+                      }`} />
                   )}
                 </div>
               ))}
@@ -247,11 +248,10 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
                         setSelectedType(type)
                         setStep('datetime')
                       }}
-                      className={`w-full p-4 rounded-xl border-2 text-left transition-all hover:border-accent-300 ${
-                        selectedType?.id === type.id
-                          ? 'border-accent-500 bg-accent-50'
-                          : 'border-border'
-                      }`}
+                      className={`w-full p-4 rounded-xl border-2 text-left transition-all hover:border-accent-300 ${selectedType?.id === type.id
+                        ? 'border-accent-500 bg-accent-50'
+                        : 'border-border'
+                        }`}
                     >
                       <div className="flex justify-between items-start">
                         <div>
@@ -294,11 +294,10 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
                           setSelectedDate(date)
                           setSelectedTime(null)
                         }}
-                        className={`p-3 rounded-lg text-center transition-all ${
-                          selectedDate?.toDateString() === date.toDateString()
-                            ? 'bg-accent-500 text-white'
-                            : 'bg-gray-100 hover:bg-gray-200 text-foreground'
-                        }`}
+                        className={`p-3 rounded-lg text-center transition-all ${selectedDate?.toDateString() === date.toDateString()
+                          ? 'bg-accent-500 text-white'
+                          : 'bg-gray-100 hover:bg-gray-200 text-foreground'
+                          }`}
                       >
                         <div className="text-xs">{DAYS[date.getDay()].slice(0, 3)}</div>
                         <div className="text-lg font-bold">{date.getDate()}</div>
@@ -318,11 +317,10 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
                         <button
                           key={time}
                           onClick={() => setSelectedTime(time)}
-                          className={`p-2 rounded-lg text-sm font-medium transition-all ${
-                            selectedTime === time
-                              ? 'bg-accent-500 text-white'
-                              : 'bg-gray-100 hover:bg-gray-200 text-foreground'
-                          }`}
+                          className={`p-2 rounded-lg text-sm font-medium transition-all ${selectedTime === time
+                            ? 'bg-accent-500 text-white'
+                            : 'bg-gray-100 hover:bg-gray-200 text-foreground'
+                            }`}
                         >
                           {time}
                         </button>
@@ -556,9 +554,11 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
       {/* Footer */}
       <footer className="bg-primary-900 text-white py-8 mt-12">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <ScaleIcon className="w-6 h-6 text-secondary-400" />
-            <span className="font-semibold">LexAgenda</span>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20">
+              <BananaIcon className="w-6 h-6 text-white" />
+            </div>
+            <span className="font-semibold">Tú Súper Tienda</span>
           </div>
           <p className="text-sm text-white/60">
             Plataforma de agendamiento legal profesional
@@ -574,14 +574,6 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
   )
 }
 
-// Icons
-function ScaleIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-    </svg>
-  )
-}
 
 function StarIcon({ className }: { className?: string }) {
   return (

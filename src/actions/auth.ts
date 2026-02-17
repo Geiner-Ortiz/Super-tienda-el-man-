@@ -21,18 +21,35 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
+  console.log('--- SERVIDOR: Acción de Registro Recibida ---')
   const supabase = await createClient()
+  console.log('--- SERVIDOR: Cliente Supabase Creado ---')
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+  const fullName = formData.get('fullName') as string
+  const storeName = formData.get('storeName') as string
 
+  console.log(`Intentando registrar usuario: ${email}`)
   const { error } = await supabase.auth.signUp({
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
+    email,
+    password,
+    options: {
+      data: {
+        full_name: fullName,
+        store_name: storeName,
+        role: 'admin'
+      }
+    }
   })
 
   if (error) {
+    console.error('Error en signUp:', error.message)
     return { error: error.message }
   }
 
+  console.log('Registro exitoso en Supabase, revalidando...')
   revalidatePath('/', 'layout')
+  console.log('Redirigiendo a /check-email...')
   redirect('/check-email')
 }
 

@@ -2,9 +2,10 @@
 
 import { useDashboardStore } from '../store/dashboardStore';
 import { salesService } from '../../sales/services/salesService';
+import { dashboardService } from '../services/dashboardService';
 
 export function RecentSalesList() {
-    const { recentSales, profileMap, setStats, setLoading } = useDashboardStore();
+    const { recentSales, setFinancialData, setLoading } = useDashboardStore();
 
     const handleDelete = async (id: string) => {
         if (!confirm('¿Estás seguro de eliminar este registro?')) return;
@@ -12,8 +13,12 @@ export function RecentSalesList() {
         try {
             setLoading(true);
             await salesService.deleteSale(id);
-            const updatedSales = await salesService.getSales();
-            setStats(updatedSales);
+            const [stats, trends, sales] = await Promise.all([
+                dashboardService.getFinancialStats(),
+                dashboardService.getDailyTrends(),
+                salesService.getSales()
+            ]);
+            setFinancialData(stats, trends, sales);
         } catch (error) {
             alert('Error al eliminar la venta');
         } finally {
@@ -54,7 +59,7 @@ export function RecentSalesList() {
                                 ${Number(sale.profit).toLocaleString('es-CO', { minimumFractionDigits: 0 })}
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 text-right">
-                                {profileMap[sale.user_id] || 'Cargando...'}
+                                Admin
                             </td>
                             <td className="px-6 py-4 text-right">
                                 <button

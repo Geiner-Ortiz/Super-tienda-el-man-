@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { siteConfig } from '@/config/siteConfig'
-import { ScaleIcon, ChevronDownIcon, MenuIcon } from './icons'
+import { BananaIcon, ChevronDownIcon, MenuIcon } from './icons'
 import { MobileMenu } from './MobileMenu'
 
 export function Navbar() {
@@ -35,7 +35,9 @@ export function Navbar() {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5 group">
-              <ScaleIcon className="w-8 h-8 text-teal-600 group-hover:text-teal-700 transition-colors" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20 group-hover:scale-105 transition-transform">
+                <BananaIcon className="w-6 h-6 text-white" />
+              </div>
               <div>
                 <span className="font-heading text-xl font-bold text-teal-800 tracking-tight">
                   {siteConfig.firmName.split(' ')[0]}
@@ -54,9 +56,8 @@ export function Navbar() {
                     <>
                       <button
                         onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
-                        className={`flex items-center gap-1 px-4 py-2 text-body-sm font-medium uppercase tracking-wider transition-colors ${
-                          openDropdown === item.label ? 'text-teal-600' : 'text-gray-700 hover:text-teal-600'
-                        }`}
+                        className={`flex items-center gap-1 px-4 py-2 text-body-sm font-medium uppercase tracking-wider transition-colors ${openDropdown === item.label ? 'text-teal-600' : 'text-gray-700 hover:text-teal-600'
+                          }`}
                       >
                         {item.label}
                         <ChevronDownIcon className={`w-4 h-4 transition-transform ${openDropdown === item.label ? 'rotate-180' : ''}`} />

@@ -7,10 +7,10 @@ export default function LoginPage() {
     <div className="space-y-8">
       {/* Logo móvil */}
       <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20">
+        <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg">
           <BananaIcon className="w-8 h-8 text-white" />
         </div>
-        <span className="text-xl font-bold text-primary-500">Súper Tienda El Maná</span>
+        <span className="text-3xl font-black text-primary-500 tracking-tight">Tú Súper Tienda</span>
       </div>
 
       <div className="text-center lg:text-left flex flex-col lg:flex-row items-center gap-4">
@@ -18,7 +18,7 @@ export default function LoginPage() {
           <BananaIcon className="w-10 h-10 text-white" />
         </div>
         <div>
-          <h1 className="text-display-xs text-foreground font-bold leading-tight">Súper Tienda El Maná</h1>
+          <h1 className="text-display-xs text-foreground font-bold leading-tight">Tú Súper Tienda</h1>
           <p className="mt-1 text-foreground-secondary">Inicia sesión en tu cuenta para continuar</p>
         </div>
       </div>

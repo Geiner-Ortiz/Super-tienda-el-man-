@@ -12,7 +12,15 @@ export const salesService = {
             throw new Error('Usuario no autenticado');
         }
 
-        const profit = input.amount * 0.20;
+        // Obtener el perfil del usuario para el margen de ganancia
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('profit_margin')
+            .eq('id', user.id)
+            .single();
+
+        const margin = profile?.profit_margin || 0.20;
+        const profit = input.amount * margin;
 
         const { data, error } = await supabase
             .from('sales')
@@ -55,6 +63,18 @@ export const salesService = {
             throw error;
         }
 
+        return data || [];
+    },
+
+    async querySales(dateStr: string): Promise<Sale[]> {
+        const supabase = createClient();
+        const { data, error } = await supabase
+            .from('sales')
+            .select('*')
+            .eq('sale_date', dateStr)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
         return data || [];
     },
 

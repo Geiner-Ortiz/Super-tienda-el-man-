@@ -1,0 +1,280 @@
+'use client'
+
+import { useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/hooks/useAuth'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
+interface Debtor {
+    id: string
+    name: string
+    phone: string
+    amount: number
+    is_paid?: boolean
+    created_at: string
+}
+
+interface DebtorManagementProps {
+    initialDebtors: Debtor[]
+}
+
+export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
+    const [debtors, setDebtors] = useState(initialDebtors)
+    const [search, setSearch] = useState('')
+    const [filter, setFilter] = useState<'all' | 'pending' | 'paid'>('all')
+    const [isAdding, setIsAdding] = useState(false)
+    const [saving, setSaving] = useState(false)
+
+    // Form state
+    const [newName, setNewName] = useState('')
+    const [newPhone, setNewPhone] = useState('')
+    const [newAmount, setNewAmount] = useState('')
+
+    const filteredDebtors = debtors.filter(debtor => {
+        const matchesSearch = debtor.name.toLowerCase().includes(search.toLowerCase()) || debtor.phone.includes(search)
+        if (filter === 'pending') return matchesSearch && !debtor.is_paid
+        if (filter === 'paid') return matchesSearch && debtor.is_paid
+        return matchesSearch
+    })
+
+    const activeDebtTotal = debtors.reduce((acc, d) => d.is_paid ? acc : acc + Number(d.amount), 0)
+
+    const { profile } = useAuth()
+    const storeName = profile?.store_name || 'nuestra tienda'
+
+    const handleNotify = (debtor: { name: string; phone: string; amount: number }) => {
+        const message = `Hola ${debtor.name}, te recordamos que tienes un saldo pendiente en ${storeName} por un valor de ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(debtor.amount)}.`
+        const whatsappUrl = `https://wa.me/57${debtor.phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`
+        window.open(whatsappUrl, '_blank')
+    }
+
+    const handleTogglePaid = async (debtor: Debtor) => {
+        console.log("handleTogglePaid called for:", debtor.name);
+        const supabase = createClient()
+        const newStatus = !debtor.is_paid
+
+        const { error } = await supabase
+            .from('debtors')
+            .update({ is_paid: newStatus })
+            .eq('id', debtor.id)
+
+        if (!error) {
+            console.log("Updated successfully in Supabase");
+            setDebtors(debtors.map(d => d.id === debtor.id ? { ...d, is_paid: newStatus } : d))
+        } else {
+            console.error("Error updating debtor payment status:", error);
+            alert(`Error de base de datos: ${error.message}`);
+        }
+    }
+
+    const handleSave = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!newName || !newPhone || !newAmount) return
+
+        setSaving(true)
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (!user) return
+
+        const amountNum = parseFloat(newAmount)
+
+        const { data, error } = await supabase
+            .from('debtors')
+            .insert([
+                {
+                    name: newName,
+                    phone: newPhone,
+                    amount: amountNum,
+                    user_id: user.id,
+                    is_paid: false
+                }
+            ])
+            .select()
+
+        if (!error && data) {
+            setDebtors([data[0], ...debtors])
+            handleNotify({ name: newName, phone: newPhone, amount: amountNum })
+            // Reset form
+            setNewName('')
+            setNewPhone('')
+            setNewAmount('')
+            setIsAdding(false)
+        } else {
+            alert('Error al guardar el deudor. Verifica los datos.')
+        }
+
+        setSaving(false)
+    }
+
+    const handleDelete = async (id: string) => {
+        if (!confirm('¿Estás seguro de eliminar este registro?')) return
+
+        const supabase = createClient()
+        const { error } = await supabase
+            .from('debtors')
+            .delete()
+            .eq('id', id)
+
+        if (!error) {
+            setDebtors(debtors.filter(d => d.id !== id))
+        }
+    }
+
+    return (
+        <Card className="overflow-hidden border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm">
+            {/* Header / Actions */}
+            <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-800/20 space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="flex-1 w-full">
+                        <Input
+                            type="text"
+                            placeholder="Buscar cliente..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full bg-white dark:bg-gray-800"
+                        />
+                    </div>
+                    <Button
+                        onClick={() => setIsAdding(!isAdding)}
+                        className="w-full sm:w-auto rounded-xl bg-primary-600 hover:bg-primary-700"
+                    >
+                        {isAdding ? 'Cancelar' : 'Agregar Nuevo Deudor'}
+                    </Button>
+                </div>
+
+                <div className="flex gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl w-fit">
+                    {(['all', 'pending', 'paid'] as const).map((t) => (
+                        <button
+                            key={t}
+                            onClick={() => setFilter(t)}
+                            className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${filter === t ? 'bg-white dark:bg-gray-700 shadow-sm text-primary-600' : 'text-gray-500'}`}
+                        >
+                            {t === 'all' ? 'Todos' : t === 'pending' ? 'Pendientes' : 'Pagados'}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Addition Form */}
+            {isAdding && (
+                <div className="p-6 bg-primary-50/50 dark:bg-primary-900/10 border-b border-gray-100 dark:border-gray-800 animate-in slide-in-from-top duration-200">
+                    <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Alias / Nombre</label>
+                            <Input
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                placeholder="Ej: Doña Maria"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase mb-2">WhatsApp</label>
+                            <Input
+                                value={newPhone}
+                                onChange={(e) => setNewPhone(e.target.value)}
+                                placeholder="300 000 0000"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Monto</label>
+                            <Input
+                                type="number"
+                                value={newAmount}
+                                onChange={(e) => setNewAmount(e.target.value)}
+                                placeholder="0.00"
+                                required
+                            />
+                        </div>
+                        <div className="md:col-span-3">
+                            <Button
+                                type="submit"
+                                disabled={saving}
+                                className="w-full bg-secondary-500 hover:bg-secondary-600 text-white font-bold h-12 rounded-xl"
+                            >
+                                {saving ? 'Guardando...' : 'Guardar y Notificar'}
+                            </Button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {/* Table */}
+            <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                    <thead>
+                        <tr className="bg-gray-50 dark:bg-gray-800/50">
+                            <th className="text-left px-6 py-4 font-semibold text-gray-500">Cliente</th>
+                            <th className="text-left px-6 py-4 font-semibold text-gray-500">Deuda</th>
+                            <th className="text-left px-6 py-4 font-semibold text-gray-500">Estado</th>
+                            <th className="text-right px-6 py-4 font-semibold text-gray-500">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                        {filteredDebtors.map((debtor) => (
+                            <tr key={debtor.id} className={`hover:bg-gray-50/50 dark:hover:bg-gray-800/10 transition-colors ${debtor.is_paid ? 'opacity-60 grayscale-[0.5]' : ''}`}>
+                                <td className="px-6 py-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs ${debtor.is_paid ? 'bg-gray-100 text-gray-400' : 'bg-purple-100 text-purple-600'}`}>
+                                            {debtor.name.slice(0, 2).toUpperCase()}
+                                        </div>
+                                        <div>
+                                            <p className={`font-bold ${debtor.is_paid ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>{debtor.name}</p>
+                                            <p className="text-[10px] text-gray-400">{debtor.phone}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className={`px-6 py-4 font-black ${debtor.is_paid ? 'text-gray-400' : 'text-red-500'}`}>
+                                    {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(debtor.amount)}
+                                </td>
+                                <td className="px-6 py-4">
+                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${debtor.is_paid ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                        {debtor.is_paid ? 'Saldado' : 'Pendiente'}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-4 text-right flex justify-end gap-2">
+                                    <Button
+                                        variant={debtor.is_paid ? "ghost" : "outline"}
+                                        size="sm"
+                                        onClick={() => handleTogglePaid(debtor)}
+                                        className={`rounded-xl px-4 ${debtor.is_paid ? 'text-gray-400' : 'border-green-500 text-green-600 hover:bg-green-50'}`}
+                                    >
+                                        {debtor.is_paid ? 'Revertir' : 'Pagó'}
+                                    </Button>
+                                    {!debtor.is_paid && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleNotify(debtor)}
+                                            className="rounded-xl text-blue-500"
+                                        >
+                                            Aviso
+                                        </Button>
+                                    )}
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleDelete(debtor.id)}
+                                        className="rounded-xl text-red-400"
+                                    >
+                                        Eliminar
+                                    </Button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                {filteredDebtors.length === 0 && (
+                    <div className="text-center py-12">
+                        <p className="text-gray-500">No hay clientes morosos con estos criterios</p>
+                    </div>
+                )}
+            </div>
+        </Card>
+    )
+}

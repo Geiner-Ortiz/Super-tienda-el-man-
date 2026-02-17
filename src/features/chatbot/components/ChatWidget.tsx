@@ -19,7 +19,7 @@ interface Message {
 const INITIAL_MESSAGE: Message = {
   id: '1',
   type: 'bot',
-  content: '¡Hola! 🙌 Bienvenido a Súper Tienda El Maná. Soy tu asistente inteligente. \n\n¿En qué puedo ayudarte hoy? Puedo darte información de la tienda o ayudarte a usar el sistema.',
+  content: '¡Hola! 🙌 Bienvenido a tu plataforma inteligente. Soy tu asistente virtual. \n\n¿En qué puedo ayudarte hoy? Puedo darte información de tu negocio o ayudarte a usar el sistema.',
   timestamp: new Date(),
   quickReplies: ['¿Cómo registro una venta?', 'Ver mis ganancias', 'Horarios']
 }
@@ -126,7 +126,7 @@ export function ChatWidget() {
             <ShopIcon className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="font-semibold">Súper Tienda El Maná Asistente</h3>
+            <h3 className="font-semibold">Tu Asistente Inteligente</h3>
             <p className="text-xs text-white/70">En línea</p>
           </div>
         </div>

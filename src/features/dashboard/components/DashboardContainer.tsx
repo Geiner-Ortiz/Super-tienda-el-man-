@@ -2,24 +2,44 @@
 
 import { useEffect } from 'react';
 import { useDashboardStore } from '../store/dashboardStore';
+import { dashboardService } from '../services/dashboardService';
 import { salesService } from '../../sales/services/salesService';
+import { useAuth } from '@/hooks/useAuth';
 import { DashboardStats } from './DashboardStats';
-import { RecentSalesList } from './RecentSalesList';
+import { SalesList } from '../../sales/components/SalesList';
 import { AddSaleForm } from '../../sales/components/AddSaleForm';
 
 export function DashboardContainer() {
-    const { setStats, setProfiles, setLoading } = useDashboardStore();
+    const { profile, loading: authLoading } = useAuth();
+    const { setFinancialData, setLoading, recentSales, isLoading: storeLoading } = useDashboardStore();
+
+    const storeName = profile?.store_name || 'Tú Súper Tienda';
+    const profitMargin = profile?.profit_margin ? `${(profile.profit_margin * 100).toFixed(0)}%` : '20%';
+
+    const MOTIVATIONAL_PHRASES = [
+        "Un negocio organizado es el primer paso hacia la libertad financiera.",
+        "Hoy es el mejor día para registrar tu éxito y ver crecer tus ganancias.",
+        "Controlar tus gastos es la forma más rápida de subir tus ingresos.",
+        "Tu tienda merece la mejor tecnología. ¡Vamos a vender con toda!",
+        "Tus números bajo control, tu mente en paz para crecer más.",
+        "Cada venta que registras hoy, es una semilla para tu éxito de mañana."
+    ];
+
+    // Usar el ID del usuario para que la frase sea consistente durante el día
+    const phraseIndex = userId ? (userId.charCodeAt(0) + userId.charCodeAt(userId.length - 1)) % MOTIVATIONAL_PHRASES.length : 0;
+    const dailyPhrase = MOTIVATIONAL_PHRASES[phraseIndex];
 
     useEffect(() => {
         const loadData = async () => {
             try {
                 setLoading(true);
-                // Cargar perfiles primero para el mapeo de nombres
-                const profiles = await salesService.getProfiles();
-                setProfiles(profiles);
+                const [stats, trends, sales] = await Promise.all([
+                    dashboardService.getFinancialStats(),
+                    dashboardService.getDailyTrends(),
+                    salesService.getSales()
+                ]);
 
-                const sales = await salesService.getSales();
-                setStats(sales);
+                setFinancialData(stats, trends, sales);
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
             } finally {
@@ -28,20 +48,25 @@ export function DashboardContainer() {
         };
 
         loadData();
-    }, [setStats, setLoading]);
+    }, [setFinancialData, setLoading]);
 
     return (
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12 space-y-12">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12 space-y-8 md:space-y-12">
             <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
                 <div>
-                    <h1 className="text-5xl font-black text-gray-900 dark:text-white tracking-tight italic">
-                        Súper Tienda El Maná
+                    <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight italic">
+                        {storeName}
                     </h1>
-                    <p className="mt-3 text-xl text-gray-500 dark:text-gray-400 font-medium pb-2">
-                        Control total de tus ventas y ganancias <span className="text-secondary-500 font-bold">(20%)</span>
-                    </p>
+                    <div className="mt-3 flex flex-col gap-1">
+                        <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 font-medium">
+                            Control total de tus ventas y ganancias <span className="text-secondary-500 font-bold">({profitMargin})</span>
+                        </p>
+                        <p className="text-sm md:text-base text-primary-600 dark:text-primary-400 font-bold italic animate-in fade-in slide-in-from-left duration-700">
+                            " {dailyPhrase} "
+                        </p>
+                    </div>
                 </div>
-                <div className="flex items-center gap-3 bg-white dark:bg-gray-900 px-4 py-2 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3 bg-white dark:bg-gray-900 px-4 py-2 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 self-start md:self-auto">
                     <span className="flex h-2.5 w-2.5 rounded-full bg-primary-500 animate-pulse" />
                     <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">En Vivo</span>
                 </div>
@@ -51,16 +76,13 @@ export function DashboardContainer() {
                 <DashboardStats />
             </section>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-10">
                 <aside className="lg:col-span-1">
                     <AddSaleForm />
                 </aside>
 
                 <main className="lg:col-span-2 space-y-6">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Ventas Recientes</h2>
-                    </div>
-                    <RecentSalesList />
+                    <SalesList sales={recentSales} />
                 </main>
             </div>
         </div>

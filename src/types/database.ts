@@ -2,7 +2,7 @@
 // TIPOS DEL DOMINIO - LexAgenda
 // ============================================
 
-export type UserRole = 'client' | 'lawyer' | 'admin'
+export type UserRole = 'client' | 'lawyer' | 'admin' | 'super_admin'
 
 export interface Profile {
   id: string
@@ -10,6 +10,8 @@ export interface Profile {
   full_name: string | null
   avatar_url: string | null
   role: UserRole
+  store_name?: string
+  profit_margin?: number
   created_at: string
   updated_at: string
 }
@@ -266,6 +268,16 @@ export const ROLE_PERMISSIONS = {
     canViewAnalytics: true,
     canConfigurePricing: true,
     canViewAllCases: true,
+  },
+  super_admin: {
+    canViewAllAppointments: true,
+    canViewFinancials: true,
+    canManageUsers: true,
+    canManageLawyers: true,
+    canViewAnalytics: true,
+    canConfigurePricing: true,
+    canViewAllCases: true,
+    canManagePlatform: true,
   },
   lawyer: {
     canViewAllAppointments: false,

@@ -2,12 +2,27 @@
 
 import { useState } from 'react';
 import { salesService } from '../services/salesService';
+import { dashboardService } from '../../dashboard/services/dashboardService';
 import { useDashboardStore } from '../../dashboard/store/dashboardStore';
 
 export function AddSaleForm() {
     const [amount, setAmount] = useState('');
+    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { setStats, setLoading } = useDashboardStore();
+    const { setFinancialData, setLoading } = useDashboardStore();
+
+    const refreshDashboard = async () => {
+        try {
+            const [stats, trends, sales] = await Promise.all([
+                dashboardService.getFinancialStats(),
+                dashboardService.getDailyTrends(),
+                salesService.getSales()
+            ]);
+            setFinancialData(stats, trends, sales);
+        } catch (error) {
+            console.error('Error refreshing dashboard:', error);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -18,9 +33,11 @@ export function AddSaleForm() {
 
         try {
             setIsSubmitting(true);
-            await salesService.createSale({ amount: Number(amount) });
-            const updatedSales = await salesService.getSales();
-            setStats(updatedSales);
+            await salesService.createSale({
+                amount: Number(amount),
+                sale_date: date
+            });
+            await refreshDashboard();
             setAmount('');
         } catch (error) {
             alert('Error al registrar la venta. Por favor intenta de nuevo.');
@@ -34,6 +51,19 @@ export function AddSaleForm() {
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Nueva Venta</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
+                    <label htmlFor="sale_date" className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">
+                        Fecha de la Venta
+                    </label>
+                    <input
+                        type="date"
+                        id="sale_date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        className="block w-full px-4 py-3 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all font-medium mb-4"
+                        disabled={isSubmitting}
+                        required
+                    />
+
                     <label htmlFor="amount" className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">
                         Monto de la Venta (COP $)
                     </label>

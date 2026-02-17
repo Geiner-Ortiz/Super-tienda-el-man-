@@ -1,3 +1,5 @@
+import { BananaIcon } from '@/components/public/icons'
+
 export default function AuthLayout({
   children,
 }: {
@@ -11,12 +13,10 @@ export default function AuthLayout({
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center">
-                <svg className="w-7 h-7 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                </svg>
+              <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shadow-lg">
+                <BananaIcon className="w-10 h-10 text-yellow-400" />
               </div>
-              <span className="text-2xl font-bold text-white">Súper Tienda El Maná</span>
+              <span className="text-4xl xl:text-5xl font-black text-white tracking-tight">Tú Súper Tienda</span>
             </div>
             <h1 className="text-display-md text-white mb-4">
               Tu negocio, bendecido y nítido

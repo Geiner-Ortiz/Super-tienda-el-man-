@@ -7,7 +7,21 @@ import { createClient } from '@/lib/supabase/client'
 import type { UserRole } from '@/types/database'
 import { useTour } from '@/components/onboarding'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
-import { BananaIcon } from '@/components/public/icons'
+import {
+  BananaIcon,
+  HomeIcon,
+  UsersIcon,
+  CalculatorIcon,
+  HelpCircleIcon,
+  Cog6ToothIcon,
+  SunIcon,
+  MoonIcon,
+  LogoutIcon,
+  ShieldCheckIcon,
+  XIcon
+} from '@/components/public/icons'
+import { useTheme } from '@/shared/components/ThemeProvider'
+import { Button } from '@/components/ui/button'
 
 interface NavItem {
   href: string
@@ -19,18 +33,31 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: '/dashboard', label: 'Dashboard', icon: HomeIcon, roles: ['admin', 'lawyer', 'client'] },
-  { href: '/users', label: 'Usuarios', icon: UsersIcon, roles: ['admin', 'lawyer', 'client'] },
+  { href: '/dashboard', label: 'Dashboard', icon: HomeIcon, roles: ['admin', 'lawyer', 'client', 'super_admin'] },
+  { href: '/debtors', label: 'Clientes Morosos', icon: UsersIcon, roles: ['admin', 'lawyer', 'client', 'super_admin'] },
+  { href: '/finances', label: 'Contabilidad', icon: CalculatorIcon, roles: ['admin', 'lawyer', 'client', 'super_admin'], tourId: 'nav-finances' },
+  { href: '/admin', label: 'Panel Maestro', icon: ShieldCheckIcon, roles: ['super_admin'] },
+  { href: '/guia', label: 'Guía de Uso', icon: HelpCircleIcon, roles: ['admin', 'lawyer', 'client', 'super_admin'] },
+  { href: '/settings', label: 'Configuración', icon: Cog6ToothIcon, roles: ['admin', 'lawyer', 'client', 'super_admin'] },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean
+  onClose?: () => void
+}
+
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const { theme, toggleTheme } = useTheme()
   const pathname = usePathname()
   const router = useRouter()
   const { startTour } = useTour()
+
   const [userRole, setUserRole] = useState<UserRole>('client')
   const [userName, setUserName] = useState<string>('')
+  const [storeName, setStoreName] = useState<string>('Tú Súper Tienda')
   const [userId, setUserId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -41,13 +68,14 @@ export function Sidebar() {
         setUserId(user.id)
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role, full_name')
+          .select('role, full_name, store_name')
           .eq('id', user.id)
           .single()
 
         if (profile) {
           setUserRole(profile.role as UserRole)
           setUserName(profile.full_name || user.email?.split('@')[0] || 'Usuario')
+          setStoreName(profile.store_name || 'Tú Súper Tienda')
         }
       }
       setIsLoading(false)
@@ -56,7 +84,11 @@ export function Sidebar() {
     fetchUserRole()
   }, [])
 
-  const handleLogout = async () => {
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true)
+  }
+
+  const confirmLogout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
     router.push('/login')
@@ -64,65 +96,80 @@ export function Sidebar() {
 
   const filteredNavItems = navItems.filter(item => item.roles.includes(userRole))
 
-  const getRoleBadge = (role: UserRole) => {
-    const badges = {
-      admin: { label: 'Admin', color: 'bg-secondary-500' },
-      lawyer: { label: 'Vendedor', color: 'bg-accent-500' },
-      client: { label: 'Cliente', color: 'bg-success-500' },
-    }
-    return badges[role]
-  }
-
-  const roleBadge = getRoleBadge(userRole)
-
   return (
-    <aside data-tour="sidebar" className="fixed left-0 top-0 bottom-0 w-64 bg-primary-500 text-white flex flex-col z-40">
-      <div className="p-6 border-b border-white/10">
-        <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg shadow-yellow-500/20">
-            <BananaIcon className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="font-heading font-semibold text-lg tracking-tight">Súper Tienda El Maná</h1>
-            <p className="text-[10px] text-white/50 uppercase tracking-widest font-medium">Bendiciones y Calidad</p>
-          </div>
-        </Link>
-      </div>
+    <>
+      {/* Overlay para móvil */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[48] lg:hidden transition-opacity animate-in fade-in duration-300"
+          onClick={onClose}
+        />
+      )}
 
-      {/* User Info */}
-      <div data-tour="user-profile" className="px-4 py-4 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-            <span className="text-sm font-semibold">
-              {userName.slice(0, 2).toUpperCase()}
-            </span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{userName}</p>
-            <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full ${roleBadge.color} text-white`}>
-              {roleBadge.label}
-            </span>
-          </div>
-          {/* Notifications */}
-          {userId && (
-            <NotificationCenter userId={userId} />
-          )}
+      <aside
+        data-tour="sidebar"
+        className={`
+          fixed left-0 top-0 bottom-0 w-64 bg-primary-500 text-white flex flex-col z-[49]
+          transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-2xl lg:shadow-none
+          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
+        <div className="p-6 border-b border-white/10 flex items-center justify-between">
+          <Link href="/dashboard" className="flex items-center gap-3" onClick={() => onClose?.()}>
+            <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg shadow-yellow-500/20">
+              <BananaIcon className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="font-heading font-semibold text-lg tracking-tight">Tú Súper Tienda</h1>
+              <p className="text-[10px] text-white/50 uppercase tracking-widest font-medium">Gestión Inteligente</p>
+            </div>
+          </Link>
+
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 hover:bg-white/10 rounded-xl transition-colors"
+          >
+            <XIcon className="w-6 h-6 text-white" />
+          </button>
         </div>
-      </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {isLoading ? (
-          <div className="space-y-2">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-12 bg-white/10 rounded-xl animate-pulse" />
-            ))}
+        {/* User Info */}
+        <div data-tour="user-profile" className="px-4 py-4 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+              <span className="text-sm font-semibold">
+                {userName.slice(0, 2).toUpperCase()}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-white truncate">{userName}</p>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+                </span>
+                <span className="text-[10px] font-medium uppercase tracking-wider text-white/50">
+                  Tienda Activa
+                </span>
+              </div>
+            </div>
+            {userId && (
+              <NotificationCenter userId={userId} />
+            )}
           </div>
-        ) : (
-          <>
-            {/* Sección Principal */}
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          {isLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="h-12 bg-white/10 rounded-xl animate-pulse" />
+              ))}
+            </div>
+          ) : (
             <div className="mb-6">
-              <p className="text-[10px] uppercase tracking-wider text-white/40 px-4 mb-2">
+              <p className="text-[10px] uppercase tracking-widest text-white/80 px-4 mb-2 font-bold">
                 Menú Principal
               </p>
               {filteredNavItems.map((item) => {
@@ -134,6 +181,7 @@ export function Sidebar() {
                     key={item.href}
                     href={item.href}
                     data-tour={item.tourId}
+                    onClick={() => onClose?.()}
                     className={`
                       flex items-center gap-3 px-4 py-3 rounded-xl
                       transition-all duration-200
@@ -154,116 +202,75 @@ export function Sidebar() {
                 )
               })}
             </div>
-          </>
+          )}
+        </nav>
+
+        {/* Footer Actions */}
+        <div className="p-4 border-t border-white/10 space-y-1">
+          <button
+            onClick={toggleTheme}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200"
+          >
+            {theme === 'light' ? (
+              <>
+                <MoonIcon className="w-5 h-5" />
+                <span className="font-medium">Modo Oscuro</span>
+              </>
+            ) : (
+              <>
+                <SunIcon className="w-5 h-5" />
+                <span className="font-medium">Modo Claro</span>
+              </>
+            )}
+          </button>
+          <button
+            onClick={startTour}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200"
+          >
+            <HelpCircleIcon className="w-5 h-5" />
+            <span className="font-medium">Tour de la App</span>
+          </button>
+          <button
+            onClick={handleLogoutClick}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200"
+          >
+            <LogoutIcon className="w-5 h-5" />
+            <span className="font-medium">Cerrar Sesión</span>
+          </button>
+        </div>
+
+        {/* Logout Confirmation Modal */}
+        {showLogoutConfirm && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-white/10 animate-in fade-in zoom-in duration-200 text-center text-gray-900 dark:text-white">
+              <div className="w-16 h-16 bg-error-50 dark:bg-error-900/20 rounded-full flex items-center justify-center mx-auto mb-6 text-error-600">
+                <LogoutIcon className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">¿Quieres cerrar sesión?</h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-8">
+                Tu sesión terminará y tendrás que volver a entrar para gestionar tu tienda.
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="outline"
+                  className="rounded-xl border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white"
+                  onClick={() => setShowLogoutConfirm(false)}
+                >
+                  No, quedarme
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="rounded-xl bg-error-600 hover:bg-error-700 text-white border-none"
+                  onClick={confirmLogout}
+                >
+                  Sí, salir
+                </Button>
+              </div>
+            </div>
+          </div>
         )}
-      </nav>
-
-      {/* Footer Actions */}
-      <div className="p-4 border-t border-white/10 space-y-1">
-        <button
-          onClick={startTour}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200"
-        >
-          <HelpIcon className="w-5 h-5" />
-          <span className="font-medium">Tour de la App</span>
-        </button>
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200"
-        >
-          <LogoutIcon className="w-5 h-5" />
-          <span className="font-medium">Cerrar Sesión</span>
-        </button>
-      </div>
-    </aside>
+      </aside>
+    </>
   )
 }
 
-// Icons
-function HomeIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-    </svg>
-  )
-}
-
-function CalendarIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-    </svg>
-  )
-}
-
-function CalendarViewIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-    </svg>
-  )
-}
-
-function PlusIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-    </svg>
-  )
-}
-
-function BriefcaseIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-    </svg>
-  )
-}
-
-function UsersIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-    </svg>
-  )
-}
-
-function CurrencyIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  )
-}
-
-function ChartIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-    </svg>
-  )
-}
-
-function LogoutIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-    </svg>
-  )
-}
-
-function HelpIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  )
-}
-
-function ShopIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-    </svg>
-  )
-}
