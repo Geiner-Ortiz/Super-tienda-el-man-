@@ -21,7 +21,7 @@ export default function MainLayout({
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [storeName, setStoreName] = useState('Tu Súper Tienda')
   const supabase = createClient()
-  const { isPWAHelpOpen, closePWAHelp } = useUIStore()
+  const { isPWAHelpOpen, closePWAHelp, pwaPlatform } = useUIStore()
 
   useEffect(() => {
     async function fetchStoreName() {
