@@ -101,7 +101,7 @@ export interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  firmName: 'Tú Súper Tienda',
+  firmName: 'Tu Súper Tienda',
   firmSlogan: 'Tu Negocio, Tu Control',
   firmDescription: 'Sistema de control de ventas y ganancias inteligente.',
   founderName: '',
@@ -134,8 +134,8 @@ export const siteConfig: SiteConfig = {
   },
 
   seo: {
-    siteTitle: 'Tú Súper Tienda | Control de Ventas',
-    titleTemplate: '%s | Tú Súper Tienda',
+    siteTitle: 'Tu Súper Tienda | Control de Ventas',
+    titleTemplate: '%s | Tu Súper Tienda',
     defaultDescription: 'Control total de ventas y ganancias nítidas para tu negocio.',
     locale: 'es_CO',
   },

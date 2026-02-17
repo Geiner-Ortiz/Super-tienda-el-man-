@@ -13,7 +13,7 @@ export function DashboardContainer() {
     const { user, profile, loading: authLoading } = useAuth();
     const { setFinancialData, setLoading, recentSales, isLoading: storeLoading } = useDashboardStore();
 
-    const storeName = profile?.store_name || 'Tú Súper Tienda';
+    const storeName = profile?.store_name || 'Tu Súper Tienda';
     const profitMargin = profile?.profit_margin ? `${(profile.profit_margin * 100).toFixed(0)}%` : '20%';
 
     const MOTIVATIONAL_PHRASES = [

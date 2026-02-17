@@ -10,11 +10,11 @@ export default function SignupPage() {
         <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg">
           <BananaIcon className="w-8 h-8 text-white" />
         </div>
-        <span className="text-3xl font-black text-primary-500 tracking-tight">Tú Súper Tienda</span>
+        <span className="text-3xl font-black text-primary-500 tracking-tight">Tu Súper Tienda</span>
       </div>
 
       <div className="text-center lg:text-left">
-        <h1 className="text-display-xs text-foreground font-bold italic">Tú Súper Tienda</h1>
+        <h1 className="text-display-xs text-foreground font-bold italic">Tu Súper Tienda</h1>
         <p className="mt-2 text-foreground-secondary italic font-medium">Registro de Administrador</p>
         <p className="mt-2 text-primary-600 dark:text-primary-400 font-semibold italic text-sm">"Grandes cosas tienen comienzos pequeños. ¡Tu éxito empieza aquí!"</p>
         <p className="mt-2 text-sm text-foreground-muted">Crea tu cuenta para empezar a gestionar tu tienda con éxito</p>

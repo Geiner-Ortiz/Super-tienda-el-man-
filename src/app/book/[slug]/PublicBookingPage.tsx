@@ -558,7 +558,7 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20">
               <BananaIcon className="w-6 h-6 text-white" />
             </div>
-            <span className="font-semibold">Tú Súper Tienda</span>
+            <span className="font-semibold">Tu Súper Tienda</span>
           </div>
           <p className="text-sm text-white/60">
             Plataforma de agendamiento legal profesional

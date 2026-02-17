@@ -10,7 +10,7 @@ export default function LoginPage() {
         <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg">
           <BananaIcon className="w-8 h-8 text-white" />
         </div>
-        <span className="text-3xl font-black text-primary-500 tracking-tight">Tú Súper Tienda</span>
+        <span className="text-3xl font-black text-primary-500 tracking-tight">Tu Súper Tienda</span>
       </div>
 
       <div className="text-center lg:text-left flex flex-col lg:flex-row items-center gap-4">
@@ -18,7 +18,7 @@ export default function LoginPage() {
           <BananaIcon className="w-10 h-10 text-white" />
         </div>
         <div>
-          <h1 className="text-display-xs text-foreground font-bold leading-tight">Tú Súper Tienda</h1>
+          <h1 className="text-display-xs text-foreground font-bold leading-tight">Tu Súper Tienda</h1>
           <p className="mt-1 text-foreground-secondary">Inicia sesión en tu cuenta para continuar</p>
         </div>
       </div>

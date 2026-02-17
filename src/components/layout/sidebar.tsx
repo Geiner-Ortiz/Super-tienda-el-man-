@@ -54,7 +54,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   const [userRole, setUserRole] = useState<UserRole>('client')
   const [userName, setUserName] = useState<string>('')
-  const [storeName, setStoreName] = useState<string>('Tú Súper Tienda')
+  const [storeName, setStoreName] = useState<string>('Tu Súper Tienda')
   const [userId, setUserId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
@@ -75,7 +75,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         if (profile) {
           setUserRole(profile.role as UserRole)
           setUserName(profile.full_name || user.email?.split('@')[0] || 'Usuario')
-          setStoreName(profile.store_name || 'Tú Súper Tienda')
+          setStoreName(profile.store_name || 'Tu Súper Tienda')
         }
       }
       setIsLoading(false)
@@ -120,7 +120,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <BananaIcon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="font-heading font-semibold text-lg tracking-tight">Tú Súper Tienda</h1>
+              <h1 className="font-heading font-semibold text-lg tracking-tight">Tu Súper Tienda</h1>
               <p className="text-[10px] text-white/50 uppercase tracking-widest font-medium">Gestión Inteligente</p>
             </div>
           </Link>

@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card'
 import { DebtorManagement } from './DebtorManagement'
 
 export const metadata = {
-    title: 'Clientes Morosos | Tú Súper Tienda'
+    title: 'Clientes Morosos | Tu Súper Tienda'
 }
 
 export default async function DebtorsPage() {

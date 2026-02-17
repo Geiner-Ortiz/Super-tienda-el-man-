@@ -15,7 +15,7 @@ export default function MainLayout({
   children: React.ReactNode
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [storeName, setStoreName] = useState('Tú Súper Tienda')
+  const [storeName, setStoreName] = useState('Tu Súper Tienda')
   const supabase = createClient()
 
   useEffect(() => {
