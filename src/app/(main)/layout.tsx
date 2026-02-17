@@ -54,7 +54,11 @@ export default function MainLayout({
           storeName={displayStoreName}
         />
         <PWAInstallPrompt />
-        <PWAHelpModal isOpen={isPWAHelpOpen} onClose={closePWAHelp} />
+        <PWAHelpModal
+          isOpen={isPWAHelpOpen}
+          onClose={closePWAHelp}
+          initialPlatform={pwaPlatform || undefined}
+        />
 
         <div className="flex">
           <Sidebar
