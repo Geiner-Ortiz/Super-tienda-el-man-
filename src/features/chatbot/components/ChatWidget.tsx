@@ -118,7 +118,7 @@ export function ChatWidget() {
   }
 
   return (
-    <Card className="fixed bottom-6 right-6 w-[380px] h-[600px] flex flex-col shadow-2xl z-50 animate-scale-in overflow-hidden">
+    <Card className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 w-full sm:w-[380px] h-[100dvh] sm:h-[600px] flex flex-col shadow-2xl z-[60] animate-scale-in overflow-hidden sm:rounded-2xl rounded-none">
       {/* Header */}
       <div className="bg-primary-500 text-white p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">

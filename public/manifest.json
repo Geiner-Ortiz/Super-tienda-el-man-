@@ -1,0 +1,22 @@
+{
+    "name": "Súper Tienda El Maná",
+    "short_name": "El Maná",
+    "description": "Control de Ventas y Ganancias Inteligente",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#FAFBFC",
+    "theme_color": "#10B981",
+    "icons": [
+        {
+            "src": "/favicon.svg",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/favicon.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml"
+        }
+    ]
+}

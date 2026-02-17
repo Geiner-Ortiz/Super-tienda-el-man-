@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { salesService } from '../services/salesService';
 import { dashboardService } from '../../dashboard/services/dashboardService';
 import { useDashboardStore } from '../../dashboard/store/dashboardStore';
+import { toast } from 'sonner';
 
 export function AddSaleForm() {
     const [amount, setAmount] = useState('');
@@ -27,7 +28,7 @@ export function AddSaleForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-            alert('Por favor ingresa un monto válido mayor a 0');
+            toast.error('Por favor ingresa un monto válido mayor a 0');
             return;
         }
 
@@ -39,8 +40,9 @@ export function AddSaleForm() {
             });
             await refreshDashboard();
             setAmount('');
+            toast.success('¡Venta registrada con éxito! 💰');
         } catch (error) {
-            alert('Error al registrar la venta. Por favor intenta de nuevo.');
+            toast.error('Error al registrar la venta. Por favor intenta de nuevo.');
         } finally {
             setIsSubmitting(false);
         }

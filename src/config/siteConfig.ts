@@ -112,7 +112,7 @@ export const siteConfig: SiteConfig = {
   contact: {
     phone: '',
     phoneDisplay: '',
-    whatsappNumber: '',
+    whatsappNumber: '573127342068',
     email: 'contacto@supertienda.com',
     address: '',
     city: '',

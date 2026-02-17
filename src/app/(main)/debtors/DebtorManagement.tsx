@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { toast } from 'sonner'
 
 interface Debtor {
     id: string
@@ -59,13 +60,13 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
             .from('debtors')
             .update({ is_paid: newStatus })
             .eq('id', debtor.id)
-
         if (!error) {
             console.log("Updated successfully in Supabase");
             setDebtors(debtors.map(d => d.id === debtor.id ? { ...d, is_paid: newStatus } : d))
+            toast.success(newStatus ? '¡Deuda marcada como pagada! 🎉' : 'Deuda revertida a pendiente')
         } else {
             console.error("Error updating debtor payment status:", error);
-            alert(`Error de base de datos: ${error.message}`);
+            toast.error(`Error: ${error.message}`);
         }
     }
 
@@ -93,7 +94,6 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
                 }
             ])
             .select()
-
         if (!error && data) {
             setDebtors([data[0], ...debtors])
             handleNotify({ name: newName, phone: newPhone, amount: amountNum })
@@ -102,8 +102,9 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
             setNewPhone('')
             setNewAmount('')
             setIsAdding(false)
+            toast.success('Deudor registrado y notificado correctamente 📱')
         } else {
-            alert('Error al guardar el deudor. Verifica los datos.')
+            toast.error('Error al guardar el deudor. Verifica los datos.')
         }
 
         setSaving(false)
@@ -120,6 +121,7 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
 
         if (!error) {
             setDebtors(debtors.filter(d => d.id !== id))
+            toast.success('Registro eliminado')
         }
     }
 

@@ -3,6 +3,7 @@
 import { useDashboardStore } from '../store/dashboardStore';
 import { salesService } from '../../sales/services/salesService';
 import { dashboardService } from '../services/dashboardService';
+import { toast } from 'sonner';
 
 export function RecentSalesList() {
     const { recentSales, setFinancialData, setLoading } = useDashboardStore();
@@ -19,8 +20,9 @@ export function RecentSalesList() {
                 salesService.getSales()
             ]);
             setFinancialData(stats, trends, sales);
+            toast.success('Registro eliminado correctamente');
         } catch (error) {
-            alert('Error al eliminar la venta');
+            toast.error('Error al eliminar la venta');
         } finally {
             setLoading(false);
         }

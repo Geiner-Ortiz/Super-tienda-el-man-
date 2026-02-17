@@ -29,11 +29,11 @@ export function WhatsAppHelp() {
             }
         }
 
-        // Lee el número desde la variable de entorno o usa uno por defecto
-        const phoneNumber = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "573000000000"
+        // Lee el número desde la variable de entorno, siteConfig o usa uno por defecto
+        const phoneNumber = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "573127342068"
         const message = `Hola Maestro, necesito ayuda con mi negocio. Mi ID de Soporte es: ${id || 'No disponible'}`
         const encodedMessage = encodeURIComponent(message)
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
+        const whatsappUrl = `https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodedMessage}`
 
         window.open(whatsappUrl, '_blank')
     }

@@ -7,6 +7,7 @@ import { ChatWidget } from '@/features/chatbot/components/ChatWidget'
 import { WhatsAppHelp } from '@/features/support/components/WhatsAppHelp'
 import { TourProvider } from '@/components/onboarding'
 import { createClient } from '@/lib/supabase/client'
+import { PWAInstallPrompt } from '@/components/pwa/PWAInstallPrompt'
 
 export default function MainLayout({
   children,
@@ -51,6 +52,7 @@ export default function MainLayout({
 
         <WhatsAppHelp />
         <ChatWidget />
+        <PWAInstallPrompt />
       </div>
     </TourProvider>
   )

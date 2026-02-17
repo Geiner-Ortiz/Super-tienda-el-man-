@@ -81,13 +81,21 @@ export async function POST(req: Request) {
         });
 
         const responseText = response.choices[0].message.content;
-
         return NextResponse.json({ text: responseText });
+
     } catch (error: any) {
         console.error("OpenAI API Error:", error);
+
+        // Error más descriptivo para el usuario
+        const errorMessage = error.status === 401
+            ? "API Key de OpenAI inválida o no configurada en Vercel."
+            : error.status === 429
+                ? "Se ha agotado el saldo o el límite de la API de OpenAI."
+                : "Error conectando con la inteligencia artificial. Intenta de nuevo.";
+
         return NextResponse.json(
-            { error: "Error procesando tu mensaje con OpenAI. Revisa tu API Key o saldo." },
-            { status: 500 }
+            { error: errorMessage },
+            { status: error.status || 500 }
         );
     }
 }

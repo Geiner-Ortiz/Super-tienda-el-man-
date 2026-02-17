@@ -13,8 +13,16 @@ export const metadata: Metadata = {
     siteName: siteConfig.firmName,
     type: 'website',
   },
+  manifest: '/manifest.json',
+  themeColor: '#10B981',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: siteConfig.firmName,
+  },
   icons: {
     icon: '/favicon.svg',
+    apple: '/favicon.svg',
   },
 }
 
@@ -30,7 +38,7 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           {children}
-          <Toaster position="top-right" richColors />
+          <Toaster position="bottom-center" richColors />
         </ThemeProvider>
       </body>
     </html>
