@@ -8,6 +8,8 @@ import { WhatsAppHelp } from '@/features/support/components/WhatsAppHelp'
 import { TourProvider } from '@/components/onboarding'
 import { createClient } from '@/lib/supabase/client'
 import { PWAInstallPrompt } from '@/components/pwa/PWAInstallPrompt'
+import { PWAHelpModal } from '@/components/pwa/PWAHelpModal'
+import { useUIStore } from '@/shared/store/uiStore'
 import { SupportModeBanner } from '@/features/admin/components'
 import { useAdminStore } from '@/features/admin/store/adminStore'
 
@@ -19,6 +21,7 @@ export default function MainLayout({
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [storeName, setStoreName] = useState('Tu Súper Tienda')
   const supabase = createClient()
+  const { isPWAHelpOpen, closePWAHelp } = useUIStore()
 
   useEffect(() => {
     async function fetchStoreName() {
@@ -50,15 +53,19 @@ export default function MainLayout({
           onMenuClick={() => setIsMenuOpen(true)}
           storeName={displayStoreName}
         />
+        <PWAInstallPrompt />
+        <PWAHelpModal isOpen={isPWAHelpOpen} onClose={closePWAHelp} />
 
-        <Sidebar
-          isOpen={isMenuOpen}
-          onClose={() => setIsMenuOpen(false)}
-        />
+        <div className="flex">
+          <Sidebar
+            isOpen={isMenuOpen}
+            onClose={() => setIsMenuOpen(false)}
+          />
 
-        <main className="lg:ml-64 pt-16 lg:pt-0">
-          {children}
-        </main>
+          <main className="lg:ml-64 pt-16 lg:pt-0">
+            {children}
+          </main>
+        </div>
 
         <WhatsAppHelp />
         <ChatWidget />

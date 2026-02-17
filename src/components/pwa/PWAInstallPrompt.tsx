@@ -5,8 +5,11 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { XIcon, BananaIcon } from '@/components/public/icons'
 
+import { useUIStore } from '@/shared/store/uiStore'
+
 export function PWAInstallPrompt() {
     const [showPrompt, setShowPrompt] = useState(false)
+    const { openPWAHelp } = useUIStore()
     const [platform, setPlatform] = useState<'ios' | 'android' | 'other'>('other')
 
     useEffect(() => {
@@ -16,8 +19,8 @@ export function PWAInstallPrompt() {
         const isAndroid = /android/.test(ua)
 
         // 2. Check if already in standalone mode
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-            (window.navigator as any).standalone === true
+        const isStandalone = (window.navigator as any).standalone === true ||
+            window.matchMedia('(display-mode: standalone)').matches
 
         // 3. Simple heuristic to show only on mobile and if not installed
         if (!isStandalone && (isIOS || isAndroid)) {
@@ -29,7 +32,7 @@ export function PWAInstallPrompt() {
                 if (!dismissed) {
                     setShowPrompt(true)
                 }
-            }, 3000)
+            }, 5000)
 
             return () => clearTimeout(timer)
         }
@@ -40,17 +43,22 @@ export function PWAInstallPrompt() {
         localStorage.setItem('pwa-prompt-dismissed', 'true')
     }
 
+    const openHelp = () => {
+        openPWAHelp(platform === 'other' ? 'android' : platform)
+        setShowPrompt(false) // Hide small prompt if showing full help
+    }
+
     if (!showPrompt) return null
 
     return (
         <div className="fixed bottom-24 left-4 right-4 z-[100] animate-slide-up lg:hidden">
-            <Card className="p-5 shadow-2xl border-primary-100 bg-white/95 backdrop-blur-md relative overflow-hidden">
+            <Card className="p-5 shadow-2xl border-primary-100 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md relative overflow-hidden ring-1 ring-black/5">
                 {/* Background Decoration */}
-                <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary-50 rounded-full opacity-50" />
+                <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary-50 dark:bg-primary-900/10 rounded-full opacity-50" />
 
                 <button
                     onClick={handleDismiss}
-                    className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute top-2 right-2 p-2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                     <XIcon className="w-4 h-4" />
                 </button>
@@ -60,42 +68,30 @@ export function PWAInstallPrompt() {
                         <BananaIcon className="w-7 h-7 text-white" />
                     </div>
 
-                    <div className="flex-1">
-                        <h4 className="font-bold text-gray-900 text-sm leading-tight mb-1">
-                            ¡Instala la App de "El Maná"!
+                    <div className="flex-1 min-w-0">
+                        <h4 className="font-black text-gray-900 dark:text-white text-base leading-tight mb-1 italic">
+                            ¡Instala El Maná!
                         </h4>
-                        <p className="text-xs text-gray-500 leading-normal mb-3">
-                            Úsala a pantalla completa y sin el navegador para una mejor experiencia.
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-normal mb-4">
+                            Acceso rápido y sin navegador para tu negocio.
                         </p>
 
-                        <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                                ¿Cómo instalar?
-                            </p>
-
-                            {platform === 'ios' ? (
-                                <div className="flex items-center gap-2 text-xs text-gray-600">
-                                    <span>1. Toca</span>
-                                    <div className="w-6 h-6 bg-white border border-gray-200 rounded flex items-center justify-center">
-                                        <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V3m0 0L8 7m4-4l4 4" />
-                                        </svg>
-                                    </div>
-                                    <span>2. Luego</span>
-                                    <span className="font-bold">"Añadir a pantalla de inicio"</span>
-                                </div>
-                            ) : (
-                                <div className="flex items-center gap-2 text-xs text-gray-600">
-                                    <span>1. Toca</span>
-                                    <div className="flex flex-col gap-0.5 items-center">
-                                        <div className="w-1 h-1 bg-gray-400 rounded-full" />
-                                        <div className="w-1 h-1 bg-gray-400 rounded-full" />
-                                        <div className="w-1 h-1 bg-gray-400 rounded-full" />
-                                    </div>
-                                    <span>2. Luego</span>
-                                    <span className="font-bold">"Instalar aplicación"</span>
-                                </div>
-                            )}
+                        <div className="flex gap-2">
+                            <Button
+                                onClick={openHelp}
+                                size="sm"
+                                className="flex-1 bg-primary-500 hover:bg-primary-600 text-white font-black text-[10px] uppercase tracking-wider h-9 rounded-xl shadow-lg shadow-primary-500/20"
+                            >
+                                Ver guía de instalación
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleDismiss}
+                                className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-gray-600 h-9"
+                            >
+                                Después
+                            </Button>
                         </div>
                     </div>
                 </div>

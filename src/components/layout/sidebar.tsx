@@ -19,7 +19,8 @@ import {
   MoonIcon,
   LogoutIcon,
   ShieldCheckIcon,
-  XIcon
+  XIcon,
+  SmartphoneIcon
 } from '@/components/public/icons'
 import { useTheme } from '@/shared/components/ThemeProvider'
 import { Button } from '@/components/ui/button'
@@ -47,11 +48,15 @@ interface SidebarProps {
   onClose?: () => void
 }
 
+import { useUIStore } from '@/shared/store/uiStore'
+
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { theme, toggleTheme } = useTheme()
   const pathname = usePathname()
   const router = useRouter()
   const { startTour } = useTour()
+  const { openPWAHelp } = useUIStore()
+  // ... (rest same)
 
   const [userRole, setUserRole] = useState<UserRole>('client')
   const [userName, setUserName] = useState<string>('')
@@ -233,6 +238,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <span className="font-medium">Modo Claro</span>
               </>
             )}
+          </button>
+          <button
+            onClick={() => {
+              openPWAHelp()
+              onClose?.()
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200"
+          >
+            <SmartphoneIcon className="w-5 h-5" />
+            <span className="font-medium">Instalar App</span>
           </button>
           <button
             onClick={startTour}
