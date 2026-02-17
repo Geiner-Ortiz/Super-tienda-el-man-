@@ -27,6 +27,9 @@ export function DashboardContainer({ overrideUserId }: Props) {
     const isMaestroView = !!overrideUserId || isSupportMode;
     const activeUserId = overrideUserId || (isSupportMode ? impersonatedUser?.id : currentUser?.id);
 
+    // Determine which profile to use
+    const profile = isSupportMode ? impersonatedUser : (isMaestroView ? remoteProfile : currentProfile);
+
     // Determine store name and profit margin safely
     let displayStoreName = 'Tu Súper Tienda';
     let displayProfitMargin = '20%';
