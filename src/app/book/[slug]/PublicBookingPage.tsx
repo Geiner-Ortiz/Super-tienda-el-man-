@@ -163,10 +163,10 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
       <div className="bg-primary-500 text-white py-8">
         <div className="max-w-4xl mx-auto px-4">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20">
-              <BananaIcon className="w-8 h-8 text-white" />
+            <div className="w-12 h-12 rounded-2xl bg-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
+              <span className="text-white font-black text-xl">ST</span>
             </div>
-            <span className="text-xl font-semibold">LexAgenda</span>
+            <span className="text-xl font-semibold">Tu Súper Tienda</span>
           </div>
           <h1 className="text-3xl font-bold">Agenda tu Consulta Legal</h1>
         </div>
@@ -555,8 +555,8 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
       <footer className="bg-primary-900 text-white py-8 mt-12">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20">
-              <BananaIcon className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
+              <span className="text-white font-black text-lg">ST</span>
             </div>
             <span className="font-semibold">Tu Súper Tienda</span>
           </div>

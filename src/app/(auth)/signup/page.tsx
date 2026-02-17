@@ -7,8 +7,8 @@ export default function SignupPage() {
     <div className="space-y-8">
       {/* Logo móvil */}
       <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-        <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg">
-          <BananaIcon className="w-8 h-8 text-white" />
+        <div className="w-12 h-12 rounded-xl bg-primary-500 flex items-center justify-center shadow-lg">
+          <span className="text-white font-black text-xl">ST</span>
         </div>
         <span className="text-3xl font-black text-primary-500 tracking-tight">Tu Súper Tienda</span>
       </div>

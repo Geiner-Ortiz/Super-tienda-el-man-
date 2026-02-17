@@ -14,7 +14,7 @@ export default function AuthLayout({
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shadow-lg">
-                <BananaIcon className="w-10 h-10 text-yellow-400" />
+                <span className="text-white font-black text-3xl tracking-tighter">ST</span>
               </div>
               <span className="text-4xl xl:text-5xl font-black text-white tracking-tight">Tu Súper Tienda</span>
             </div>
