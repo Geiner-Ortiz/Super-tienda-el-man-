@@ -106,41 +106,46 @@ export function AppTourWizard({ onComplete, onSkip }: AppTourWizardProps) {
   const getTooltipPosition = () => {
     if (!targetRect) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '320px' }
 
-    const padding = 16
-    const tooltipWidth = isMobile ? Math.min(window.innerWidth - 32, 320) : 320
+    const padding = 20
+    const tooltipWidth = isMobile ? Math.min(window.innerWidth - 32, 340) : 340
 
     if (isMobile) {
       const spaceBelow = window.innerHeight - targetRect.bottom
-      const spaceAbove = targetRect.top
 
-      if (spaceBelow > 220) {
+      // En móvil, preferimos centrado horizontal relativo al viewport
+      if (spaceBelow > 280) {
         return {
           top: `${targetRect.bottom + padding}px`,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: `${tooltipWidth}px`
+          left: '16px',
+          right: '16px',
+          width: 'calc(100% - 32px)',
+          maxWidth: '400px',
+          margin: '0 auto'
         }
       } else {
         return {
           bottom: `${window.innerHeight - targetRect.top + padding}px`,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: `${tooltipWidth}px`
+          left: '16px',
+          right: '16px',
+          width: 'calc(100% - 32px)',
+          maxWidth: '400px',
+          margin: '0 auto'
         }
       }
     }
 
+    // Desktop positioning with refined logic
     switch (step.position) {
       case 'right':
         return {
-          top: `${Math.max(padding, targetRect.top + targetRect.height / 2)}px`,
+          top: `${Math.max(padding, Math.min(window.innerHeight - 300, targetRect.top + targetRect.height / 2))}px`,
           left: `${targetRect.right + padding}px`,
           transform: 'translateY(-50%)',
           width: `${tooltipWidth}px`
         }
       case 'left':
         return {
-          top: `${Math.max(padding, targetRect.top + targetRect.height / 2)}px`,
+          top: `${Math.max(padding, Math.min(window.innerHeight - 300, targetRect.top + targetRect.height / 2))}px`,
           left: `${targetRect.left - tooltipWidth - padding}px`,
           transform: 'translateY(-50%)',
           width: `${tooltipWidth}px`
@@ -148,14 +153,14 @@ export function AppTourWizard({ onComplete, onSkip }: AppTourWizardProps) {
       case 'bottom':
         return {
           top: `${targetRect.bottom + padding}px`,
-          left: `${targetRect.left + targetRect.width / 2}px`,
+          left: `${Math.max(tooltipWidth / 2 + padding, Math.min(window.innerWidth - tooltipWidth / 2 - padding, targetRect.left + targetRect.width / 2))}px`,
           transform: 'translateX(-50%)',
           width: `${tooltipWidth}px`
         }
       case 'top':
         return {
           bottom: `${window.innerHeight - targetRect.top + padding}px`,
-          left: `${targetRect.left + targetRect.width / 2}px`,
+          left: `${Math.max(tooltipWidth / 2 + padding, Math.min(window.innerWidth - tooltipWidth / 2 - padding, targetRect.left + targetRect.width / 2))}px`,
           transform: 'translateX(-50%)',
           width: `${tooltipWidth}px`
         }
@@ -166,74 +171,103 @@ export function AppTourWizard({ onComplete, onSkip }: AppTourWizardProps) {
 
   if (!mounted) return null
 
+  const tooltipPosition = getTooltipPosition()
+
   return createPortal(
     <div className="fixed inset-0 z-[9999] overflow-hidden pointer-events-none">
       {/* Overlay with hole */}
-      <div className="absolute inset-0 bg-black/60 pointer-events-auto" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] pointer-events-auto" />
 
       {/* Highlight box */}
       {targetRect && (
         <div
-          className="absolute border-2 border-secondary-400 rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.6)] bg-transparent pointer-events-none transition-all duration-300"
+          className="absolute border-2 border-secondary-400 rounded-xl shadow-[0_0_0_9999px_rgba(0,0,0,0.6)] bg-transparent pointer-events-none transition-all duration-500 ease-in-out"
           style={{
-            top: targetRect.top - 4,
-            left: targetRect.left - 4,
-            width: targetRect.width + 8,
-            height: targetRect.height + 8,
+            top: targetRect.top - 8,
+            left: targetRect.left - 8,
+            width: targetRect.width + 16,
+            height: targetRect.height + 16,
           }}
-        />
+        >
+          <div className="absolute inset-0 rounded-xl animate-pulse-ring border-4 border-secondary-400/50" />
+        </div>
       )}
 
       {/* Tooltip */}
       <div
-        className="absolute bg-white rounded-xl shadow-2xl p-6 transition-all duration-300 pointer-events-auto"
-        style={getTooltipPosition()}
+        className="absolute bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-white/20 dark:border-gray-800/20 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-6 transition-all duration-500 ease-out pointer-events-auto"
+        style={tooltipPosition}
       >
         {/* Progress indicator */}
-        <div className="flex gap-1 mb-4">
+        <div className="flex gap-1.5 mb-5">
           {steps.map((_, index) => (
             <div
               key={index}
-              className={`h-1 flex-1 rounded-full transition-colors ${index <= currentStep ? 'bg-secondary-500' : 'bg-gray-200'
+              className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${index <= currentStep ? 'bg-secondary-500 scale-y-110' : 'bg-gray-200/50 dark:bg-gray-700/50'
                 }`}
             />
           ))}
         </div>
 
-        {/* Step counter */}
-        <div className="text-xs text-foreground-secondary mb-2">
-          Paso {currentStep + 1} de {steps.length}
+        {/* Header */}
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary-500 bg-secondary-500/10 px-2 py-1 rounded-md">
+            Guía de Inicio
+          </span>
+          <span className="text-xs font-bold text-gray-400">
+            {currentStep + 1} / {steps.length}
+          </span>
         </div>
 
         {/* Content */}
-        <h3 className="text-lg font-bold text-foreground mb-2">
+        <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight italic">
           {step.title}
         </h3>
-        <p className="text-sm text-foreground-secondary mb-6">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
           {step.description}
         </p>
 
         {/* Actions */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <button
             onClick={onSkip}
-            className="text-sm text-foreground-secondary hover:text-foreground transition-colors"
+            className="text-xs font-bold text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors uppercase tracking-widest"
           >
-            Saltar tour
+            Saltar
           </button>
 
           <div className="flex gap-2">
             {currentStep > 0 && (
-              <Button variant="outline" size="sm" onClick={handlePrev}>
-                Anterior
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handlePrev}
+                className="font-bold text-xs uppercase"
+              >
+                Atrás
               </Button>
             )}
-            <Button size="sm" onClick={handleNext}>
-              {currentStep === steps.length - 1 ? 'Finalizar' : 'Siguiente'}
+            <Button
+              size="sm"
+              onClick={handleNext}
+              className="bg-secondary-500 hover:bg-secondary-600 text-white font-black text-xs uppercase px-6 rounded-xl shadow-lg shadow-secondary-500/20"
+            >
+              {currentStep === steps.length - 1 ? '¡Listo!' : 'Siguiente'}
             </Button>
           </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes pulse-ring {
+          0% { transform: scale(0.95); opacity: 0.5; }
+          50% { transform: scale(1.05); opacity: 0.2; }
+          100% { transform: scale(0.95); opacity: 0.5; }
+        }
+        .animate-pulse-ring {
+          animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+      `}</style>
     </div>,
     document.body
   )

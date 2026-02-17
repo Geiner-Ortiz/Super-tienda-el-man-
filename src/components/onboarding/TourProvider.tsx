@@ -30,14 +30,6 @@ export function TourProvider({ children }: { children: ReactNode }) {
     const seen = localStorage.getItem(TOUR_STORAGE_KEY)
     setHasSeenTour(seen === 'true')
     setIsReady(true)
-
-    // Si no ha visto el tour, mostrarlo automáticamente después de un delay
-    if (seen !== 'true') {
-      const timer = setTimeout(() => {
-        setShowTour(true)
-      }, 1000)
-      return () => clearTimeout(timer)
-    }
   }, [])
 
   const startTour = () => {
