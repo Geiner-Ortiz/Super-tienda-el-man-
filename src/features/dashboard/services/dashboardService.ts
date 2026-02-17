@@ -1,13 +1,18 @@
 import { createClient } from '@/lib/supabase/client'
 import type { FinancialStats, DailySalesData } from '../types/financial'
+import { useAdminStore } from '@/features/admin/store/adminStore'
 
 export const dashboardService = {
   async getFinancialStats(overrideUserId?: string): Promise<FinancialStats> {
     const supabase = createClient()
     let userId: string
 
+    const { impersonatedUser, isSupportMode } = useAdminStore.getState()
+
     if (overrideUserId) {
       userId = overrideUserId
+    } else if (isSupportMode && impersonatedUser) {
+      userId = impersonatedUser.id
     } else {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('No user')
@@ -47,8 +52,12 @@ export const dashboardService = {
     const supabase = createClient()
     let userId: string
 
+    const { impersonatedUser, isSupportMode } = useAdminStore.getState()
+
     if (overrideUserId) {
       userId = overrideUserId
+    } else if (isSupportMode && impersonatedUser) {
+      userId = impersonatedUser.id
     } else {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('No user')

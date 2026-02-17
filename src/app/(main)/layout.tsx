@@ -8,6 +8,8 @@ import { WhatsAppHelp } from '@/features/support/components/WhatsAppHelp'
 import { TourProvider } from '@/components/onboarding'
 import { createClient } from '@/lib/supabase/client'
 import { PWAInstallPrompt } from '@/components/pwa/PWAInstallPrompt'
+import { SupportModeBanner } from '@/features/admin/components'
+import { useAdminStore } from '@/features/admin/store/adminStore'
 
 export default function MainLayout({
   children,
@@ -33,9 +35,12 @@ export default function MainLayout({
     fetchStoreName()
   }, [])
 
+  const { isSupportMode } = useAdminStore()
+
   return (
     <TourProvider>
-      <div className="min-h-screen bg-background">
+      <div className={`min-h-screen bg-background transition-all duration-300 ${isSupportMode ? 'pt-12' : ''}`}>
+        <SupportModeBanner />
         <MobileHeader
           onMenuClick={() => setIsMenuOpen(true)}
           storeName={storeName}

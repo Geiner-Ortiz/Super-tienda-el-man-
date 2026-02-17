@@ -1,22 +1,26 @@
 import { createClient } from '@/lib/supabase/client';
 import { CreateSaleInput, Sale } from '../types';
+import { useAdminStore } from '@/features/admin/store/adminStore';
 
 export const salesService = {
     async createSale(input: CreateSaleInput): Promise<Sale> {
         const supabase = createClient();
 
-        // Obtener el usuario actual para el campo user_id
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-            console.error('Error getting user:', userError);
-            throw new Error('Usuario no autenticado');
+        const { impersonatedUser, isSupportMode } = useAdminStore.getState();
+        let userId: string;
+
+        if (isSupportMode && impersonatedUser) {
+            userId = impersonatedUser.id;
+        } else {
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            if (userError || !user) throw new Error('Usuario no autenticado');
+            userId = user.id;
         }
 
-        // Obtener el perfil del usuario para el margen de ganancia
         const { data: profile } = await supabase
             .from('profiles')
             .select('profit_margin')
-            .eq('id', user.id)
+            .eq('id', userId)
             .single();
 
         const margin = profile?.profit_margin || 0.20;
@@ -27,7 +31,7 @@ export const salesService = {
             .insert({
                 amount: input.amount,
                 profit: profit,
-                user_id: user.id,
+                user_id: userId,
                 sale_date: input.sale_date || new Date().toISOString().split('T')[0],
             })
             .select()
@@ -49,8 +53,12 @@ export const salesService = {
             .select('*')
             .order('sale_date', { ascending: false });
 
+        const { impersonatedUser, isSupportMode } = useAdminStore.getState();
+
         if (userId) {
             query = query.eq('user_id', userId);
+        } else if (isSupportMode && impersonatedUser) {
+            query = query.eq('user_id', impersonatedUser.id);
         }
         if (startDate) {
             query = query.gte('sale_date', startDate);

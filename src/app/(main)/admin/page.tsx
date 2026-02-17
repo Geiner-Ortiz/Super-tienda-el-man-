@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { adminService } from '@/features/admin/services/adminService'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useAdminStore } from '@/features/admin/store/adminStore'
 
 interface ClientProfile {
     id: string
@@ -33,6 +34,7 @@ export default function AdminDashboard() {
     const [clientStats, setClientStats] = useState<ClientStats | null>(null)
     const [isLoadingStats, setIsLoadingStats] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
+    const { startSupportMode } = useAdminStore()
     const router = useRouter()
 
     useEffect(() => {
@@ -315,7 +317,14 @@ export default function AdminDashboard() {
                         <div className="p-6 border-t border-border bg-gray-50 dark:bg-gray-900/50 space-y-3">
                             <Button
                                 className="w-full h-12 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-700 text-white"
-                                onClick={() => router.push(`/admin/view/${selectedClient.id}`)}
+                                onClick={() => {
+                                    startSupportMode({
+                                        id: selectedClient.id,
+                                        storeName: selectedClient.store_name || 'Tienda',
+                                        fullName: selectedClient.full_name || 'Sin nombre'
+                                    })
+                                    router.push('/dashboard')
+                                }}
                             >
                                 <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
