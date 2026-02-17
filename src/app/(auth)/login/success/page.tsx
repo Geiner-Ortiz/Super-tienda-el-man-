@@ -18,5 +18,5 @@ export default function LoginSuccessPage() {
         return () => clearTimeout(timer)
     }, [router])
 
-    return <TransitionLoader message="Ahora tu tienda será más eficiente" />
+    return <TransitionLoader message="Ahora tu tienda es más eficiente" />
 }

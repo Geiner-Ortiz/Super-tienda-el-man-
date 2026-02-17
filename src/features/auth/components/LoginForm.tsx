@@ -91,6 +91,8 @@ export function LoginForm() {
         Iniciar Sesión
       </Button>
 
+      {loading && <TransitionLoader message="Ahora tu tienda es más eficiente" />}
+
       <p className="text-center text-sm text-foreground-secondary">
         <Link href="/forgot-password" className="text-accent-500 hover:text-accent-600 hover:underline">
           ¿Olvidaste tu contraseña?
