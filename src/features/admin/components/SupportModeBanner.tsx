@@ -1,6 +1,6 @@
 'use client'
 
-import { useAdminStore } from '../store/adminStore'
+import { useAdminStore } from '@/features/admin/store/adminStore'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 
