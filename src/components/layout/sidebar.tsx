@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import type { UserRole } from '@/types/database'
 import { useTour } from '@/components/onboarding'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
+import { useAdminStore } from '@/features/admin/store/adminStore'
 import {
   BananaIcon,
   HomeIcon,
@@ -58,6 +59,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [userId, setUserId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const { isSupportMode, impersonatedUser } = useAdminStore()
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -83,6 +85,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
     fetchUserRole()
   }, [])
+
+  // Overrides for Support Mode
+  const displayUserName = isSupportMode && impersonatedUser ? impersonatedUser.fullName : userName
+  const displayStoreName = isSupportMode && impersonatedUser ? impersonatedUser.storeName : storeName
+  const displayUserId = isSupportMode && impersonatedUser ? impersonatedUser.id : userId
 
   const handleLogoutClick = () => {
     setShowLogoutConfirm(true)
@@ -136,20 +143,20 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         {/* User Info */}
         <div data-tour="user-profile" className="px-4 py-4 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isSupportMode ? 'bg-red-500/30' : 'bg-white/20'}`}>
               <span className="text-sm font-semibold">
-                {userName.slice(0, 2).toUpperCase()}
+                {displayUserName.slice(0, 2).toUpperCase()}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-white truncate">{userName}</p>
+              <p className="text-sm font-bold text-white truncate">{displayUserName}</p>
               <div className="flex items-center gap-1.5 mt-1">
                 <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isSupportMode ? 'bg-orange-400' : 'bg-green-400'}`}></span>
+                  <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${isSupportMode ? 'bg-orange-500' : 'bg-green-500'}`}></span>
                 </span>
                 <span className="text-[10px] font-medium uppercase tracking-wider text-white/50">
-                  Tienda Activa
+                  {isSupportMode ? 'Modo Soporte' : 'Tienda Activa'}
                 </span>
               </div>
             </div>

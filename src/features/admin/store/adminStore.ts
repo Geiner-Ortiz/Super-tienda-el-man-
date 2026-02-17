@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 interface AdminState {
     impersonatedUser: {
@@ -11,17 +12,25 @@ interface AdminState {
     stopSupportMode: () => void;
 }
 
-export const useAdminStore = create<AdminState>((set) => ({
-    impersonatedUser: null,
-    isSupportMode: false,
+export const useAdminStore = create<AdminState>()(
+    persist(
+        (set) => ({
+            impersonatedUser: null,
+            isSupportMode: false,
 
-    startSupportMode: (user) => set({
-        impersonatedUser: user,
-        isSupportMode: true
-    }),
+            startSupportMode: (user) => set({
+                impersonatedUser: user,
+                isSupportMode: true
+            }),
 
-    stopSupportMode: () => set({
-        impersonatedUser: null,
-        isSupportMode: false
-    }),
-}));
+            stopSupportMode: () => set({
+                impersonatedUser: null,
+                isSupportMode: false
+            }),
+        }),
+        {
+            name: 'admin-support-storage',
+            storage: createJSONStorage(() => localStorage),
+        }
+    )
+);

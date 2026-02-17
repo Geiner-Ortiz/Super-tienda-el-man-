@@ -5,6 +5,7 @@ import { useDashboardStore } from '../store/dashboardStore';
 import { dashboardService } from '../services/dashboardService';
 import { salesService } from '../../sales/services/salesService';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdminStore } from '@/features/admin/store/adminStore';
 import { DashboardStats } from './DashboardStats';
 import { SalesList } from '../../sales/components/SalesList';
 import { AddSaleForm } from '../../sales/components/AddSaleForm';
@@ -18,17 +19,19 @@ interface Props {
 export function DashboardContainer({ overrideUserId }: Props) {
     const { user: currentUser, profile: currentProfile, loading: authLoading } = useAuth();
     const { setFinancialData, setLoading, recentSales, isLoading: storeLoading } = useDashboardStore();
+    const { impersonatedUser, isSupportMode } = useAdminStore();
 
     const [remoteProfile, setRemoteProfile] = useState<Profile | null>(null);
 
-    // Si hay overrideUserId, estamos en modo "Maestro"
-    const isMaestroView = !!overrideUserId;
+    // Si hay overrideUserId o estamos en modo soporte, mostramos vista de "Maestro"
+    const isMaestroView = !!overrideUserId || isSupportMode;
+    const activeUserId = overrideUserId || (isSupportMode ? impersonatedUser?.id : currentUser?.id);
 
     // Determine which profile to use
-    const profile = isMaestroView ? remoteProfile : currentProfile;
+    const profile = isSupportMode ? impersonatedUser : (isMaestroView ? remoteProfile : currentProfile);
 
-    const storeName = profile?.store_name || 'Tu Súper Tienda';
-    const profitMargin = profile?.profit_margin ? `${(profile.profit_margin * 100).toFixed(0)}%` : '20%';
+    const storeName = profile?.store_name || (isSupportMode ? impersonatedUser?.storeName : 'Tu Súper Tienda');
+    const profitMargin = profile && 'profit_margin' in profile && profile.profit_margin ? `${(profile.profit_margin * 100).toFixed(0)}%` : '20%';
 
     const MOTIVATIONAL_PHRASES = [
         "Un negocio organizado es el primer paso hacia la libertad financiera.",
@@ -40,7 +43,7 @@ export function DashboardContainer({ overrideUserId }: Props) {
     ];
 
     // Usar el ID del usuario para que la frase sea consistente durante el día
-    const userIdForPhrase = overrideUserId || currentUser?.id;
+    const userIdForPhrase = activeUserId;
     const phraseIndex = userIdForPhrase ? (userIdForPhrase.charCodeAt(0) + userIdForPhrase.charCodeAt(userIdForPhrase.length - 1)) % MOTIVATIONAL_PHRASES.length : 0;
     const dailyPhrase = MOTIVATIONAL_PHRASES[phraseIndex];
 
