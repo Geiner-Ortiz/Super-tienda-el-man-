@@ -9,6 +9,7 @@ export default function LoginPage() {
         <div className="w-12 h-12 rounded-xl bg-primary-500 flex items-center justify-center shadow-lg">
           <span className="text-white font-black text-xl">ST</span>
         </div>
+        <span className="text-3xl font-black text-primary-500 tracking-tight">Tu Súper Tienda</span>
       </div>
 
       <div className="text-center lg:text-left flex flex-col lg:flex-row items-center gap-4">
