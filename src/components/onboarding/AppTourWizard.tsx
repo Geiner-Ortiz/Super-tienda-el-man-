@@ -31,26 +31,38 @@ export function AppTourWizard({ onComplete, onSkip }: AppTourWizardProps) {
   const steps: TourStep[] = [
     {
       target: isMobile ? '[data-tour="sidebar-trigger"]' : '[data-tour="sidebar"]',
-      title: 'Menú de Navegación',
-      description: 'Desde aquí puedes acceder a todas las secciones de tu tienda. El menú es sencillo y directo.',
+      title: 'Menú Principal',
+      description: 'Accede a todas las secciones. En celular, usa este botón para abrir el menú lateral.',
       position: isMobile ? 'bottom' : 'right'
     },
     {
       target: '[data-tour="dashboard"]',
-      title: 'Dashboard de Ventas',
-      description: 'Tu panel principal con el total de ventas del día, del mes y tu ganancia nítida (calculada al 20%).',
+      title: 'Tu Dashboard',
+      description: 'Mira tus ventas y ganancias reales al instante. Todo calculado automáticamente.',
       position: isMobile ? 'bottom' : 'right'
+    },
+    {
+      target: '[data-tour="add-sale-button"]',
+      title: 'Registrar Venta',
+      description: 'Este es el motor de tu negocio. Cada vez que vendas algo, regístralo aquí para ver tu ganancia diaria.',
+      position: 'top'
+    },
+    {
+      target: '[data-tour="help-button"]',
+      title: 'Manual de Uso',
+      description: 'Si tienes dudas, aquí siempre encontrarás el Manual del Maestro con guías paso a paso.',
+      position: 'bottom'
     },
     {
       target: '[data-tour="chat-widget"]',
       title: 'Asistente Digital',
-      description: 'Nuestro asistente te ayuda a entender cómo usar la plataforma y resolver dudas rápidas sobre tus cálculos.',
+      description: '¿Necesitas ayuda con cálculos o dudas rápidas? Pregúntale a nuestra IA.',
       position: 'left'
     },
     {
       target: '[data-tour="user-profile"]',
-      title: 'Sesión y Perfil',
-      description: 'Desde aquí puedes gestionar tu cuenta, notificaciones y salir del sistema de forma segura.',
+      title: 'Perfil y Salida',
+      description: 'Gestiona tu cuenta y cierra sesión de forma segura desde aquí.',
       position: 'bottom'
     }
   ]

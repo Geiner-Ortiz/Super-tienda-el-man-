@@ -30,6 +30,7 @@ export function MobileHeader({ onMenuClick, storeName }: Props) {
             <div className="flex items-center gap-1">
                 <Link
                     href="/guia"
+                    data-tour="help-button"
                     className="flex items-center justify-center w-10 h-10 text-white hover:bg-white/10 rounded-xl transition-colors"
                     title="Ver Guía de Uso"
                 >
