@@ -13,6 +13,7 @@ export function MobileHeader({ onMenuClick, storeName }: Props) {
             <div className="flex items-center gap-3">
                 <button
                     onClick={onMenuClick}
+                    data-tour="sidebar-trigger"
                     className="p-2 hover:bg-white/10 rounded-xl transition-colors active:scale-95"
                     aria-label="Abrir menú"
                 >

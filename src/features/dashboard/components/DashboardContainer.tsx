@@ -55,7 +55,10 @@ export function DashboardContainer() {
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12 space-y-8 md:space-y-12">
             <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight italic">
+                    <h1
+                        data-tour="dashboard"
+                        className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight italic"
+                    >
                         {storeName}
                     </h1>
                     <div className="mt-3 flex flex-col gap-1">

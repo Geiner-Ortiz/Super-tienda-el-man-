@@ -11,32 +11,6 @@ interface TourStep {
   position: 'top' | 'bottom' | 'left' | 'right'
 }
 
-const tourSteps: TourStep[] = [
-  {
-    target: '[data-tour="sidebar"]',
-    title: 'Menú de Navegación',
-    description: 'Desde aquí puedes acceder a todas las secciones de tu tienda. El menú es sencillo y directo.',
-    position: 'right'
-  },
-  {
-    target: '[data-tour="dashboard"]',
-    title: 'Dashboard de Ventas',
-    description: 'Tu panel principal con el total de ventas del día, del mes y tu ganancia nítida (calculada al 20%).',
-    position: 'right'
-  },
-  {
-    target: '[data-tour="chat-widget"]',
-    title: 'Asistente Digital',
-    description: 'Nuestro asistente te ayuda a entender cómo usar la plataforma y resolver dudas rápidas sobre tus cálculos.',
-    position: 'left'
-  },
-  {
-    target: '[data-tour="user-profile"]',
-    title: 'Cerrar Sesión',
-    description: 'Desde aquí puedes gestionar tu cuenta y salir del sistema de forma segura.',
-    position: 'bottom'
-  }
-]
 
 interface AppTourWizardProps {
   onComplete: () => void
@@ -47,31 +21,62 @@ export function AppTourWizard({ onComplete, onSkip }: AppTourWizardProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     setMounted(true)
+    setIsMobile(window.innerWidth < 1024)
   }, [])
 
+  const steps: TourStep[] = [
+    {
+      target: isMobile ? '[data-tour="sidebar-trigger"]' : '[data-tour="sidebar"]',
+      title: 'Menú de Navegación',
+      description: 'Desde aquí puedes acceder a todas las secciones de tu tienda. El menú es sencillo y directo.',
+      position: isMobile ? 'bottom' : 'right'
+    },
+    {
+      target: '[data-tour="dashboard"]',
+      title: 'Dashboard de Ventas',
+      description: 'Tu panel principal con el total de ventas del día, del mes y tu ganancia nítida (calculada al 20%).',
+      position: isMobile ? 'bottom' : 'right'
+    },
+    {
+      target: '[data-tour="chat-widget"]',
+      title: 'Asistente Digital',
+      description: 'Nuestro asistente te ayuda a entender cómo usar la plataforma y resolver dudas rápidas sobre tus cálculos.',
+      position: 'left'
+    },
+    {
+      target: '[data-tour="user-profile"]',
+      title: 'Sesión y Perfil',
+      description: 'Desde aquí puedes gestionar tu cuenta, notificaciones y salir del sistema de forma segura.',
+      position: 'bottom'
+    }
+  ]
+
   useEffect(() => {
-    const step = tourSteps[currentStep]
-    const element = document.querySelector(step.target)
-
-    if (element) {
-      const rect = element.getBoundingClientRect()
-      setTargetRect(rect)
-
-      // Scroll element into view
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    } else {
-      // Si no encuentra el elemento, pasar al siguiente
-      if (currentStep < tourSteps.length - 1) {
-        setCurrentStep(prev => prev + 1)
+    const step = steps[currentStep]
+    const checkElement = () => {
+      const element = document.querySelector(step.target)
+      if (element) {
+        const rect = element.getBoundingClientRect()
+        setTargetRect(rect)
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      } else {
+        // Si no encuentra el elemento en 2 segundos, saltar
+        if (currentStep < steps.length - 1) {
+          setCurrentStep(prev => prev + 1)
+        }
       }
     }
-  }, [currentStep])
+
+    const timer = setTimeout(checkElement, 300)
+    return () => clearTimeout(timer)
+  }, [currentStep, isMobile])
 
   const handleNext = () => {
-    if (currentStep < tourSteps.length - 1) {
+    if (currentStep < steps.length - 1) {
       setCurrentStep(prev => prev + 1)
     } else {
       onComplete()
@@ -84,21 +89,19 @@ export function AppTourWizard({ onComplete, onSkip }: AppTourWizardProps) {
     }
   }
 
-  const step = tourSteps[currentStep]
+  const step = steps[currentStep]
 
   const getTooltipPosition = () => {
-    if (!targetRect) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }
+    if (!targetRect) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '320px' }
 
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
     const padding = 16
     const tooltipWidth = isMobile ? Math.min(window.innerWidth - 32, 320) : 320
 
     if (isMobile) {
-      // En móvil, posicionamos el tooltip de forma más segura (arriba o abajo del elemento)
       const spaceBelow = window.innerHeight - targetRect.bottom
       const spaceAbove = targetRect.top
 
-      if (spaceBelow > 250) {
+      if (spaceBelow > 220) {
         return {
           top: `${targetRect.bottom + padding}px`,
           left: '50%',
@@ -118,14 +121,14 @@ export function AppTourWizard({ onComplete, onSkip }: AppTourWizardProps) {
     switch (step.position) {
       case 'right':
         return {
-          top: `${targetRect.top + targetRect.height / 2}px`,
+          top: `${Math.max(padding, targetRect.top + targetRect.height / 2)}px`,
           left: `${targetRect.right + padding}px`,
           transform: 'translateY(-50%)',
           width: `${tooltipWidth}px`
         }
       case 'left':
         return {
-          top: `${targetRect.top + targetRect.height / 2}px`,
+          top: `${Math.max(padding, targetRect.top + targetRect.height / 2)}px`,
           left: `${targetRect.left - tooltipWidth - padding}px`,
           transform: 'translateY(-50%)',
           width: `${tooltipWidth}px`
@@ -152,9 +155,9 @@ export function AppTourWizard({ onComplete, onSkip }: AppTourWizardProps) {
   if (!mounted) return null
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] overflow-hidden">
+    <div className="fixed inset-0 z-[9999] overflow-hidden pointer-events-none">
       {/* Overlay with hole */}
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-0 bg-black/60 pointer-events-auto" />
 
       {/* Highlight box */}
       {targetRect && (
@@ -171,12 +174,12 @@ export function AppTourWizard({ onComplete, onSkip }: AppTourWizardProps) {
 
       {/* Tooltip */}
       <div
-        className="absolute w-80 bg-white rounded-xl shadow-2xl p-6 transition-all duration-300"
+        className="absolute bg-white rounded-xl shadow-2xl p-6 transition-all duration-300 pointer-events-auto"
         style={getTooltipPosition()}
       >
         {/* Progress indicator */}
         <div className="flex gap-1 mb-4">
-          {tourSteps.map((_, index) => (
+          {steps.map((_, index) => (
             <div
               key={index}
               className={`h-1 flex-1 rounded-full transition-colors ${index <= currentStep ? 'bg-secondary-500' : 'bg-gray-200'
@@ -187,7 +190,7 @@ export function AppTourWizard({ onComplete, onSkip }: AppTourWizardProps) {
 
         {/* Step counter */}
         <div className="text-xs text-foreground-secondary mb-2">
-          Paso {currentStep + 1} de {tourSteps.length}
+          Paso {currentStep + 1} de {steps.length}
         </div>
 
         {/* Content */}
@@ -214,7 +217,7 @@ export function AppTourWizard({ onComplete, onSkip }: AppTourWizardProps) {
               </Button>
             )}
             <Button size="sm" onClick={handleNext}>
-              {currentStep === tourSteps.length - 1 ? 'Finalizar' : 'Siguiente'}
+              {currentStep === steps.length - 1 ? 'Finalizar' : 'Siguiente'}
             </Button>
           </div>
         </div>
