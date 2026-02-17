@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
+import { useAdminStore } from '@/features/admin/store/adminStore'
 
 export default function SettingsPage() {
     const [loading, setLoading] = useState(true)
@@ -16,23 +17,32 @@ export default function SettingsPage() {
         store_name: '',
         profit_margin: 20
     })
-
+    const { isSupportMode, impersonatedUser, _hasHydrated } = useAdminStore()
     const supabase = createClient()
 
     useEffect(() => {
         async function fetchProfile() {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
+            if (!_hasHydrated) return
+            setLoading(true)
+
+            let userId: string
+            if (isSupportMode && impersonatedUser) {
+                userId = impersonatedUser.id
+            } else {
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) return
+                userId = user.id
+            }
 
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('id', user.id)
+                .eq('id', userId)
                 .single()
 
             if (data) {
                 setProfile({
-                    id: user.id,
+                    id: userId,
                     full_name: data.full_name || '',
                     store_name: data.store_name || '',
                     profit_margin: (data.profit_margin || 0.20) * 100
@@ -42,13 +52,19 @@ export default function SettingsPage() {
         }
 
         fetchProfile()
-    }, [])
+    }, [isSupportMode, impersonatedUser?.id, _hasHydrated])
 
     const handleSave = async () => {
         setSaving(true)
-        const { data: { user } } = await supabase.auth.getUser()
+        let userId: string
 
-        if (!user) return
+        if (isSupportMode && impersonatedUser) {
+            userId = impersonatedUser.id
+        } else {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
+            userId = user.id
+        }
 
         const { error } = await supabase
             .from('profiles')
@@ -58,7 +74,7 @@ export default function SettingsPage() {
                 profit_margin: Number(profile.profit_margin) / 100,
                 updated_at: new Date().toISOString()
             })
-            .eq('id', user.id)
+            .eq('id', userId)
 
         if (error) {
             toast.error('Error al guardar los ajustes')

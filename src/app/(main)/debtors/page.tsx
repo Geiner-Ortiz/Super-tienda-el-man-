@@ -1,30 +1,41 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { DebtorManagement } from './DebtorManagement'
+import { debtorService, Debtor } from '@/features/finances/services/debtorService'
+import { useAdminStore } from '@/features/admin/store/adminStore'
+import { useAuth } from '@/hooks/useAuth'
 
-export const metadata = {
-    title: 'Clientes Morosos | Tu Súper Tienda'
-}
+export default function DebtorsPage() {
+    const [debtors, setDebtors] = useState<Debtor[]>([])
+    const [loading, setLoading] = useState(true)
+    const { isSupportMode, impersonatedUser, _hasHydrated } = useAdminStore()
+    const { user: currentUser, loading: authLoading } = useAuth()
 
-export default async function DebtorsPage() {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    useEffect(() => {
+        const fetchDebtors = async () => {
+            if (authLoading || !_hasHydrated) return
+            setLoading(true)
+            try {
+                const data = await debtorService.getDebtors()
+                setDebtors(data)
+            } catch (error) {
+                console.error('Error fetching debtors:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
 
-    if (!user) {
-        redirect('/login')
-    }
+        fetchDebtors()
+    }, [isSupportMode, impersonatedUser?.id, _hasHydrated, authLoading])
 
-    // Obtener todos los deudores del usuario actual
-    const { data: debtors } = await supabase
-        .from('debtors')
-        .select('*')
-        .order('created_at', { ascending: false })
+    // Filtramos deudas no pagadas para las estadísticas
+    const activeDebtors = debtors.filter(d => !d.is_paid)
+    const totalDebt = activeDebtors.reduce((acc, d) => acc + Number(d.amount), 0)
 
-    // Obtener estadísticas (solo deudas no pagadas)
-    const stats = {
-        totalDebtors: debtors?.filter(d => !d.is_paid).length || 0,
-        totalDebt: debtors?.filter(d => !d.is_paid).reduce((acc, d) => acc + Number(d.amount), 0) || 0,
+    if (loading) {
+        return <div className="p-8 text-center text-gray-400">Cargando deudores...</div>
     }
 
     return (
@@ -42,7 +53,7 @@ export default async function DebtorsPage() {
                 <Card className="p-6 shadow-sm border-none bg-white dark:bg-gray-900 flex items-center justify-between">
                     <div>
                         <p className="text-sm text-foreground-secondary">Total Clientes Deudores</p>
-                        <p className="text-3xl font-bold text-foreground">{stats.totalDebtors}</p>
+                        <p className="text-3xl font-bold text-foreground">{activeDebtors.length}</p>
                     </div>
                     <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center">
                         <UsersIcon className="w-6 h-6 text-purple-600 dark:text-purple-400" />
@@ -52,7 +63,7 @@ export default async function DebtorsPage() {
                     <div>
                         <p className="text-sm text-foreground-secondary">Deuda Total Acumulada</p>
                         <p className="text-3xl font-bold text-red-600">
-                            {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(stats.totalDebt)}
+                            {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(totalDebt)}
                         </p>
                     </div>
                     <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-2xl flex items-center justify-center">
@@ -62,7 +73,7 @@ export default async function DebtorsPage() {
             </div>
 
             {/* Debtors Table/Management */}
-            <DebtorManagement initialDebtors={debtors || []} />
+            <DebtorManagement initialDebtors={debtors} />
         </div>
     )
 }

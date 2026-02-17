@@ -7,10 +7,14 @@ import { ExpenseForm } from './ExpenseForm';
 import { ExpenseList } from './ExpenseList';
 import { Card } from '@/components/ui/card';
 import { Calculator } from 'lucide-react';
+import { useAdminStore } from '@/features/admin/store/adminStore';
+import { useAuth } from '@/hooks/useAuth';
 
 export function AccountingContainer() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [loading, setLoading] = useState(true);
+    const { isSupportMode, impersonatedUser, _hasHydrated } = useAdminStore();
+    const { loading: authLoading } = useAuth();
 
     const loadExpenses = async () => {
         try {
@@ -25,8 +29,9 @@ export function AccountingContainer() {
     };
 
     useEffect(() => {
+        if (authLoading || !_hasHydrated) return;
         loadExpenses();
-    }, []);
+    }, [isSupportMode, impersonatedUser?.id, _hasHydrated, authLoading]);
 
     const handleExpenseAdded = () => {
         loadExpenses();

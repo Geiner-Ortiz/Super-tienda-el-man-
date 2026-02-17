@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
+import { debtorService, Debtor } from '@/features/finances/services/debtorService'
+import { useAdminStore } from '@/features/admin/store/adminStore'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,7 +24,9 @@ interface DebtorManagementProps {
 }
 
 export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
-    const [debtors, setDebtors] = useState(initialDebtors)
+    const [debtors, setDebtors] = useState<Debtor[]>(initialDebtors)
+    const { isSupportMode, impersonatedUser } = useAdminStore()
+    // ...
     const [search, setSearch] = useState('')
     const [filter, setFilter] = useState<'all' | 'pending' | 'paid'>('all')
     const [isAdding, setIsAdding] = useState(false)
@@ -52,19 +56,12 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
     }
 
     const handleTogglePaid = async (debtor: Debtor) => {
-        console.log("handleTogglePaid called for:", debtor.name);
-        const supabase = createClient()
-        const newStatus = !debtor.is_paid
-
-        const { error } = await supabase
-            .from('debtors')
-            .update({ is_paid: newStatus })
-            .eq('id', debtor.id)
-        if (!error) {
-            console.log("Updated successfully in Supabase");
+        try {
+            const newStatus = !debtor.is_paid
+            await debtorService.updateDebtor(debtor.id, { is_paid: newStatus })
             setDebtors(debtors.map(d => d.id === debtor.id ? { ...d, is_paid: newStatus } : d))
             toast.success(newStatus ? '¡Deuda marcada como pagada! 🎉' : 'Deuda revertida a pendiente')
-        } else {
+        } catch (error: any) {
             console.error("Error updating debtor payment status:", error);
             toast.error(`Error: ${error.message}`);
         }
@@ -75,53 +72,39 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
         if (!newName || !newPhone || !newAmount) return
 
         setSaving(true)
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        try {
+            const amountNum = parseFloat(newAmount)
+            const data = await debtorService.createDebtor({
+                name: newName,
+                phone: newPhone,
+                amount: amountNum
+            })
 
-        if (!user) return
-
-        const amountNum = parseFloat(newAmount)
-
-        const { data, error } = await supabase
-            .from('debtors')
-            .insert([
-                {
-                    name: newName,
-                    phone: newPhone,
-                    amount: amountNum,
-                    user_id: user.id,
-                    is_paid: false
-                }
-            ])
-            .select()
-        if (!error && data) {
-            setDebtors([data[0], ...debtors])
+            setDebtors([data, ...debtors])
             handleNotify({ name: newName, phone: newPhone, amount: amountNum })
+
             // Reset form
             setNewName('')
             setNewPhone('')
             setNewAmount('')
             setIsAdding(false)
             toast.success('Deudor registrado y notificado correctamente 📱')
-        } else {
+        } catch (error) {
             toast.error('Error al guardar el deudor. Verifica los datos.')
+        } finally {
+            setSaving(false)
         }
-
-        setSaving(false)
     }
 
     const handleDelete = async (id: string) => {
         if (!confirm('¿Estás seguro de eliminar este registro?')) return
 
-        const supabase = createClient()
-        const { error } = await supabase
-            .from('debtors')
-            .delete()
-            .eq('id', id)
-
-        if (!error) {
+        try {
+            await debtorService.deleteDebtor(id)
             setDebtors(debtors.filter(d => d.id !== id))
             toast.success('Registro eliminado')
+        } catch (error) {
+            toast.error('Error al eliminar registro')
         }
     }
 
