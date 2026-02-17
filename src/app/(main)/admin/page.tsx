@@ -203,7 +203,7 @@ export default function AdminDashboard() {
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    className="rounded-lg h-8 w-8 p-0 text-gray-400 hover:text-indigo-600"
+                                                    className="rounded-lg h-10 w-10 p-0 text-gray-400 hover:text-indigo-600"
                                                     title="Acceso Rápido: Deudores"
                                                     onClick={() => {
                                                         startSupportMode({
@@ -214,12 +214,12 @@ export default function AdminDashboard() {
                                                         router.push('/debtors')
                                                     }}
                                                 >
-                                                    <UsersIcon className="w-4 h-4" />
+                                                    <UsersIcon className="w-5 h-5" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    className="rounded-lg h-8 w-8 p-0 text-gray-400 hover:text-green-600"
+                                                    className="rounded-lg h-10 w-10 p-0 text-gray-400 hover:text-green-600"
                                                     title="Acceso Rápido: Contabilidad"
                                                     onClick={() => {
                                                         startSupportMode({
@@ -230,7 +230,7 @@ export default function AdminDashboard() {
                                                         router.push('/finances')
                                                     }}
                                                 >
-                                                    <CalculatorIcon className="w-4 h-4" />
+                                                    <CalculatorIcon className="w-5 h-5" />
                                                 </Button>
                                                 <Button
                                                     variant="outline"
