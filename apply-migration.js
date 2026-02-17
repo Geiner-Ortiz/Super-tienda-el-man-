@@ -1,8 +1,16 @@
 const fs = require('fs');
 const path = require('path');
 
-const PROJECT_REF = 'fvvbigqdbyewzlomrhgj';
-const ACCESS_TOKEN = 'sbp_4dcfcc0c6ae5be1c3070824538921b2329148954';
+// Cargar variables de entorno desde .env.local
+require('dotenv').config({ path: '.env.local' });
+
+const PROJECT_REF = process.env.SUPABASE_PROJECT_REF;
+const ACCESS_TOKEN = process.env.SUPABASE_ACCESS_TOKEN;
+
+if (!PROJECT_REF || !ACCESS_TOKEN) {
+    console.error('❌ Error: Faltan variables de entorno SUPABASE_PROJECT_REF o SUPABASE_ACCESS_TOKEN en .env.local');
+    process.exit(1);
+}
 
 async function applyMigration() {
     const sqlPath = path.resolve(__dirname, 'supabase/migrations/20260217_admin_access.sql');
