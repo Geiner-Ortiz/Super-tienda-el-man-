@@ -2,22 +2,29 @@ import { createClient } from '@/lib/supabase/client'
 import type { FinancialStats, DailySalesData } from '../types/financial'
 
 export const dashboardService = {
-  async getFinancialStats(): Promise<FinancialStats> {
+  async getFinancialStats(overrideUserId?: string): Promise<FinancialStats> {
     const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('No user')
+    let userId: string
+
+    if (overrideUserId) {
+      userId = overrideUserId
+    } else {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('No user')
+      userId = user.id
+    }
 
     // 1. Obtener ventas
     const { data: sales } = await supabase
       .from('sales')
       .select('amount, profit')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
 
     // 2. Obtener gastos
     const { data: expenses } = await supabase
       .from('expenses')
       .select('amount, category')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
 
     const totalSales = sales?.reduce((acc, s) => acc + Number(s.amount), 0) || 0
     const grossProfit = sales?.reduce((acc, s) => acc + Number(s.profit), 0) || 0 // Ya es el 20% segun salesService
@@ -36,10 +43,17 @@ export const dashboardService = {
     }
   },
 
-  async getDailyTrends(days = 7): Promise<DailySalesData[]> {
+  async getDailyTrends(days = 7, overrideUserId?: string): Promise<DailySalesData[]> {
     const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('No user')
+    let userId: string
+
+    if (overrideUserId) {
+      userId = overrideUserId
+    } else {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('No user')
+      userId = user.id
+    }
 
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - days)
@@ -47,7 +61,7 @@ export const dashboardService = {
     const { data } = await supabase
       .from('sales')
       .select('amount, profit, sale_date')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .gte('sale_date', startDate.toISOString().split('T')[0])
       .order('sale_date', { ascending: true })
 

@@ -41,7 +41,7 @@ export const salesService = {
         return data;
     },
 
-    async getSales(startDate?: string, endDate?: string): Promise<Sale[]> {
+    async getSales(startDate?: string, endDate?: string, userId?: string): Promise<Sale[]> {
         const supabase = createClient();
 
         let query = supabase
@@ -49,6 +49,9 @@ export const salesService = {
             .select('*')
             .order('sale_date', { ascending: false });
 
+        if (userId) {
+            query = query.eq('user_id', userId);
+        }
         if (startDate) {
             query = query.gte('sale_date', startDate);
         }

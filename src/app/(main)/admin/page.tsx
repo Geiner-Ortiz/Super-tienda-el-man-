@@ -32,6 +32,7 @@ export default function AdminDashboard() {
     const [selectedClient, setSelectedClient] = useState<ClientProfile | null>(null)
     const [clientStats, setClientStats] = useState<ClientStats | null>(null)
     const [isLoadingStats, setIsLoadingStats] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
     const router = useRouter()
 
     useEffect(() => {
@@ -74,6 +75,16 @@ export default function AdminDashboard() {
         checkAuthAndFetch()
     }, [router])
 
+    const filteredClients = clients.filter(client => {
+        const query = searchQuery.toLowerCase()
+        return (
+            client.id.toLowerCase().includes(query) ||
+            (client.full_name || '').toLowerCase().includes(query) ||
+            (client.store_name || '').toLowerCase().includes(query) ||
+            client.email.toLowerCase().includes(query)
+        )
+    })
+
     const handleViewDetails = async (client: ClientProfile) => {
         setSelectedClient(client)
         setIsLoadingStats(true)
@@ -106,8 +117,20 @@ export default function AdminDashboard() {
             </div>
 
             <Card className="overflow-hidden border-gray-100 dark:border-gray-800">
-                <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h2 className="font-bold text-lg">Directorio de Clientes</h2>
+                    <div className="relative flex-1 max-w-md">
+                        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input
+                            type="text"
+                            placeholder="Buscar por ID, nombre, tienda o email..."
+                            className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
@@ -125,12 +148,14 @@ export default function AdminDashboard() {
                                 <tr>
                                     <td colSpan={5} className="px-6 py-8 text-center text-gray-400">Cargando directorio...</td>
                                 </tr>
-                            ) : clients.length === 0 ? (
+                            ) : filteredClients.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-8 text-center text-gray-400">No hay clientes registrados todavía.</td>
+                                    <td colSpan={5} className="px-6 py-8 text-center text-gray-400">
+                                        {searchQuery ? `No se encontraron resultados para "${searchQuery}"` : "No hay clientes registrados todavía."}
+                                    </td>
                                 </tr>
                             ) : (
-                                clients.map((client) => (
+                                filteredClients.map((client) => (
                                     <tr key={client.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/10 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2 group/id">
@@ -287,7 +312,17 @@ export default function AdminDashboard() {
                         </div>
 
                         {/* Footer Panel */}
-                        <div className="p-6 border-t border-border bg-gray-50 dark:bg-gray-900/50">
+                        <div className="p-6 border-t border-border bg-gray-50 dark:bg-gray-900/50 space-y-3">
+                            <Button
+                                className="w-full h-12 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-700 text-white"
+                                onClick={() => router.push(`/admin/view/${selectedClient.id}`)}
+                            >
+                                <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                Ingresar al Dashboard
+                            </Button>
                             <Button className="w-full h-12 rounded-xl font-bold" variant="outline" onClick={() => setSelectedClient(null)}>
                                 Cerrar Revisión
                             </Button>

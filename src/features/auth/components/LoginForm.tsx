@@ -29,7 +29,6 @@ function EyeOffIcon({ className }: { className?: string }) {
 export function LoginForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [isTransitioning, setIsTransitioning] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
 
@@ -43,19 +42,11 @@ export function LoginForm() {
       setError(result.error)
       setLoading(false)
     } else {
-      // Si el login es exitoso, mostramos la pantalla de transición
-      setIsTransitioning(true)
-      // Damos 2.5 segundos para que lean el mensaje motivador
-      setTimeout(() => {
-        router.push('/dashboard')
-        router.refresh()
-      }, 2500)
+      router.push('/login/success')
+      router.refresh()
     }
   }
 
-  if (isTransitioning) {
-    return <TransitionLoader message="Ahora tu tienda será más eficiente" />
-  }
   return (
     <form action={handleSubmit} className="space-y-5">
       <Input

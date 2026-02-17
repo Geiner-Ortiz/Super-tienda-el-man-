@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDashboardStore } from '../store/dashboardStore';
 import { dashboardService } from '../services/dashboardService';
 import { salesService } from '../../sales/services/salesService';
@@ -8,10 +8,24 @@ import { useAuth } from '@/hooks/useAuth';
 import { DashboardStats } from './DashboardStats';
 import { SalesList } from '../../sales/components/SalesList';
 import { AddSaleForm } from '../../sales/components/AddSaleForm';
+import { createClient } from '@/lib/supabase/client';
+import type { Profile } from '@/types/database';
 
-export function DashboardContainer() {
-    const { user, profile, loading: authLoading } = useAuth();
+interface Props {
+    overrideUserId?: string;
+}
+
+export function DashboardContainer({ overrideUserId }: Props) {
+    const { user: currentUser, profile: currentProfile, loading: authLoading } = useAuth();
     const { setFinancialData, setLoading, recentSales, isLoading: storeLoading } = useDashboardStore();
+
+    const [remoteProfile, setRemoteProfile] = useState<Profile | null>(null);
+
+    // Si hay overrideUserId, estamos en modo "Maestro"
+    const isMaestroView = !!overrideUserId;
+
+    // Determine which profile to use
+    const profile = isMaestroView ? remoteProfile : currentProfile;
 
     const storeName = profile?.store_name || 'Tu Súper Tienda';
     const profitMargin = profile?.profit_margin ? `${(profile.profit_margin * 100).toFixed(0)}%` : '20%';
@@ -26,18 +40,32 @@ export function DashboardContainer() {
     ];
 
     // Usar el ID del usuario para que la frase sea consistente durante el día
-    const userId = user?.id;
-    const phraseIndex = userId ? (userId.charCodeAt(0) + userId.charCodeAt(userId.length - 1)) % MOTIVATIONAL_PHRASES.length : 0;
+    const userIdForPhrase = overrideUserId || currentUser?.id;
+    const phraseIndex = userIdForPhrase ? (userIdForPhrase.charCodeAt(0) + userIdForPhrase.charCodeAt(userIdForPhrase.length - 1)) % MOTIVATIONAL_PHRASES.length : 0;
     const dailyPhrase = MOTIVATIONAL_PHRASES[phraseIndex];
 
     useEffect(() => {
         const loadData = async () => {
             try {
                 setLoading(true);
+
+                // Fetch remote profile if overrideUserId is provided
+                if (overrideUserId) {
+                    const supabase = createClient();
+                    const { data } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', overrideUserId)
+                        .single();
+                    setRemoteProfile(data);
+                } else {
+                    setRemoteProfile(null); // Clear remote profile if not in maestro view
+                }
+
                 const [stats, trends, sales] = await Promise.all([
-                    dashboardService.getFinancialStats(),
-                    dashboardService.getDailyTrends(),
-                    salesService.getSales()
+                    dashboardService.getFinancialStats(overrideUserId),
+                    dashboardService.getDailyTrends(7, overrideUserId),
+                    salesService.getSales(undefined, undefined, overrideUserId)
                 ]);
 
                 setFinancialData(stats, trends, sales);
@@ -49,7 +77,7 @@ export function DashboardContainer() {
         };
 
         loadData();
-    }, [setFinancialData, setLoading]);
+    }, [setFinancialData, setLoading, overrideUserId]);
 
     return (
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12 space-y-8 md:space-y-12">
