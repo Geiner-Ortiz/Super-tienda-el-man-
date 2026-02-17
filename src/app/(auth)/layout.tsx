@@ -1,4 +1,4 @@
-import { BananaIcon } from '@/components/public/icons'
+// No imports needed for logo text
 
 export default function AuthLayout({
   children,

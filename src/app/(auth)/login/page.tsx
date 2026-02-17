@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { LoginForm } from '@/features/auth/components'
-import { BananaIcon } from '@/components/public/icons'
 
 export default function LoginPage() {
   return (

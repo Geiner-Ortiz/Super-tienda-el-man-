@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { AppointmentType, Availability } from '@/types/database'
-import { BananaIcon } from '@/components/public/icons'
+// No icon import needed for ST logo
 
 interface LawyerInfo {
   id: string

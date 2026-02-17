@@ -8,7 +8,6 @@ import type { UserRole } from '@/types/database'
 import { useTour } from '@/components/onboarding'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
 import {
-  BananaIcon,
   HomeIcon,
   UsersIcon,
   CalculatorIcon,

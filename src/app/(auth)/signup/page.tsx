@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { BananaIcon } from '@/components/public/icons'
 import { SignupForm } from '@/features/auth/components'
 
 export default function SignupPage() {

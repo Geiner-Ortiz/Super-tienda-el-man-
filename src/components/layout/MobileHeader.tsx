@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { BananaIcon, HelpCircleIcon, MenuIcon } from '@/components/public/icons'
+import { HelpCircleIcon, MenuIcon } from '@/components/public/icons'
 import { Button } from '@/components/ui/button'
 
 interface Props {
