@@ -27,25 +27,23 @@ export function DashboardContainer({ overrideUserId }: Props) {
     const isMaestroView = !!overrideUserId || isSupportMode;
     const activeUserId = overrideUserId || (isSupportMode ? impersonatedUser?.id : currentUser?.id);
 
-    // Determine which profile to use
-    const profile = isSupportMode ? impersonatedUser : (isMaestroView ? remoteProfile : currentProfile);
-
-    // Safe access to store name for TS
+    // Determine store name and profit margin safely
     let displayStoreName = 'Tu Súper Tienda';
+    let displayProfitMargin = '20%';
+
     if (isSupportMode && impersonatedUser) {
         displayStoreName = impersonatedUser.storeName;
-    } else if (profile && 'store_name' in profile && profile.store_name) {
-        displayStoreName = profile.store_name;
+        // In support mode, we use a default for now or we could fetch the full profile
+    } else if (profile) {
+        if ('store_name' in profile && profile.store_name) {
+            displayStoreName = profile.store_name;
+        }
+        if ('profit_margin' in profile && profile.profit_margin !== undefined) {
+            displayProfitMargin = `${(profile.profit_margin * 100).toFixed(0)}%`;
+        }
     }
 
     const storeName = displayStoreName;
-
-    // Safe access to profit margin for TS
-    let displayProfitMargin = '20%';
-    if (!isSupportMode && profile && 'profit_margin' in profile && profile.profit_margin) {
-        displayProfitMargin = `${(profile.profit_margin * 100).toFixed(0)}%`;
-    }
-
     const profitMargin = displayProfitMargin;
 
     const MOTIVATIONAL_PHRASES = [
