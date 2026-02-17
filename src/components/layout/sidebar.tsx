@@ -59,7 +59,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [userId, setUserId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
-  const { isSupportMode, impersonatedUser } = useAdminStore()
+  const { isSupportMode, impersonatedUser, _hasHydrated } = useAdminStore()
 
   useEffect(() => {
     const fetchUserRole = async () => {

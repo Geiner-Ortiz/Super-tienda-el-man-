@@ -19,7 +19,7 @@ interface Props {
 export function DashboardContainer({ overrideUserId }: Props) {
     const { user: currentUser, profile: currentProfile, loading: authLoading } = useAuth();
     const { setFinancialData, setLoading, recentSales, isLoading: storeLoading } = useDashboardStore();
-    const { impersonatedUser, isSupportMode } = useAdminStore();
+    const { impersonatedUser, isSupportMode, _hasHydrated } = useAdminStore();
 
     const [remoteProfile, setRemoteProfile] = useState<Profile | null>(null);
 
@@ -80,7 +80,7 @@ export function DashboardContainer({ overrideUserId }: Props) {
         };
 
         loadData();
-    }, [setFinancialData, setLoading, overrideUserId]);
+    }, [setFinancialData, setLoading, overrideUserId, isSupportMode, impersonatedUser?.id, _hasHydrated]);
 
     return (
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12 space-y-8 md:space-y-12">
