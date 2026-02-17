@@ -108,7 +108,7 @@ export default function AdminDashboard() {
     return (
         <div className="p-8 space-y-8 max-w-7xl mx-auto relative">
             <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Panel Maestro de Control</h1>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Panel Maestro de Control v2</h1>
                 <p className="text-gray-500 mt-2">Gestiona todos los clientes y monitorea el crecimiento de la plataforma.</p>
             </div>
 
