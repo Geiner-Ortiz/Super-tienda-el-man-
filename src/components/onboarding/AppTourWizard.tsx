@@ -87,46 +87,72 @@ export function AppTourWizard({ onComplete, onSkip }: AppTourWizardProps) {
   const step = tourSteps[currentStep]
 
   const getTooltipPosition = () => {
-    if (!targetRect) return { top: '50%', left: '50%' }
+    if (!targetRect) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }
 
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
     const padding = 16
-    const tooltipWidth = 320
-    const tooltipHeight = 200
+    const tooltipWidth = isMobile ? Math.min(window.innerWidth - 32, 320) : 320
+
+    if (isMobile) {
+      // En móvil, posicionamos el tooltip de forma más segura (arriba o abajo del elemento)
+      const spaceBelow = window.innerHeight - targetRect.bottom
+      const spaceAbove = targetRect.top
+
+      if (spaceBelow > 250) {
+        return {
+          top: `${targetRect.bottom + padding}px`,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: `${tooltipWidth}px`
+        }
+      } else {
+        return {
+          bottom: `${window.innerHeight - targetRect.top + padding}px`,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: `${tooltipWidth}px`
+        }
+      }
+    }
 
     switch (step.position) {
       case 'right':
         return {
           top: `${targetRect.top + targetRect.height / 2}px`,
           left: `${targetRect.right + padding}px`,
-          transform: 'translateY(-50%)'
+          transform: 'translateY(-50%)',
+          width: `${tooltipWidth}px`
         }
       case 'left':
         return {
           top: `${targetRect.top + targetRect.height / 2}px`,
           left: `${targetRect.left - tooltipWidth - padding}px`,
-          transform: 'translateY(-50%)'
+          transform: 'translateY(-50%)',
+          width: `${tooltipWidth}px`
         }
       case 'bottom':
         return {
           top: `${targetRect.bottom + padding}px`,
           left: `${targetRect.left + targetRect.width / 2}px`,
-          transform: 'translateX(-50%)'
+          transform: 'translateX(-50%)',
+          width: `${tooltipWidth}px`
         }
       case 'top':
         return {
-          top: `${targetRect.top - tooltipHeight - padding}px`,
+          bottom: `${window.innerHeight - targetRect.top + padding}px`,
           left: `${targetRect.left + targetRect.width / 2}px`,
-          transform: 'translateX(-50%)'
+          transform: 'translateX(-50%)',
+          width: `${tooltipWidth}px`
         }
       default:
-        return { top: '50%', left: '50%' }
+        return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: `${tooltipWidth}px` }
     }
   }
 
   if (!mounted) return null
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999]">
+    <div className="fixed inset-0 z-[9999] overflow-hidden">
       {/* Overlay with hole */}
       <div className="absolute inset-0 bg-black/60" />
 

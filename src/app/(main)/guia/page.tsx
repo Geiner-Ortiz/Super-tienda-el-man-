@@ -15,56 +15,63 @@ interface GuideStep {
 const steps: GuideStep[] = [
     {
         title: 'Configura tu Marca',
-        description: 'Ve a Configuración para poner el nombre de Tu Negocio y establecer tu margen de ganancia por defecto.',
+        description: 'Personaliza tu tienda en segundos. Pon el nombre de tu negocio para que aparezca en el encabezado y define tu margen de ganancia (por defecto 20%). Esto hará que todos tus cálculos sean automáticos y precisos.',
         icon: <CogIcon className="w-6 h-6" />,
         color: 'bg-blue-500'
     },
     {
         title: 'Registra tus Ventas',
-        description: 'En el Dashboard, usa el botón de "Nueva Venta". Ingresa el monto y el sistema calculará tu ganancia automáticamente.',
+        description: 'La base de tu crecimiento. Usa el botón "Nueva Venta" cada vez que un cliente te compre. El sistema restará el costo de inversión y te mostrará tu ganancia neta al instante.',
         icon: <CartIcon className="w-6 h-6" />,
         color: 'bg-green-500'
     },
     {
-        title: 'Controla tus Gastos',
-        description: 'Registra cada compra o gasto en la sección de Contabilidad. Así sabrás cuánto dinero real queda en tu bolsillo.',
+        title: 'Contabilidad y Gastos',
+        description: 'No dejes que el dinero se escape. Registra luz, arriendo, transporte o cualquier gasto hormiga en la sección de Contabilidad. El Dashboard restará estos gastos de tu ganancia bruta para darte tu Capital Real.',
         icon: <CashIcon className="w-6 h-6" />,
         color: 'bg-orange-500'
     },
     {
-        title: 'Gestiona Deudores',
-        description: 'Si alguien te debe, regístralo en "Clientes Morosos". Podrás ver el total que te deben y marcar cuando te paguen.',
+        title: 'Clientes Morosos (Fiaos)',
+        description: 'Lleva el control de quién te debe. Registra el nombre y teléfono del deudor. Puedes enviarles un recordatorio por WhatsApp con solo un clic y marcar como pagado cuando liquiden la deuda.',
         icon: <UsersIcon className="w-6 h-6" />,
         color: 'bg-purple-500'
+    },
+    {
+        title: 'Inteligencia Artificial',
+        description: '¿Tienes dudas de cómo va tu negocio? Pregúntale a nuestra IA. Ella analiza tus datos y te da consejos sobre cómo mejorar tus ventas o reducir tus gastos.',
+        icon: <HelpCircleIcon className="w-6 h-6" />,
+        color: 'bg-indigo-500'
     }
 ]
 
 export default function UserGuidePage() {
     return (
-        <div className="p-4 md:p-8 max-w-2xl mx-auto space-y-8 pb-20">
+        <div className="p-4 md:p-8 max-w-2xl mx-auto space-y-10 pb-20">
             {/* Header */}
             <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-yellow-500/20">
-                    <BananaIcon className="w-10 h-10 text-white" />
+                <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-yellow-500/30 animate-pulse">
+                    <BananaIcon className="w-12 h-12 text-white" />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Manual de Usuario</h1>
-                    <p className="text-gray-500 dark:text-gray-400 font-medium italic">Todo lo que necesitas para tu negocio</p>
+                    <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Manual del Maestro</h1>
+                    <p className="text-gray-500 dark:text-gray-400 font-medium text-lg italic">Domina tu imperio comercial</p>
                 </div>
             </div>
 
             {/* Steps List */}
-            <div className="space-y-4">
+            <div className="space-y-6">
+                <h2 className="text-xl font-bold px-2 text-gray-800 dark:text-gray-200">Guía de Inicio Rápido</h2>
                 {steps.map((step, index) => (
-                    <Card key={index} className="p-5 border-none bg-white dark:bg-gray-900 shadow-md rounded-2xl overflow-hidden relative group transition-all hover:shadow-xl">
-                        <div className={`absolute left-0 top-0 bottom-0 w-1 ${step.color}`} />
-                        <div className="flex gap-4">
-                            <div className={`w-12 h-12 rounded-xl ${step.color} text-white flex items-center justify-center shrink-0 shadow-lg shadow-inherit/20`}>
+                    <Card key={index} className="p-6 border-none bg-white dark:bg-gray-900 shadow-lg rounded-3xl overflow-hidden relative group transition-all hover:scale-[1.02]">
+                        <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${step.color}`} />
+                        <div className="flex gap-5">
+                            <div className={`w-14 h-14 rounded-2xl ${step.color} text-white flex items-center justify-center shrink-0 shadow-lg shadow-inherit/30`}>
                                 {step.icon}
                             </div>
-                            <div className="space-y-1">
-                                <h3 className="font-bold text-lg text-gray-900 dark:text-white">{step.title}</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                            <div className="space-y-2">
+                                <h3 className="font-extrabold text-xl text-gray-900 dark:text-white tracking-tight">{step.title}</h3>
+                                <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
                                     {step.description}
                                 </p>
                             </div>
@@ -73,27 +80,60 @@ export default function UserGuidePage() {
                 ))}
             </div>
 
+            {/* Questions Section */}
+            <div className="space-y-6 pt-4">
+                <h2 className="text-xl font-bold px-2 text-gray-800 dark:text-gray-200">Preguntas Frecuentes</h2>
+
+                <div className="space-y-4">
+                    <Card className="p-5 bg-gray-50 dark:bg-gray-800/50 border-none rounded-2xl">
+                        <h4 className="font-bold mb-2 text-gray-900 dark:text-white">¿Cómo instalo la App?</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Dale a los 3 puntos de tu navegador y selecciona "Instalar" o "Añadir a pantalla de inicio". Así se verá en pantalla completa sin el navegador.</p>
+                    </Card>
+
+                    <Card className="p-5 bg-gray-50 dark:bg-gray-800/50 border-none rounded-2xl">
+                        <h4 className="font-bold mb-2 text-gray-900 dark:text-white">¿Mis datos están seguros?</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Totalmente. Usamos tecnología de grado bancario para que solo tú puedas ver la información de tu negocio.</p>
+                    </Card>
+
+                    <Card className="p-5 bg-gray-50 dark:bg-gray-800/50 border-none rounded-2xl">
+                        <h4 className="font-bold mb-2 text-gray-900 dark:text-white">¿Qué pasa si borro algo por error?</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Ten cuidado, al eliminar un registro este desaparece de inmediato para mantener tu base de datos limpia. Si sucede, regístralo de nuevo lo antes posible.</p>
+                    </Card>
+                </div>
+            </div>
+
             {/* Tips Section */}
-            <Card className="p-6 bg-white dark:bg-gray-900 border-none shadow-md rounded-2xl relative overflow-hidden">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500" />
-                <h3 className="text-xl font-bold mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
-                    <span className="text-2xl">💡</span> Tip del Maestro
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 leading-relaxed italic">
-                    "Recuerda revisar tu Dashboard al final del día. Ver tus ganancias en verde es la mejor motivación para seguir creciendo."
-                </p>
+            <Card className="p-8 bg-gradient-to-br from-primary-500 to-primary-600 border-none shadow-xl rounded-[2.5rem] relative overflow-hidden text-white">
+                <div className="relative z-10">
+                    <h3 className="text-2xl font-black mb-4 flex items-center gap-2">
+                        <span>💡</span> Sabiduría del Maestro
+                    </h3>
+                    <p className="text-lg leading-relaxed opacity-90 font-medium italic">
+                        "Un negocio que no se mide, no crece. Dedica 5 minutos al final de cada jornada para revisar tus números en el Dashboard. Descansarás mejor sabiendo cuánto ganaste hoy."
+                    </p>
+                </div>
+                {/* Decorative Pattern */}
+                <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
             </Card>
 
-            {/* Support Button */}
-            <div className="text-center">
+            {/* Support Action */}
+            <div className="text-center pt-4">
                 <Link
                     href="/dashboard"
-                    className="inline-flex items-center justify-center w-full h-14 rounded-2xl text-lg font-bold bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 shadow-lg shadow-primary-500/20 transition-all duration-200"
+                    className="inline-flex items-center justify-center w-full h-16 rounded-[2rem] text-xl font-black bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:scale-105 active:scale-95 transition-all duration-300 shadow-2xl"
                 >
-                    ¡Entendido! Vamos a trabajar
+                    ¡LISTO PARA EL ÉXITO! 🚀
                 </Link>
             </div>
         </div>
+    )
+}
+
+function HelpCircleIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
     )
 }
 
