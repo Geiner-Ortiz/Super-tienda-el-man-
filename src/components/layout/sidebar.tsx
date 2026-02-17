@@ -127,8 +127,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <BananaIcon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="font-heading font-semibold text-lg tracking-tight">Tu Súper Tienda</h1>
-              <p className="text-[10px] text-white/50 uppercase tracking-widest font-medium">Gestión Inteligente</p>
+              <h1 className="font-heading font-semibold text-lg tracking-tight truncate max-w-[140px]">
+                {displayStoreName}
+              </h1>
+              <p className="text-[10px] text-white/50 uppercase tracking-widest font-medium">
+                {isSupportMode ? 'Modo Soporte' : 'Gestión Inteligente'}
+              </p>
             </div>
           </Link>
 

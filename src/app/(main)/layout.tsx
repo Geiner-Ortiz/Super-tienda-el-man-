@@ -35,7 +35,12 @@ export default function MainLayout({
     fetchStoreName()
   }, [])
 
-  const { isSupportMode } = useAdminStore()
+  const { isSupportMode, impersonatedUser, _hasHydrated } = useAdminStore()
+
+  // Branding dynamic
+  const displayStoreName = (isSupportMode && impersonatedUser && _hasHydrated)
+    ? impersonatedUser.storeName
+    : storeName
 
   return (
     <TourProvider>
@@ -43,7 +48,7 @@ export default function MainLayout({
         <SupportModeBanner />
         <MobileHeader
           onMenuClick={() => setIsMenuOpen(true)}
-          storeName={storeName}
+          storeName={displayStoreName}
         />
 
         <Sidebar

@@ -7,6 +7,7 @@ import { adminService } from '@/features/admin/services/adminService'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useAdminStore } from '@/features/admin/store/adminStore'
+import { UsersIcon, CalculatorIcon } from '@/components/public/icons'
 
 interface ClientProfile {
     id: string
@@ -83,7 +84,7 @@ export default function AdminDashboard() {
             client.id.toLowerCase().includes(query) ||
             (client.full_name || '').toLowerCase().includes(query) ||
             (client.store_name || '').toLowerCase().includes(query) ||
-            client.email.toLowerCase().includes(query)
+            (client.email || '').toLowerCase().includes(query)
         )
     })
 
@@ -179,24 +180,67 @@ export default function AdminDashboard() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <p className="font-bold text-gray-900 dark:text-white">{client.full_name || 'Sin nombre'}</p>
-                                            <p className="text-xs text-indigo-600 font-medium">{client.store_name || 'Tienda no configurada'}</p>
+                                            <div className="flex items-center gap-3">
+                                                <div>
+                                                    <p className="font-bold text-gray-900 dark:text-white">{client.full_name || 'Sin nombre'}</p>
+                                                    <p className="text-xs text-indigo-600 font-medium">{client.store_name || 'Tienda no configurada'}</p>
+                                                </div>
+                                                {isSupportMode && impersonatedUser?.id === client.id && (
+                                                    <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-bold rounded-full animate-pulse">
+                                                        SOPORTANDO
+                                                    </span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 text-gray-500">
-                                            {client.email}
+                                            {client.email || 'Sin correo'}
                                         </td>
                                         <td className="px-6 py-4 text-gray-400">
                                             {new Date(client.created_at).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="rounded-lg"
-                                                onClick={() => handleViewDetails(client)}
-                                            >
-                                                Ver Detalles
-                                            </Button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="rounded-lg h-8 w-8 p-0 text-gray-400 hover:text-indigo-600"
+                                                    title="Acceso Rápido: Deudores"
+                                                    onClick={() => {
+                                                        startSupportMode({
+                                                            id: client.id,
+                                                            storeName: client.store_name || 'Tienda',
+                                                            fullName: client.full_name || 'Sin nombre'
+                                                        })
+                                                        router.push('/debtors')
+                                                    }}
+                                                >
+                                                    <UsersIcon className="w-4 h-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="rounded-lg h-8 w-8 p-0 text-gray-400 hover:text-green-600"
+                                                    title="Acceso Rápido: Contabilidad"
+                                                    onClick={() => {
+                                                        startSupportMode({
+                                                            id: client.id,
+                                                            storeName: client.store_name || 'Tienda',
+                                                            fullName: client.full_name || 'Sin nombre'
+                                                        })
+                                                        router.push('/finances')
+                                                    }}
+                                                >
+                                                    <CalculatorIcon className="w-4 h-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="rounded-lg py-1 px-3 h-8 text-xs"
+                                                    onClick={() => handleViewDetails(client)}
+                                                >
+                                                    Revisar
+                                                </Button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
