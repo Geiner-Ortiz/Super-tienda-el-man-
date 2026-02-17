@@ -34,10 +34,10 @@ export function SupportModeBanner() {
                 </div>
 
                 <Button
-                    variant="secondary"
+                    variant="default"
                     size="sm"
                     onClick={handleExit}
-                    className="bg-white text-red-600 hover:bg-red-50 font-bold px-4 py-1.5 h-auto rounded-lg shadow-sm"
+                    className="bg-slate-900 text-white hover:bg-slate-800 font-bold px-4 py-1.5 h-auto rounded-lg shadow-lg border border-white/10"
                 >
                     Salir del Espacio
                 </Button>
