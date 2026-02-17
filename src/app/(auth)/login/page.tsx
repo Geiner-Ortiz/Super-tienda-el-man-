@@ -9,7 +9,6 @@ export default function LoginPage() {
         <div className="w-12 h-12 rounded-xl bg-primary-500 flex items-center justify-center shadow-lg">
           <span className="text-white font-black text-xl">ST</span>
         </div>
-        <span className="text-3xl font-black text-primary-500 tracking-tight">Tu Súper Tienda</span>
       </div>
 
       <div className="text-center lg:text-left flex flex-col lg:flex-row items-center gap-4">
@@ -17,7 +16,6 @@ export default function LoginPage() {
           <span className="text-white font-black text-3xl">ST</span>
         </div>
         <div>
-          <h1 className="text-display-xs text-foreground font-bold leading-tight">Tu Súper Tienda</h1>
           <p className="mt-1 text-foreground-secondary">Inicia sesión en tu cuenta para continuar</p>
         </div>
       </div>

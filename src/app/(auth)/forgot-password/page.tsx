@@ -9,7 +9,6 @@ export default function ForgotPasswordPage() {
         <div className="w-10 h-10 rounded-xl bg-primary-500 flex items-center justify-center">
           <span className="text-white font-black text-lg">ST</span>
         </div>
-        <span className="text-xl font-bold text-primary-500">Tu Súper Tienda</span>
       </div>
 
       <div className="text-center lg:text-left">
