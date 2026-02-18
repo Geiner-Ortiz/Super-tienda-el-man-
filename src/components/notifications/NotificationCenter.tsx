@@ -181,21 +181,25 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
         )}
       </button>
 
-      {/* Notifications Panel - Unified Mobile/Desktop Design */}
+      {/* Notifications Panel - Fixed Positioning for Sidebar Context */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, x: -20, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className={`
-              absolute right-0 top-full mt-3 
-              w-[90vw] sm:w-96 max-w-[400px]
-              bg-white dark:bg-slate-900 
+              fixed z-[70] bg-white dark:bg-slate-900 
               rounded-3xl shadow-2xl border border-gray-100 dark:border-white/10 
               overflow-hidden ring-1 ring-black/5
-              origin-top-right
+              
+              /* Mobile: Centered/Wide at top */
+              left-4 right-4 top-24 
+              w-auto 
+              
+              /* Desktop: Popped out to the right of the sidebar */
+              lg:left-72 lg:top-20 lg:w-96 lg:right-auto
             `}
           >
             {/* Header */}
@@ -220,6 +224,13 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
                   title={isMuted ? "Activar sonido" : "Silenciar notificaciones"}
                 >
                   {isMuted ? <BellSlashIcon className="w-4 h-4" /> : <BellIcon className="w-4 h-4" />}
+                </button>
+                {/* Close Button (Visible on Mobile/Desktop for clarity) */}
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
+                >
+                  <XCircleIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 </button>
               </div>
             </div>
