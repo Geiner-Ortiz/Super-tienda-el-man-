@@ -186,7 +186,7 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
             )}
 
             {/* Table */}
-            <div className="overflow-x-auto custom-scrollbar">
+            <div className="overflow-x-auto custom-scrollbar pb-6">
                 <table className="w-full text-sm min-w-[750px]">
                     <thead>
                         <tr className="bg-gray-50 dark:bg-gray-800/50">

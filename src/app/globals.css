@@ -462,23 +462,32 @@ h6,
     }
   }
 
-  /* Barrita de scroll visible para tablas móviles */
+  /* Barrita de scroll ultra-visible para tablas móviles */
   .custom-scrollbar::-webkit-scrollbar {
-    height: 6px !important;
+    height: 10px !important;
+    /* Más gruesa */
     display: block !important;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 10px;
+    margin: 0 10px;
+    /* Margen para que se vea "dentro" */
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #10B981;
     border-radius: 10px;
+    border: 2px solid white;
+    /* Efecto de separación */
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    border: 2px solid #0F172A;
   }
 
   .dark .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.1);
   }
 }
