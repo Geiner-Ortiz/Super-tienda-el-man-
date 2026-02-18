@@ -461,4 +461,24 @@ h6,
       transform: translateX(0);
     }
   }
+
+  /* Barrita de scroll visible para tablas móviles */
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 6px !important;
+    display: block !important;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #10B981;
+    border-radius: 10px;
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
 }

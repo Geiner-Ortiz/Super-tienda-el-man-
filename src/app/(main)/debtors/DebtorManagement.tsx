@@ -181,14 +181,14 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
             )}
 
             {/* Table */}
-            <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+            <div className="overflow-x-auto custom-scrollbar">
+                <table className="w-full text-sm min-w-[750px]">
                     <thead>
                         <tr className="bg-gray-50 dark:bg-gray-800/50">
-                            <th className="text-left px-6 py-4 font-semibold text-gray-500">Cliente</th>
-                            <th className="text-left px-6 py-4 font-semibold text-gray-500">Deuda</th>
-                            <th className="text-left px-6 py-4 font-semibold text-gray-500">Estado</th>
-                            <th className="text-right px-6 py-4 font-semibold text-gray-500">Acciones</th>
+                            <th className="text-left px-6 py-4 font-semibold text-gray-400 uppercase tracking-widest text-[10px]">Cliente</th>
+                            <th className="text-left px-6 py-4 font-semibold text-gray-400 uppercase tracking-widest text-[10px]">Deuda</th>
+                            <th className="text-left px-6 py-4 font-semibold text-gray-400 uppercase tracking-widest text-[10px]">Estado</th>
+                            <th className="text-right px-6 py-4 font-semibold text-gray-400 uppercase tracking-widest text-[10px]">Acciones</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
