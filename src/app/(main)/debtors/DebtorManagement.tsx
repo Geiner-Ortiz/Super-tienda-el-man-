@@ -101,10 +101,10 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
     }
 
     return (
-        <Card className="overflow-hidden border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm">
+        <Card className="overflow-hidden border-gray-100 dark:border-gray-800 rounded-none md:rounded-3xl shadow-sm border-x-0 md:border-x">
             {/* Header / Actions */}
-            <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-800/20 space-y-4">
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="p-4 md:p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-800/20 space-y-4">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="flex-1 w-full">
                         <Input
                             type="text"
@@ -116,18 +116,23 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
                     </div>
                     <Button
                         onClick={() => setIsAdding(!isAdding)}
-                        className="w-full sm:w-auto rounded-xl bg-primary-600 hover:bg-primary-700"
+                        className="w-full md:w-auto rounded-xl bg-primary-600 hover:bg-primary-700 font-bold"
                     >
-                        {isAdding ? 'Cancelar' : 'Agregar Nuevo Deudor'}
+                        {isAdding ? 'Cancelar' : (
+                            <>
+                                <span className="hidden sm:inline">Agregar Nuevo Deudor</span>
+                                <span className="sm:hidden">Agregar Deudor</span>
+                            </>
+                        )}
                     </Button>
                 </div>
 
-                <div className="flex gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl w-fit">
+                <div className="flex gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl w-fit max-w-full overflow-x-auto scrollbar-hide">
                     {(['all', 'pending', 'paid'] as const).map((t) => (
                         <button
                             key={t}
                             onClick={() => setFilter(t)}
-                            className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${filter === t ? 'bg-white dark:bg-gray-700 shadow-sm text-primary-600' : 'text-gray-500'}`}
+                            className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${filter === t ? 'bg-white dark:bg-gray-700 shadow-sm text-primary-600' : 'text-gray-500'}`}
                         >
                             {t === 'all' ? 'Todos' : t === 'pending' ? 'Pendientes' : 'Pagados'}
                         </button>

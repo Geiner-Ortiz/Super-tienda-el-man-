@@ -39,9 +39,9 @@ export default function DebtorsPage() {
     }
 
     return (
-        <div className="p-4 md:p-8 max-w-7xl mx-auto overflow-x-hidden w-full">
+        <div className="py-4 md:p-8 max-w-7xl mx-auto overflow-x-hidden w-full">
             {/* Header */}
-            <div className="mb-8">
+            <div className="mb-8 px-4 md:px-0">
                 <h1 className="text-2xl font-bold text-foreground">Clientes Morosos (Fiados)</h1>
                 <p className="text-foreground-secondary mt-1">
                     Administra las deudas de tus clientes y envía recordatorios por WhatsApp
@@ -49,7 +49,7 @@ export default function DebtorsPage() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 px-4 md:px-0">
                 <Card className="p-6 shadow-sm border-none bg-white dark:bg-gray-900 flex items-center justify-between">
                     <div>
                         <p className="text-sm text-foreground-secondary">Total Clientes Deudores</p>
@@ -73,7 +73,9 @@ export default function DebtorsPage() {
             </div>
 
             {/* Debtors Table/Management */}
-            <DebtorManagement initialDebtors={debtors} />
+            <div className="md:px-0">
+                <DebtorManagement initialDebtors={debtors} />
+            </div>
         </div>
     )
 }
