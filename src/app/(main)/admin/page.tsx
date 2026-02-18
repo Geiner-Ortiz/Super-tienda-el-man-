@@ -119,6 +119,68 @@ export default function AdminDashboard() {
                 </Card>
             </div>
 
+            {/* System Announcements */}
+            <Card className="p-6 border-indigo-100 dark:border-indigo-900 bg-gradient-to-br from-white to-indigo-50/50 dark:from-gray-900 dark:to-indigo-900/20">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 className="font-bold text-lg flex items-center gap-2">
+                            <span className="text-2xl">📢</span> Anuncios Globales
+                        </h2>
+                        <p className="text-sm text-gray-500">Envía notificaciones a todos los usuarios de la plataforma.</p>
+                    </div>
+                </div>
+
+                <form
+                    onSubmit={async (e) => {
+                        e.preventDefault()
+                        if (!confirm('¿Estás seguro de enviar esta notificación a TODOS los usuarios?')) return
+
+                        const formData = new FormData(e.currentTarget)
+                        const title = formData.get('title') as string
+                        const message = formData.get('message') as string
+
+                        try {
+                            const supabase = createClient()
+                            const { error } = await supabase.rpc('send_global_notification', {
+                                title,
+                                message
+                            })
+
+                            if (error) throw error
+                            alert('📢 Notificación enviada con éxito')
+                            e.currentTarget.reset()
+                        } catch (err) {
+                            console.error(err)
+                            alert('Error al enviar notificación')
+                        }
+                    }}
+                    className="space-y-4 max-w-xl"
+                >
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Título del Anuncio</label>
+                        <input
+                            name="title"
+                            required
+                            placeholder="Ej: Nueva Actualización 2.0 🚀"
+                            className="w-full px-4 py-2 rounded-xl bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 transition-all"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Mensaje</label>
+                        <textarea
+                            name="message"
+                            required
+                            rows={3}
+                            placeholder="Describe los cambios o novedades..."
+                            className="w-full px-4 py-2 rounded-xl bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 transition-all resize-none"
+                        />
+                    </div>
+                    <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl px-8">
+                        Enviar a Todos
+                    </Button>
+                </form>
+            </Card>
+
             <Card className="overflow-hidden border-gray-100 dark:border-gray-800">
                 <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h2 className="font-bold text-lg">Directorio de Clientes</h2>
