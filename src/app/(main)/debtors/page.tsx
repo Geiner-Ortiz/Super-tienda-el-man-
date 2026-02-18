@@ -42,7 +42,7 @@ export default function DebtorsPage() {
         <div className="py-4 md:p-8 max-w-full lg:max-w-7xl mx-auto overflow-x-hidden w-full relative">
             {/* Header */}
             <div className="mb-8 px-4 md:px-0">
-                <h1 className="text-2xl font-bold text-foreground">Deudores v3.5 LOCK (Fiados)</h1>
+                <h1 className="text-2xl font-bold text-foreground">Clientes Morosos (Fiados)</h1>
                 <p className="text-foreground-secondary mt-1">
                     Administra las deudas de tus clientes y envía recordatorios por WhatsApp
                 </p>

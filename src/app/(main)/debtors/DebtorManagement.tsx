@@ -18,7 +18,6 @@ interface DebtorManagementProps {
 export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
     const [debtors, setDebtors] = useState<Debtor[]>(initialDebtors)
     const { isSupportMode, impersonatedUser } = useAdminStore()
-    // ...
     const [search, setSearch] = useState('')
     const [filter, setFilter] = useState<'all' | 'pending' | 'paid'>('all')
     const [isAdding, setIsAdding] = useState(false)
@@ -35,8 +34,6 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
         if (filter === 'paid') return matchesSearch && debtor.is_paid
         return matchesSearch
     })
-
-    const activeDebtTotal = debtors.reduce((acc, d) => d.is_paid ? acc : acc + Number(d.amount), 0)
 
     const { profile } = useAuth()
     const storeName = profile?.store_name || 'nuestra tienda'
@@ -111,12 +108,12 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
                             placeholder="Buscar..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full bg-white dark:bg-gray-800 h-14 rounded-xl border-2 border-primary-500 shadow-inner"
+                            className="w-full bg-white dark:bg-gray-800 h-14 rounded-xl"
                         />
                     </div>
                     <Button
                         onClick={() => setIsAdding(!isAdding)}
-                        className="w-full lg:w-auto rounded-xl bg-primary-600 hover:bg-primary-700 font-bold h-12 shadow-lg shadow-primary-500/20 active:scale-95 transition-all"
+                        className="w-full lg:w-auto rounded-xl bg-primary-600 hover:bg-primary-700 font-bold h-14 shadow-lg shadow-primary-500/20 active:scale-95 transition-all"
                     >
                         {isAdding ? 'Cancelar' : (
                             <>
@@ -185,26 +182,25 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
                 </div>
             )}
 
-            {/* Table wrapper with ULTIMATE forced scrollbar visibility */}
-            <div className="overflow-x-auto custom-scrollbar-v4 pb-12 mx-0 w-full max-w-full touch-pan-x border-b-4 border-gray-100 dark:border-gray-800">
+            {/* Table wrapper with forced scrollbar visibility */}
+            <div className="overflow-x-auto custom-scrollbar pb-10 mx-0 w-full max-w-full touch-pan-x border-b border-gray-100 dark:border-gray-800">
                 <style dangerouslySetInnerHTML={{
                     __html: `
-                    .custom-scrollbar-v4::-webkit-scrollbar {
-                        height: 16px !important;
+                    .custom-scrollbar::-webkit-scrollbar {
+                        height: 10px !important;
                         display: block !important;
-                        background: #f1f5f9 !important;
+                        background: rgba(0,0,0,0.05) !important;
                     }
-                    .custom-scrollbar-v4::-webkit-scrollbar-thumb {
-                        background-color: #EF4444 !important; /* ROJO NEON PARA DEBUG */
-                        border-radius: 8px !important;
-                        border: 3px solid #f1f5f9 !important;
+                    .custom-scrollbar::-webkit-scrollbar-thumb {
+                        background-color: #10B981 !important;
+                        border-radius: 20px !important;
+                        border: 3px solid white !important;
                     }
-                    .dark .custom-scrollbar-v4::-webkit-scrollbar {
-                        background: #1e293b !important;
+                    .dark .custom-scrollbar::-webkit-scrollbar {
+                        background: rgba(255,255,255,0.05) !important;
                     }
-                    .dark .custom-scrollbar-v4::-webkit-scrollbar-thumb {
-                        background-color: #F59E0B !important; /* AMBAR NEON DARK */
-                        border: 3px solid #1e293b !important;
+                    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+                        border: 3px solid #0F172A !important;
                     }
                 `}} />
                 <table className="w-full text-sm min-w-[750px]">
