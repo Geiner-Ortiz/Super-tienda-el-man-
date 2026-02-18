@@ -1,10 +1,10 @@
 {
-    "name": "Súper Tienda El Maná",
-    "short_name": "El Maná",
+    "name": "Tu Súper Tienda",
+    "short_name": "Tu Súper Tienda",
     "description": "Control de Ventas y Ganancias Inteligente",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#FAFBFC",
+    "background_color": "#0F172A",
     "theme_color": "#10B981",
     "icons": [
         {

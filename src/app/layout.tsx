@@ -14,7 +14,10 @@ export const metadata: Metadata = {
     type: 'website',
   },
   manifest: '/manifest.json',
-  themeColor: '#10B981',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#10B981' },
+    { media: '(prefers-color-scheme: dark)', color: '#0F172A' },
+  ],
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
