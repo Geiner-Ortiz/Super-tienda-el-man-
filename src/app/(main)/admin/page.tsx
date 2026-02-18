@@ -106,7 +106,7 @@ export default function AdminDashboard() {
     if (isLoading && isAuthorized === null) return <div className="p-8 text-center">Verificando credenciales de Maestro...</div>
 
     return (
-        <div className="p-8 space-y-8 max-w-7xl mx-auto relative">
+        <div className="p-4 md:p-8 space-y-8 max-w-full lg:max-w-7xl mx-auto overflow-x-hidden w-full relative">
             <div>
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Panel Maestro de Control v2</h1>
                 <p className="text-gray-500 mt-2">Gestiona todos los clientes y monitorea el crecimiento de la plataforma.</p>
@@ -197,8 +197,27 @@ export default function AdminDashboard() {
                         />
                     </div>
                 </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                <div className="overflow-x-auto custom-scrollbar-admin pb-10 mx-0 w-full max-w-full touch-pan-x border-b border-gray-100 dark:border-gray-800">
+                    <style dangerouslySetInnerHTML={{
+                        __html: `
+                        .custom-scrollbar-admin::-webkit-scrollbar {
+                            height: 10px !important;
+                            display: block !important;
+                            background: rgba(0,0,0,0.05) !important;
+                        }
+                        .custom-scrollbar-admin::-webkit-scrollbar-thumb {
+                            background-color: #10B981 !important;
+                            border-radius: 20px !important;
+                            border: 3px solid white !important;
+                        }
+                        .dark .custom-scrollbar-admin::-webkit-scrollbar {
+                            background: rgba(255,255,255,0.05) !important;
+                        }
+                        .dark .custom-scrollbar-admin::-webkit-scrollbar-thumb {
+                            border: 3px solid #0F172A !important;
+                        }
+                    `}} />
+                    <table className="w-full text-sm min-w-[800px]">
                         <thead>
                             <tr className="bg-gray-50 dark:bg-gray-800/50">
                                 <th className="text-left px-6 py-4 font-semibold text-gray-500">ID Cliente</th>
