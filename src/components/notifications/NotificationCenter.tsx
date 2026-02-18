@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Card } from '@/components/ui/card'
 import type { Notification, NotificationType } from '@/types/database'
+import { AnimatePresence, motion } from 'framer-motion'
+import { toast } from 'sonner'
 
 interface NotificationCenterProps {
   userId: string
@@ -20,21 +21,41 @@ const NOTIFICATION_ICONS: Record<NotificationType, React.FC<{ className?: string
 }
 
 const NOTIFICATION_COLORS: Record<NotificationType, string> = {
-  appointment_created: 'bg-accent-100 text-accent-600',
-  appointment_confirmed: 'bg-success-100 text-success-600',
-  appointment_cancelled: 'bg-error-100 text-error-600',
-  appointment_reminder: 'bg-warning-100 text-warning-600',
-  payment_received: 'bg-secondary-100 text-secondary-600',
-  case_update: 'bg-primary-100 text-primary-600',
-  document_request: 'bg-purple-100 text-purple-600',
+  appointment_created: 'bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-400',
+  appointment_confirmed: 'bg-success-100 text-success-600 dark:bg-success-900/30 dark:text-success-400',
+  appointment_cancelled: 'bg-error-100 text-error-600 dark:bg-error-900/30 dark:text-error-400',
+  appointment_reminder: 'bg-warning-100 text-warning-600 dark:bg-warning-900/30 dark:text-warning-400',
+  payment_received: 'bg-secondary-100 text-secondary-600 dark:bg-secondary-900/30 dark:text-secondary-400',
+  case_update: 'bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400',
+  document_request: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
 }
 
 export function NotificationCenter({ userId }: NotificationCenterProps) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [pushEnabled, setPushEnabled] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const unreadCount = notifications.filter(n => !n.is_read).length
+
+  // Close on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Check push permission on mount
+  useEffect(() => {
+    if ('Notification' in window) {
+      setPushEnabled(Notification.permission === 'granted')
+    }
+  }, [])
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -68,6 +89,11 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
         },
         (payload) => {
           setNotifications(prev => [payload.new as Notification, ...prev])
+          // Play sound if push enabled
+          if (pushEnabled) {
+            const audio = new Audio('/sounds/notification.mp3')
+            audio.play().catch(() => { })
+          }
         }
       )
       .subscribe()
@@ -75,7 +101,32 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [userId])
+  }, [userId, pushEnabled])
+
+  const togglePushNotifications = async () => {
+    if (!('Notification' in window)) {
+      toast.error('Tu navegador no soporta notificaciones push')
+      return
+    }
+
+    if (pushEnabled) {
+      // In a real app we would unsubscribe from service worker here
+      setPushEnabled(false)
+      toast.info('Notificaciones desactivadas')
+    } else {
+      const permission = await Notification.requestPermission()
+      if (permission === 'granted') {
+        setPushEnabled(true)
+        toast.success('Notificaciones activadas')
+        new Notification('¡Activado!', {
+          body: 'Recibirás alertas de ventas y sistema aquí.',
+          icon: '/favicon.svg'
+        })
+      } else {
+        toast.error('Necesitamos permiso para enviarte notificaciones')
+      }
+    }
+  }
 
   const markAsRead = async (notificationId: string) => {
     const supabase = createClient()
@@ -98,6 +149,7 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
       .eq('is_read', false)
 
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
+    toast.success('Todas las notificaciones marcadas como leídas')
   }
 
   const formatTime = (dateStr: string) => {
@@ -109,117 +161,147 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
     const days = Math.floor(diff / 86400000)
 
     if (minutes < 1) return 'Ahora'
-    if (minutes < 60) return `Hace ${minutes} min`
-    if (hours < 24) return `Hace ${hours}h`
-    if (days < 7) return `Hace ${days}d`
+    if (minutes < 60) return `${minutes} min`
+    if (hours < 24) return `${hours} h`
+    if (days < 7) return `${days} d`
     return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       {/* Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg hover:bg-white/10 transition-colors"
+        className="relative p-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200 active:scale-95"
       >
-        <BellIcon className="w-6 h-6 text-white" />
+        <BellIcon className={`w-6 h-6 ${isOpen ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300'}`} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-error-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+          <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-error-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white dark:ring-slate-900 animate-scale-in">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
-      {/* Dropdown */}
-      {isOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
-          />
-          <Card className="fixed left-64 top-24 w-80 md:w-96 max-h-[480px] overflow-hidden z-50 shadow-xl animate-slide-down">
-            {/* Header */}
-            <div className="p-4 border-b border-border flex items-center justify-between">
-              <h3 className="font-semibold text-foreground">Notificaciones</h3>
+      {/* Dropdown - Responsive Positioning */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-x-4 top-20 md:absolute md:inset-auto md:right-0 md:top-full md:mt-3 md:w-96 z-50 origin-top-right"
+          >
+            <div className="glass-dark rounded-3xl shadow-2xl border border-white/10 overflow-hidden ring-1 ring-black/5 backdrop-blur-xl">
+              {/* Header */}
+              <div className="p-4 border-b border-white/5 bg-white/5 flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-gray-900 dark:text-white text-lg">Notificaciones</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className={`w-2 h-2 rounded-full ${pushEnabled ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-gray-400'}`} />
+                    <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                      {pushEnabled ? 'Push activadas' : 'Push desactivadas'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {/* Push Toggle Switch */}
+                  <button
+                    onClick={togglePushNotifications}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${pushEnabled ? 'bg-primary-600' : 'bg-gray-600'
+                      }`}
+                  >
+                    <span
+                      className={`${pushEnabled ? 'translate-x-6' : 'translate-x-1'
+                        } inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200`}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {/* Toolbar */}
               {unreadCount > 0 && (
-                <button
-                  onClick={markAllAsRead}
-                  className="text-xs text-accent-600 hover:text-accent-700"
-                >
-                  Marcar todas como leídas
-                </button>
+                <div className="px-4 py-2 bg-gray-50/50 dark:bg-white/5 border-b border-white/5 flex justify-end">
+                  <button
+                    onClick={markAllAsRead}
+                    className="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                  >
+                    Marcar todo como leído
+                  </button>
+                </div>
               )}
-            </div>
 
-            {/* Notifications List */}
-            <div className="overflow-y-auto max-h-[360px]">
-              {isLoading ? (
-                <div className="p-8 text-center">
-                  <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto" />
-                </div>
-              ) : notifications.length === 0 ? (
-                <div className="p-8 text-center">
-                  <BellIcon className="w-12 h-12 text-foreground-muted mx-auto mb-3" />
-                  <p className="text-foreground-secondary">No tienes notificaciones</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-border">
-                  {notifications.map(notification => {
-                    const Icon = NOTIFICATION_ICONS[notification.type]
-                    const colorClass = NOTIFICATION_COLORS[notification.type]
+              {/* Notifications List */}
+              <div className="overflow-y-auto max-h-[400px] scrollbar-hide">
+                {isLoading ? (
+                  <div className="p-12 text-center">
+                    <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto" />
+                  </div>
+                ) : notifications.length === 0 ? (
+                  <div className="p-12 text-center flex flex-col items-center justify-center">
+                    <div className="w-16 h-16 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
+                      <BellIcon className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                    </div>
+                    <p className="text-gray-900 dark:text-white font-medium">Estás al día</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">No hay nuevas notificaciones</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100 dark:divide-white/5">
+                    {notifications.map(notification => {
+                      const Icon = NOTIFICATION_ICONS[notification.type] || BellIcon
+                      const colorClass = NOTIFICATION_COLORS[notification.type] || 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
 
-                    return (
-                      <button
-                        key={notification.id}
-                        onClick={() => markAsRead(notification.id)}
-                        className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${
-                          !notification.is_read ? 'bg-accent-50/50' : ''
-                        }`}
-                      >
-                        <div className="flex gap-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${colorClass}`}>
-                            <Icon className="w-5 h-5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2">
-                              <p className={`text-sm ${notification.is_read ? 'text-foreground' : 'font-semibold text-foreground'}`}>
-                                {notification.title}
-                              </p>
-                              {!notification.is_read && (
-                                <span className="w-2 h-2 bg-accent-500 rounded-full flex-shrink-0 mt-1.5" />
-                              )}
+                      return (
+                        <button
+                          key={notification.id}
+                          onClick={() => markAsRead(notification.id)}
+                          className={`w-full p-4 text-left transition-all hover:bg-gray-50/80 dark:hover:bg-white/5 relative group ${!notification.is_read ? 'bg-primary-50/30 dark:bg-primary-900/10' : ''
+                            }`}
+                        >
+                          <div className="flex gap-4">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClass} shadow-sm group-hover:scale-110 transition-transform duration-200`}>
+                              <Icon className="w-5 h-5" />
                             </div>
-                            <p className="text-sm text-foreground-secondary line-clamp-2 mt-0.5">
-                              {notification.message}
-                            </p>
-                            <p className="text-xs text-foreground-muted mt-1">
-                              {formatTime(notification.created_at)}
-                            </p>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2 mb-1">
+                                <p className={`text-sm ${notification.is_read ? 'text-gray-700 dark:text-gray-300 font-medium' : 'text-gray-900 dark:text-white font-bold'}`}>
+                                  {notification.title}
+                                </p>
+                                <span className="text-[10px] text-gray-400 dark:text-gray-500 whitespace-nowrap bg-gray-100 dark:bg-white/10 px-1.5 py-0.5 rounded-full">
+                                  {formatTime(notification.created_at)}
+                                </span>
+                              </div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">
+                                {notification.message}
+                              </p>
+                            </div>
+                            {!notification.is_read && (
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary-500 rounded-r-full" />
+                            )}
                           </div>
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
 
-            {/* Footer */}
-            {notifications.length > 0 && (
-              <div className="p-3 border-t border-border">
-                <button className="w-full text-sm text-accent-600 hover:text-accent-700 font-medium">
-                  Ver todas las notificaciones
+              {/* Footer */}
+              <div className="p-3 border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 backdrop-blur-sm">
+                <button className="w-full py-2 text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors uppercase tracking-wider">
+                  Ver Historial Completo
                 </button>
               </div>
-            )}
-          </Card>
-        </>
-      )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
 
-// Icons
+// Icons (Simple SVGs kept for brevity, improved styling in usage)
 function BellIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
