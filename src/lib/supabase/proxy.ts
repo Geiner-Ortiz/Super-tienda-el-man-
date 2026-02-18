@@ -36,7 +36,7 @@ export async function updateSession(request: NextRequest) {
   // Rutas protegidas
   const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard') ||
     request.nextUrl.pathname === '/'
-  const isAuthRoute = request.nextUrl.pathname.startsWith('/login') ||
+  const isAuthRoute = (request.nextUrl.pathname.startsWith('/login') && request.nextUrl.pathname !== '/login/success') ||
     request.nextUrl.pathname.startsWith('/signup')
 
   if (isProtectedRoute && !user) {
