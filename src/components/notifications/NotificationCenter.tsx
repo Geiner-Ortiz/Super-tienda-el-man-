@@ -35,12 +35,15 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isMuted, setIsMuted] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   const unreadCount = notifications.filter(n => !n.is_read).length
 
-  // Load mute preference
+  // Load mute preference & mount for portal
   useEffect(() => {
+    setMounted(true)
     const storedMute = localStorage.getItem('notification_muted')
     if (storedMute === 'true') setIsMuted(true)
   }, [])
@@ -56,7 +59,9 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
   // Close on click outside (Improved for both mobile and desktop)
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      // Check if click is outside dropdown AND outside the trigger button
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
         setIsOpen(false)
       }
     }
@@ -161,10 +166,14 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
     return () => { document.body.style.overflow = 'unset' }
   }, [isOpen])
 
+  // Calculations for positioning if needed, but 'fixed' works well with Portal
+  // We use Portal to break out of Sidebar transform constraints
+
   return (
-    <div className="relative z-50" ref={dropdownRef}>
+    <>
       {/* Bell Button */}
       <button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200 active:scale-95 z-[60]"
       >
@@ -181,204 +190,201 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
         )}
       </button>
 
-      {/* Notifications Panel - Fixed Positioning for Sidebar Context */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: -20, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: -20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className={`
-              fixed z-[70] bg-white dark:bg-slate-900 
-              rounded-3xl shadow-2xl border border-gray-100 dark:border-white/10 
-              overflow-hidden ring-1 ring-black/5
-              
-              /* Mobile: Centered/Wide at top - Optimized for "Shop Owners" (Accessibility) */
-              left-2 right-2 top-24 
-              w-auto 
-              
-              /* Desktop: Popped out to the right of the sidebar */
-              lg:left-72 lg:top-20 lg:w-96 lg:right-auto
-            `}
-          >
-            {/* Header */}
-            <div className="p-5 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 flex items-center justify-between sticky top-0 backdrop-blur-xl z-10">
-              <div>
-                <h3 className="font-bold text-gray-900 dark:text-white text-xl lg:text-lg">Notificaciones</h3>
-                <p className="text-sm lg:text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">
-                  {isMuted ? 'Silenciadas 🔕' : 'Tus alertas recientes'}
-                </p>
-              </div>
+      {/* Notifications Panel - Portaled to Body to avoid Z-Index/Transform constraints */}
+      {mounted && createPortal(
+        <AnimatePresence>
+          {isOpen && (
+            <>
+              {/* BACKDROP for Mobile Only - To close when clicking outside */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/60 z-[9998] lg:hidden backdrop-blur-sm"
+                onClick={() => setIsOpen(false)}
+              />
 
-              <div className="flex items-center gap-2">
-                {/* Toggle Mute Button */}
-                <button
-                  onClick={toggleMute}
-                  className={`
-                    p-3 lg:p-2 rounded-full transition-all
-                    ${isMuted
-                      ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
-                      : 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200'}
-                  `}
-                  title={isMuted ? "Activar sonido" : "Silenciar notificaciones"}
-                >
-                  {isMuted ? <BellSlashIcon className="w-5 h-5 lg:w-4 lg:h-4" /> : <BellIcon className="w-5 h-5 lg:w-4 lg:h-4" />}
-                </button>
-                {/* Close Button (Visible on Mobile/Desktop for clarity) */}
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-3 lg:p-2 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
-                >
-                  <XCircleIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                </button>
-              </div>
-            </div>
+              <motion.div
+                ref={dropdownRef}
+                initial={{ opacity: 0, scale: 0.95, y: -20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                transition={{ duration: 0.2, type: "spring", stiffness: 300, damping: 30 }}
+                className={`
+                  fixed z-[9999] bg-white dark:bg-slate-900
+                  rounded-3xl shadow-2xl border border-gray-100 dark:border-white/10
+                  overflow-hidden ring-1 ring-black/5
 
-            {/* Toolbar */}
-            {unreadCount > 0 && (
-              <div className="px-5 py-3 lg:px-4 lg:py-2 bg-gray-50/80 dark:bg-white/5 border-b border-gray-100 dark:border-white/5 flex justify-end backdrop-blur-sm">
-                <button
-                  onClick={markAllAsRead}
-                  className="text-sm lg:text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
-                >
-                  Marcar todo como leído
-                </button>
-              </div>
-            )}
+                  /* Mobile: Centered/Wide at top - Optimized for "Shop Owners" (Accessibility) */
+                  left-4 right-4 top-24
+                  max-w-lg mx-auto
 
-            {/* Notifications List */}
-            <div className="overflow-y-auto max-h-[65vh] lg:max-h-[400px] scrollbar-hide bg-white dark:bg-slate-900">
-              {isLoading ? (
-                <div className="p-12 text-center">
-                  <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto" />
-                </div>
-              ) : notifications.length === 0 ? (
-                <div className="p-12 text-center flex flex-col items-center justify-center h-full">
-                  <div className="w-16 h-16 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
-                    <BellIcon className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                  /* Desktop: Popped out near the sidebar button (approx position) */
+                  lg:left-[18rem] lg:top-16 lg:w-96 lg:right-auto lg:mx-0
+                `}
+                style={{ maxHeight: '80vh' }}
+              >
+                {/* Header */}
+                <div className="p-5 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 flex items-center justify-between sticky top-0 backdrop-blur-xl z-10">
+                  <div>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-xl lg:text-lg">Notificaciones</h3>
+                    <p className="text-sm lg:text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">
+                      {isMuted ? 'Silenciadas 🔕' : 'Tus alertas recientes'}
+                    </p>
                   </div>
-                  <p className="text-gray-900 dark:text-white font-medium text-lg lg:text-base">Estás al día</p>
-                  <p className="text-gray-500 dark:text-gray-400 text-base lg:text-sm mt-1">No hay nuevas notificaciones</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-100 dark:divide-white/5">
-                  {notifications.map(notification => {
-                    const Icon = NOTIFICATION_ICONS[notification.type] || BellIcon
-                    const colorClass = NOTIFICATION_COLORS[notification.type] || 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
 
-                    return (
-                      <button
-                        key={notification.id}
-                        onClick={() => markAsRead(notification.id)}
-                        className={`w-full p-5 lg:p-4 text-left transition-all hover:bg-gray-50/80 dark:hover:bg-white/5 relative group ${!notification.is_read ? 'bg-primary-50/30 dark:bg-primary-900/10' : ''
-                          }`}
-                      >
-                        <div className="flex gap-4">
-                          <div className={`w-12 h-12 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClass} shadow-sm md:group-hover:scale-110 transition-transform duration-200`}>
-                            <Icon className="w-6 h-6 lg:w-5 lg:h-5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2 mb-1">
-                              <p className={`text-base lg:text-sm ${notification.is_read ? 'text-gray-700 dark:text-gray-300 font-medium' : 'text-gray-900 dark:text-white font-bold'}`}>
-                                {notification.title}
-                              </p>
-                              <span className="text-xs lg:text-[10px] text-gray-400 dark:text-gray-500 whitespace-nowrap bg-gray-100 dark:bg-white/10 px-2 py-1 lg:px-1.5 lg:py-0.5 rounded-full">
-                                {formatTime(notification.created_at)}
-                              </span>
+                  <div className="flex items-center gap-2">
+                    {/* Toggle Mute Button */}
+                    <button
+                      onClick={toggleMute}
+                      className={`
+                        p-3 lg:p-2 rounded-full transition-all
+                        ${isMuted
+                          ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                          : 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200'}
+                      `}
+                      title={isMuted ? "Activar sonido" : "Silenciar notificaciones"}
+                    >
+                      {isMuted ? <BellSlashIcon className="w-5 h-5 lg:w-4 lg:h-4" /> : <BellIcon className="w-5 h-5 lg:w-4 lg:h-4" />}
+                    </button>
+                    {/* Close Button */}
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      className="p-3 lg:p-2 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
+                    >
+                      <XCircleIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Toolbar */}
+                {unreadCount > 0 && (
+                  <div className="px-5 py-3 lg:px-4 lg:py-2 bg-gray-50/80 dark:bg-white/5 border-b border-gray-100 dark:border-white/5 flex justify-end backdrop-blur-sm">
+                    <button
+                      onClick={markAllAsRead}
+                      className="text-sm lg:text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                    >
+                      Marcar todo como leído
+                    </button>
+                  </div>
+                )}
+
+                {/* Notifications List */}
+                <div className="overflow-y-auto max-h-[60vh] lg:max-h-[400px] scrollbar-hide bg-white dark:bg-slate-900 overscroll-contain">
+                  {isLoading ? (
+                    <div className="p-12 text-center">
+                      <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto" />
+                    </div>
+                  ) : notifications.length === 0 ? (
+                    <div className="p-12 text-center flex flex-col items-center justify-center h-full">
+                      <div className="w-16 h-16 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
+                        <BellIcon className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                      </div>
+                      <p className="text-gray-900 dark:text-white font-medium text-lg lg:text-base">Estás al día</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-base lg:text-sm mt-1">No hay nuevas notificaciones</p>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-100 dark:divide-white/5">
+                      {notifications.map(notification => {
+                        const Icon = NOTIFICATION_ICONS[notification.type] || BellIcon
+                        const colorClass = NOTIFICATION_COLORS[notification.type] || 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+
+                        return (
+                          <button
+                            key={notification.id}
+                            onClick={() => markAsRead(notification.id)}
+                            className={`w-full p-5 lg:p-4 text-left transition-all hover:bg-gray-50/80 dark:hover:bg-white/5 relative group ${!notification.is_read ? 'bg-primary-50/30 dark:bg-primary-900/10' : ''
+                              }`}
+                          >
+                            <div className="flex gap-4">
+                              <div className={`w-12 h-12 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClass} shadow-sm md:group-hover:scale-110 transition-transform duration-200`}>
+                                <Icon className="w-6 h-6 lg:w-5 lg:h-5" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2 mb-1">
+                                  <p className={`text-base lg:text-sm ${notification.is_read ? 'text-gray-700 dark:text-gray-300 font-medium' : 'text-gray-900 dark:text-white font-bold'}`}>
+                                    {notification.title}
+                                  </p>
+                                  <span className="text-xs lg:text-[10px] text-gray-400 dark:text-gray-500 whitespace-nowrap bg-gray-100 dark:bg-white/10 px-2 py-1 lg:px-1.5 lg:py-0.5 rounded-full">
+                                    {formatTime(notification.created_at)}
+                                  </span>
+                                </div>
+                                <p className="text-sm lg:text-xs text-gray-500 dark:text-gray-400 leading-snug line-clamp-4 lg:line-clamp-3">
+                                  {notification.message}
+                                </p>
+                              </div>
+                              {!notification.is_read && (
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-10 lg:w-1 lg:h-8 bg-primary-500 rounded-r-full" />
+                              )}
                             </div>
-                            <p className="text-sm lg:text-xs text-gray-500 dark:text-gray-400 leading-snug line-clamp-4 lg:line-clamp-3">
-                              {notification.message}
-                            </p>
-                            {/* Red highlight for negative prompts if applicable (styling handled here, logic in backend) */}
-                          </div>
-                          {!notification.is_read && (
-                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-10 lg:w-1 lg:h-8 bg-primary-500 rounded-r-full" />
-                          )}
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="p-3 border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 backdrop-blur-sm sticky bottom-0">
-              <button className="w-full py-2 text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors uppercase tracking-wider">
-                Ver Historial Completo
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                          </AnimatePresence>
     </div>
-  )
-}
+                  )
+                  }
 
 // Keep existing Icons and Add BellSlash
-function BellSlashIcon({ className }: { className?: string }) {
+                  function BellSlashIcon({className}: {className ?: string}) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-    </svg>
-  )
+                  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                  </svg>
+                  )
 }
 
-// Icons (Simple SVGs kept for brevity, improved styling in usage)
-function BellIcon({ className }: { className?: string }) {
+                  // Icons (Simple SVGs kept for brevity, improved styling in usage)
+                  function BellIcon({className}: {className ?: string}) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-    </svg>
-  )
+                  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  )
 }
 
-function CalendarPlusIcon({ className }: { className?: string }) {
+                  function CalendarPlusIcon({className}: {className ?: string}) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-    </svg>
-  )
+                  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  )
 }
 
-function CheckCircleIcon({ className }: { className?: string }) {
+                  function CheckCircleIcon({className}: {className ?: string}) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  )
+                  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  )
 }
 
-function XCircleIcon({ className }: { className?: string }) {
+                  function XCircleIcon({className}: {className ?: string}) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  )
+                  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  )
 }
 
-function CurrencyIcon({ className }: { className?: string }) {
+                  function CurrencyIcon({className}: {className ?: string}) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  )
+                  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  )
 }
 
-function DocumentIcon({ className }: { className?: string }) {
+                  function DocumentIcon({className}: {className ?: string}) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-    </svg>
-  )
+                  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  )
 }
 
-function FolderIcon({ className }: { className?: string }) {
+                  function FolderIcon({className}: {className ?: string}) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-    </svg>
-  )
+                  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                  </svg>
+                  )
 }
