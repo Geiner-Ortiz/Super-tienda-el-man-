@@ -111,7 +111,7 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
                             placeholder="Buscar..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full bg-white dark:bg-gray-800 h-12 rounded-xl"
+                            className="w-full bg-white dark:bg-gray-800 h-14 rounded-xl border-2 border-primary-500 shadow-inner"
                         />
                     </div>
                     <Button
@@ -185,22 +185,28 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
                 </div>
             )}
 
-            {/* Table wrapper with forced scrollbar visibility */}
-            <div className="overflow-x-auto custom-scrollbar pb-10 mx-0 w-full max-w-full touch-pan-x">
-                <style jsx>{`
-                    .custom-scrollbar::-webkit-scrollbar {
-                        height: 12px !important;
+            {/* Table wrapper with ULTIMATE forced scrollbar visibility */}
+            <div className="overflow-x-auto custom-scrollbar-v4 pb-12 mx-0 w-full max-w-full touch-pan-x border-b-4 border-gray-100 dark:border-gray-800">
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                    .custom-scrollbar-v4::-webkit-scrollbar {
+                        height: 16px !important;
                         display: block !important;
+                        background: #f1f5f9 !important;
                     }
-                    .custom-scrollbar::-webkit-scrollbar-thumb {
-                        background-color: #10B981 !important;
-                        border-radius: 20px !important;
-                        border: 3px solid white !important;
+                    .custom-scrollbar-v4::-webkit-scrollbar-thumb {
+                        background-color: #EF4444 !important; /* ROJO NEON PARA DEBUG */
+                        border-radius: 8px !important;
+                        border: 3px solid #f1f5f9 !important;
                     }
-                    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-                        border: 3px solid #0F172A !important;
+                    .dark .custom-scrollbar-v4::-webkit-scrollbar {
+                        background: #1e293b !important;
                     }
-                `}</style>
+                    .dark .custom-scrollbar-v4::-webkit-scrollbar-thumb {
+                        background-color: #F59E0B !important; /* AMBAR NEON DARK */
+                        border: 3px solid #1e293b !important;
+                    }
+                `}} />
                 <table className="w-full text-sm min-w-[750px]">
                     <thead>
                         <tr className="bg-gray-50 dark:bg-gray-800/50">
