@@ -265,37 +265,47 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </button>
         </div>
 
-        {/* Logout Confirmation Modal */}
-        {showLogoutConfirm && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-white/10 animate-in fade-in zoom-in duration-200 text-center text-gray-900 dark:text-white">
-              <div className="w-16 h-16 bg-error-50 dark:bg-error-900/20 rounded-full flex items-center justify-center mx-auto mb-6 text-error-600">
+      </aside>
+
+      {/* Logout Confirmation Modal - Moved outside aside for proper centering */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-white/10 ring-1 ring-black/5 animate-in zoom-in-95 duration-200 relative overflow-hidden">
+            {/* Background Pattern */}
+            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-error-50/50 to-transparent dark:from-error-900/10 pointer-events-none" />
+
+            <div className="relative">
+              <div className="w-16 h-16 bg-error-50 dark:bg-error-900/20 rounded-2xl rotate-3 flex items-center justify-center mx-auto mb-6 text-error-600 shadow-sm">
                 <LogoutIcon className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold mb-2">¿Quieres cerrar sesión?</h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-8">
-                Tu sesión terminará y tendrás que volver a entrar para gestionar tu tienda.
-              </p>
+
+              <div className="text-center space-y-2 mb-8">
+                <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
+                  ¿Cerrar Sesión?
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium leading-relaxed max-w-[260px] mx-auto">
+                  Tendrás que iniciar sesión nuevamente para acceder a tu tienda.
+                </p>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
-                <Button
-                  variant="outline"
-                  className="rounded-xl border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white"
+                <button
                   onClick={() => setShowLogoutConfirm(false)}
+                  className="px-4 py-3 rounded-xl font-bold text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors"
                 >
-                  No, quedarme
-                </Button>
-                <Button
-                  variant="danger"
-                  className="rounded-xl bg-error-600 hover:bg-error-700 text-white border-none"
+                  Cancelar
+                </button>
+                <button
                   onClick={confirmLogout}
+                  className="px-4 py-3 rounded-xl font-bold text-sm bg-error-600 hover:bg-error-700 text-white shadow-lg shadow-error-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  Sí, salir
-                </Button>
+                  Sí, Salir
+                </button>
               </div>
             </div>
           </div>
-        )}
-      </aside>
+        </div>
+      )}
     </>
   )
 }
