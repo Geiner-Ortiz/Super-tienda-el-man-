@@ -41,7 +41,7 @@ export default function DebtorsPage() {
     return (
         <div className="py-4 md:p-8 max-w-7xl mx-auto overflow-x-hidden w-full">
             <div className="mb-8 px-4 md:px-0">
-                <h1 className="text-2xl font-bold text-foreground">Clientes Morosos v3.2 (Fiados)</h1>
+                <h1 className="text-2xl font-bold text-foreground">Clientes Morosos v3.3 (Fiados)</h1>
                 <p className="text-foreground-secondary mt-1">
                     Administra las deudas de tus clientes y envía recordatorios por WhatsApp
                 </p>

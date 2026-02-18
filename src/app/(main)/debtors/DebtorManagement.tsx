@@ -104,24 +104,24 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
         <Card className="overflow-hidden border-gray-100 dark:border-gray-800 rounded-none md:rounded-3xl shadow-sm border-x-0 md:border-x">
             {/* Header / Actions */}
             <div className="p-4 md:p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-800/20 space-y-4">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div className="flex-1 w-full">
+                <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
+                    <div className="flex-1 w-full min-w-0">
                         <Input
                             type="text"
-                            placeholder="Buscar cliente..."
+                            placeholder="Buscar..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full bg-white dark:bg-gray-800"
+                            className="w-full bg-white dark:bg-gray-800 h-12 rounded-xl"
                         />
                     </div>
                     <Button
                         onClick={() => setIsAdding(!isAdding)}
-                        className="w-full md:w-auto rounded-xl bg-primary-600 hover:bg-primary-700 font-bold"
+                        className="w-full lg:w-auto rounded-xl bg-primary-600 hover:bg-primary-700 font-bold h-12 shadow-lg shadow-primary-500/20 active:scale-95 transition-all"
                     >
                         {isAdding ? 'Cancelar' : (
                             <>
-                                <span className="hidden sm:inline">Agregar Nuevo Deudor</span>
-                                <span className="sm:hidden">Agregar Deudor</span>
+                                <span className="hidden xl:inline">Agregar Nuevo Deudor</span>
+                                <span className="xl:hidden">Agregar Deudor</span>
                             </>
                         )}
                     </Button>
@@ -185,8 +185,22 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
                 </div>
             )}
 
-            {/* Table */}
-            <div className="overflow-x-auto custom-scrollbar pb-8 mx-2 md:mx-0">
+            {/* Table wrapper with forced scrollbar visibility */}
+            <div className="overflow-x-auto custom-scrollbar pb-10 mx-0 w-full max-w-full touch-pan-x">
+                <style jsx>{`
+                    .custom-scrollbar::-webkit-scrollbar {
+                        height: 12px !important;
+                        display: block !important;
+                    }
+                    .custom-scrollbar::-webkit-scrollbar-thumb {
+                        background-color: #10B981 !important;
+                        border-radius: 20px !important;
+                        border: 3px solid white !important;
+                    }
+                    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+                        border: 3px solid #0F172A !important;
+                    }
+                `}</style>
                 <table className="w-full text-sm min-w-[750px]">
                     <thead>
                         <tr className="bg-gray-50 dark:bg-gray-800/50">
