@@ -222,7 +222,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-white/10 space-y-1">
+        <div className="p-4 border-t border-white/20 space-y-2 mt-auto">
+          <p className="px-4 text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">
+            Sistema
+          </p>
           <button
             onClick={toggleTheme}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200"
