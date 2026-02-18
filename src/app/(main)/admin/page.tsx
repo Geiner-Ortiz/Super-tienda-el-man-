@@ -149,9 +149,9 @@ export default function AdminDashboard() {
                             if (error) throw error
                             alert('📢 Notificación enviada con éxito')
                             e.currentTarget.reset()
-                        } catch (err) {
+                        } catch (err: any) {
                             console.error(err)
-                            alert('Error al enviar notificación')
+                            alert(`Error al enviar notificación: ${err.message || 'Error desconocido'}`)
                         }
                     }}
                     className="space-y-4 max-w-xl"
