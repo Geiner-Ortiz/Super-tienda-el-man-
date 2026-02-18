@@ -194,8 +194,8 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
               rounded-3xl shadow-2xl border border-gray-100 dark:border-white/10 
               overflow-hidden ring-1 ring-black/5
               
-              /* Mobile: Centered/Wide at top */
-              left-4 right-4 top-24 
+              /* Mobile: Centered/Wide at top - Optimized for "Shop Owners" (Accessibility) */
+              left-2 right-2 top-24 
               w-auto 
               
               /* Desktop: Popped out to the right of the sidebar */
@@ -203,10 +203,10 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
             `}
           >
             {/* Header */}
-            <div className="p-4 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 flex items-center justify-between sticky top-0 backdrop-blur-xl z-10">
+            <div className="p-5 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 flex items-center justify-between sticky top-0 backdrop-blur-xl z-10">
               <div>
-                <h3 className="font-bold text-gray-900 dark:text-white text-lg">Notificaciones</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">
+                <h3 className="font-bold text-gray-900 dark:text-white text-xl lg:text-lg">Notificaciones</h3>
+                <p className="text-sm lg:text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">
                   {isMuted ? 'Silenciadas 🔕' : 'Tus alertas recientes'}
                 </p>
               </div>
@@ -216,19 +216,19 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
                 <button
                   onClick={toggleMute}
                   className={`
-                    p-2 rounded-full transition-all
+                    p-3 lg:p-2 rounded-full transition-all
                     ${isMuted
                       ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
                       : 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200'}
                   `}
                   title={isMuted ? "Activar sonido" : "Silenciar notificaciones"}
                 >
-                  {isMuted ? <BellSlashIcon className="w-4 h-4" /> : <BellIcon className="w-4 h-4" />}
+                  {isMuted ? <BellSlashIcon className="w-5 h-5 lg:w-4 lg:h-4" /> : <BellIcon className="w-5 h-5 lg:w-4 lg:h-4" />}
                 </button>
                 {/* Close Button (Visible on Mobile/Desktop for clarity) */}
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
+                  className="p-3 lg:p-2 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
                 >
                   <XCircleIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 </button>
@@ -237,10 +237,10 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
 
             {/* Toolbar */}
             {unreadCount > 0 && (
-              <div className="px-4 py-2 bg-gray-50/80 dark:bg-white/5 border-b border-gray-100 dark:border-white/5 flex justify-end backdrop-blur-sm">
+              <div className="px-5 py-3 lg:px-4 lg:py-2 bg-gray-50/80 dark:bg-white/5 border-b border-gray-100 dark:border-white/5 flex justify-end backdrop-blur-sm">
                 <button
                   onClick={markAllAsRead}
-                  className="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                  className="text-sm lg:text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
                 >
                   Marcar todo como leído
                 </button>
@@ -248,7 +248,7 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
             )}
 
             {/* Notifications List */}
-            <div className="overflow-y-auto max-h-[60vh] md:max-h-[400px] scrollbar-hide bg-white dark:bg-slate-900">
+            <div className="overflow-y-auto max-h-[65vh] lg:max-h-[400px] scrollbar-hide bg-white dark:bg-slate-900">
               {isLoading ? (
                 <div className="p-12 text-center">
                   <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto" />
@@ -258,8 +258,8 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
                   <div className="w-16 h-16 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
                     <BellIcon className="w-8 h-8 text-gray-400 dark:text-gray-500" />
                   </div>
-                  <p className="text-gray-900 dark:text-white font-medium">Estás al día</p>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">No hay nuevas notificaciones</p>
+                  <p className="text-gray-900 dark:text-white font-medium text-lg lg:text-base">Estás al día</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-base lg:text-sm mt-1">No hay nuevas notificaciones</p>
                 </div>
               ) : (
                 <div className="divide-y divide-gray-100 dark:divide-white/5">
@@ -271,29 +271,29 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
                       <button
                         key={notification.id}
                         onClick={() => markAsRead(notification.id)}
-                        className={`w-full p-4 text-left transition-all hover:bg-gray-50/80 dark:hover:bg-white/5 relative group ${!notification.is_read ? 'bg-primary-50/30 dark:bg-primary-900/10' : ''
+                        className={`w-full p-5 lg:p-4 text-left transition-all hover:bg-gray-50/80 dark:hover:bg-white/5 relative group ${!notification.is_read ? 'bg-primary-50/30 dark:bg-primary-900/10' : ''
                           }`}
                       >
                         <div className="flex gap-4">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClass} shadow-sm md:group-hover:scale-110 transition-transform duration-200`}>
-                            <Icon className="w-5 h-5" />
+                          <div className={`w-12 h-12 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClass} shadow-sm md:group-hover:scale-110 transition-transform duration-200`}>
+                            <Icon className="w-6 h-6 lg:w-5 lg:h-5" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2 mb-1">
-                              <p className={`text-sm ${notification.is_read ? 'text-gray-700 dark:text-gray-300 font-medium' : 'text-gray-900 dark:text-white font-bold'}`}>
+                              <p className={`text-base lg:text-sm ${notification.is_read ? 'text-gray-700 dark:text-gray-300 font-medium' : 'text-gray-900 dark:text-white font-bold'}`}>
                                 {notification.title}
                               </p>
-                              <span className="text-[10px] text-gray-400 dark:text-gray-500 whitespace-nowrap bg-gray-100 dark:bg-white/10 px-1.5 py-0.5 rounded-full">
+                              <span className="text-xs lg:text-[10px] text-gray-400 dark:text-gray-500 whitespace-nowrap bg-gray-100 dark:bg-white/10 px-2 py-1 lg:px-1.5 lg:py-0.5 rounded-full">
                                 {formatTime(notification.created_at)}
                               </span>
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
+                            <p className="text-sm lg:text-xs text-gray-500 dark:text-gray-400 leading-snug line-clamp-4 lg:line-clamp-3">
                               {notification.message}
                             </p>
                             {/* Red highlight for negative prompts if applicable (styling handled here, logic in backend) */}
                           </div>
                           {!notification.is_read && (
-                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary-500 rounded-r-full" />
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-10 lg:w-1 lg:h-8 bg-primary-500 rounded-r-full" />
                           )}
                         </div>
                       </button>
