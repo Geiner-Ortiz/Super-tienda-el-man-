@@ -84,6 +84,51 @@
   --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
 }
 
+.dark {
+  /* Deep Blue/Slate Premium Dark Theme */
+  --color-primary: #10B981;
+  --color-primary-50: #064E3B;
+  --color-primary-100: #065F46;
+  --color-primary-500: #10B981;
+  --color-primary-600: #059669;
+
+  --color-secondary: #F59E0B;
+  --color-secondary-50: #451A03;
+  --color-secondary-100: #78350F;
+
+  --color-accent: #F97316;
+  --color-accent-50: #431407;
+
+  /* Surfaces - The "Literally Dark" Part */
+  --color-background: #020617;
+  /* Slate 950 - Very Dark */
+  --color-surface: #0F172A;
+  /* Slate 900 */
+  --color-surface-elevated: #1E293B;
+  /* Slate 800 */
+
+  /* Text */
+  --color-foreground: #F8FAFC;
+  /* Slate 50 */
+  --color-foreground-secondary: #CBD5E1;
+  /* Slate 300 */
+  --color-foreground-muted: #64748B;
+  /* Slate 500 */
+
+  /* Borders */
+  --color-border: #1E293B;
+  /* Slate 800 */
+  --color-border-light: #334155;
+  /* Slate 700 */
+
+  /* Shadows - Stronger for dark mode */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
 html,
 body {
   overflow-x: hidden;
@@ -177,6 +222,12 @@ h6,
     border: 1px solid rgba(255, 255, 255, 0.6);
     box-shadow: var(--shadow-glass);
     border-radius: 16px;
+  }
+
+  .dark .card-glass {
+    background: rgba(15, 23, 42, 0.6);
+    /* Slate 900 with opacity */
+    border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   /* Card elevada */
@@ -296,8 +347,14 @@ h6,
     border: 1px solid rgba(255, 255, 255, 0.5);
   }
 
+  .dark .glass {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
   .glass-dark {
-    background: rgba(30, 58, 95, 0.95);
+    background: rgba(15, 23, 42, 0.9);
+    /* Slate 900 matching theme */
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);

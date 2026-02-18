@@ -60,12 +60,12 @@ const config: Config = {
           900: '#134E4A',
           950: '#042F2E',
         },
-        background: '#FAFBFC',
-        surface: '#FFFFFF',
+        background: 'var(--color-background)',
+        surface: 'var(--color-surface)',
         foreground: {
-          DEFAULT: '#1A1A2E',
-          secondary: '#64748B',
-          muted: '#94A3B8',
+          DEFAULT: 'var(--color-foreground)',
+          secondary: 'var(--color-foreground-secondary)',
+          muted: 'var(--color-foreground-muted)',
         },
         success: {
           50: '#ECFDF5',
@@ -89,8 +89,8 @@ const config: Config = {
           700: '#B91C1C',
         },
         border: {
-          DEFAULT: '#E2E8F0',
-          light: '#F1F5F9',
+          DEFAULT: 'var(--color-border)',
+          light: 'var(--color-border-light)',
           dark: '#CBD5E1',
         },
       },
