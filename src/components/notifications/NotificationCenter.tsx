@@ -34,20 +34,37 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isMuted, setIsMuted] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const unreadCount = notifications.filter(n => !n.is_read).length
 
-  // Close on click outside (Desktop only)
+  // Load mute preference
+  useEffect(() => {
+    const storedMute = localStorage.getItem('notification_muted')
+    if (storedMute === 'true') setIsMuted(true)
+  }, [])
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    const newState = !isMuted
+    setIsMuted(newState)
+    localStorage.setItem('notification_muted', String(newState))
+    toast.info(newState ? 'Notificaciones silenciadas 🔕' : 'Notificaciones activadas 🔔')
+  }
+
+  // Close on click outside (Improved for both mobile and desktop)
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (window.innerWidth >= 768 && dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false)
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  }, [isOpen])
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -81,9 +98,11 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
         },
         (payload) => {
           setNotifications(prev => [payload.new as Notification, ...prev])
-          // Play sound
-          const audio = new Audio('/sounds/notification.mp3')
-          audio.play().catch(() => { })
+          // Play sound if not muted
+          if (!isMuted) {
+            const audio = new Audio('/sounds/notification.mp3')
+            audio.play().catch(() => { })
+          }
         }
       )
       .subscribe()
@@ -91,7 +110,7 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [userId])
+  }, [userId, isMuted])
 
   const markAsRead = async (notificationId: string) => {
     const supabase = createClient()
@@ -143,34 +162,26 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
   }, [isOpen])
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative z-50" ref={dropdownRef}>
       {/* Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200 active:scale-95 z-[60]"
       >
-        <BellIcon className={`w-6 h-6 ${isOpen ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300'}`} />
-        {unreadCount > 0 && (
+        {isMuted ? (
+          <BellSlashIcon className={`w-6 h-6 text-gray-400 dark:text-gray-500`} />
+        ) : (
+          <BellIcon className={`w-6 h-6 ${isOpen ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300'}`} />
+        )}
+
+        {!isMuted && unreadCount > 0 && (
           <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-error-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white dark:ring-slate-900 animate-scale-in">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
-      {/* Backdrop (Mobile Only) */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 z-[50] md:hidden backdrop-blur-sm"
-            onClick={() => setIsOpen(false)}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Notifications Panel */}
+      {/* Notifications Panel - Unified Mobile/Desktop Design */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -179,8 +190,12 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className={`
-              fixed inset-x-0 bottom-0 top-20 z-[60] bg-white dark:bg-slate-900 rounded-t-3xl shadow-2xl border-t border-white/10 overflow-hidden ring-1 ring-black/5
-              md:absolute md:inset-auto md:right-0 md:top-full md:mt-3 md:w-96 md:rounded-3xl md:h-auto md:max-h-[600px]
+              absolute right-0 top-full mt-3 
+              w-[90vw] sm:w-96 max-w-[400px]
+              bg-white dark:bg-slate-900 
+              rounded-3xl shadow-2xl border border-gray-100 dark:border-white/10 
+              overflow-hidden ring-1 ring-black/5
+              origin-top-right
             `}
           >
             {/* Header */}
@@ -188,17 +203,23 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
               <div>
                 <h3 className="font-bold text-gray-900 dark:text-white text-lg">Notificaciones</h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">
-                  Tus alertas recientes
+                  {isMuted ? 'Silenciadas 🔕' : 'Tus alertas recientes'}
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
-                {/* Mobile Close Button */}
+              <div className="flex items-center gap-2">
+                {/* Toggle Mute Button */}
                 <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors md:hidden"
+                  onClick={toggleMute}
+                  className={`
+                    p-2 rounded-full transition-all
+                    ${isMuted
+                      ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                      : 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200'}
+                  `}
+                  title={isMuted ? "Activar sonido" : "Silenciar notificaciones"}
                 >
-                  <XCircleIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                  {isMuted ? <BellSlashIcon className="w-4 h-4" /> : <BellIcon className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -216,7 +237,7 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
             )}
 
             {/* Notifications List */}
-            <div className="overflow-y-auto h-[calc(100%-130px)] md:h-auto md:max-h-[400px] scrollbar-hide bg-white dark:bg-slate-900">
+            <div className="overflow-y-auto max-h-[60vh] md:max-h-[400px] scrollbar-hide bg-white dark:bg-slate-900">
               {isLoading ? (
                 <div className="p-12 text-center">
                   <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto" />
@@ -255,7 +276,7 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
                                 {formatTime(notification.created_at)}
                               </span>
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3 md:line-clamp-2">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
                               {notification.message}
                             </p>
                             {/* Red highlight for negative prompts if applicable (styling handled here, logic in backend) */}
@@ -281,6 +302,16 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
         )}
       </AnimatePresence>
     </div>
+  )
+}
+
+// Keep existing Icons and Add BellSlash
+function BellSlashIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+    </svg>
   )
 }
 
