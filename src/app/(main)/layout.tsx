@@ -66,7 +66,7 @@ export default function MainLayout({
             onClose={() => setIsMenuOpen(false)}
           />
 
-          <main className="lg:ml-64 pt-16 lg:pt-0">
+          <main className="lg:ml-64 pt-16 lg:pt-0 w-full max-w-full overflow-x-hidden relative">
             {children}
           </main>
         </div>
