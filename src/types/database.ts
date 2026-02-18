@@ -210,6 +210,9 @@ export type NotificationType =
   | 'payment_received'
   | 'case_update'
   | 'document_request'
+  | 'info'
+  | 'warning'
+  | 'success'
 
 export interface Notification {
   id: string
