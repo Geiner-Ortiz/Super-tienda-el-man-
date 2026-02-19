@@ -23,7 +23,7 @@ export async function POST(req: Request) {
         // 1. Contexto para Ventas
         let extraContext = "";
 
-        if (lastMessage.includes('venta') || lastMessage.includes('ganancia') || lastMessage.includes('cuanto') || lastMessage.includes('gané')) {
+        if (lastMessage.includes('venta') || lastMessage.includes('gan') || lastMessage.includes('cuant') || lastMessage.includes('vend')) {
             const { data: sales } = await supabase.from('sales').select('amount, profit, sale_date').order('created_at', { ascending: false }).limit(20);
 
             if (sales && sales.length > 0) {
@@ -32,16 +32,38 @@ export async function POST(req: Request) {
         }
 
         // 2. Contexto para Deudores
-        if (lastMessage.includes('debe') || lastMessage.includes('deuda') || lastMessage.includes('cobrar') || lastMessage.includes('morosos')) {
-            const { data: debtors } = await supabase.from('debtors').select('name, amount, phone');
+        if (lastMessage.includes('debe') || lastMessage.includes('deuda') || lastMessage.includes('cobrar') || lastMessage.includes('moros') || lastMessage.includes('quien') || lastMessage.includes('cliente')) {
+            const { data: debtorsData } = await supabase.from('debtors').select('name, phone, debts(amount, is_paid)');
 
-            if (debtors && debtors.length > 0) {
-                extraContext += `\nDATOS DE CLIENTES QUE DEBEN (MOROSOS):\n${debtors.map(d => `- ${d.name} debe $${d.amount} (Tel: ${d.phone})`).join('\n')}\n`;
+            if (debtorsData && debtorsData.length > 0) {
+                const results = debtorsData.map(d => {
+                    const pendingAmount = (d.debts || [])
+                        .filter((debt: any) => !debt.is_paid)
+                        .reduce((acc: number, debt: any) => acc + Number(debt.amount), 0);
+
+                    const totalHistory = (d.debts || []).length;
+                    const paidCount = (d.debts || []).filter((debt: any) => debt.is_paid).length;
+
+                    return {
+                        name: d.name,
+                        phone: d.phone,
+                        pendingAmount,
+                        totalHistory,
+                        paidCount,
+                        isSaldado: totalHistory > 0 && pendingAmount === 0
+                    };
+                }).filter(d => d.pendingAmount > 0 || lastMessage.includes('todos') || lastMessage.includes('lista'));
+
+                if (results.length > 0) {
+                    extraContext += `\nDATOS DE CLIENTES DEUDORES (EN TIEMPO REAL):\n${results.map(r =>
+                        `- ${r.name}: DEBE $${r.pendingAmount} (Tel: ${r.phone}) [Historial: ${r.totalHistory} deudas, ${r.paidCount} pagadas]`
+                    ).join('\n')}\n`;
+                }
             }
         }
 
         // 3. Contexto para Gastos (Contabilidad)
-        if (lastMessage.includes('gasto') || lastMessage.includes('egreso') || lastMessage.includes('pagué') || lastMessage.includes('pago') || lastMessage.includes('factura')) {
+        if (lastMessage.includes('gast') || lastMessage.includes('egres') || lastMessage.includes('pagu') || lastMessage.includes('pago') || lastMessage.includes('factur')) {
             const { data: expenses } = await supabase.from('expenses').select('category, type, amount, expense_date').order('expense_date', { ascending: false }).limit(10);
 
             if (expenses && expenses.length > 0) {
