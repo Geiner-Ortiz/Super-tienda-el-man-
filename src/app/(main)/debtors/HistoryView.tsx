@@ -148,7 +148,7 @@ export function HistoryView({
                                             setEditDesc(debt.description || '')
                                         }}><Edit2 className="w-3.5 h-3.5" /></Button>
                                     )}
-                                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-red-300 hover:text-red-500" onClick={() => handleDeleteDebt(debt.id, debtor.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-red-300 hover:text-red-500" onClick={() => handleDeleteDebt(debt.id, debtor.id)}><Trash2 className="w-4.5 h-4.5" /></Button>
                                 </>
                             )}
                         </div>

@@ -27,6 +27,7 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
     const [newName, setNewName] = useState('')
     const [newPhone, setNewPhone] = useState('')
     const [newAmount, setNewAmount] = useState('')
+    const [newDescription, setNewDescription] = useState('')
     const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0])
 
     // Form state for new debt entry
@@ -83,7 +84,7 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
                 debtor_id: newDebtor.id,
                 amount: amountNum,
                 debt_date: newDate,
-                description: 'Deuda inicial',
+                description: newDescription || 'Deuda inicial',
                 is_paid: false
             })
 
@@ -94,6 +95,7 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
             setNewName('')
             setNewPhone('')
             setNewAmount('')
+            setNewDescription('')
             setIsAddingDebtor(false)
             toast.success('Deudor registrado y notificado correctamente 📱')
         } catch (error) {
@@ -271,7 +273,15 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
                                 required
                             />
                         </div>
-                        <div className="md:col-span-4">
+                        <div className="md:col-span-2">
+                            <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Descripción Inicial</label>
+                            <Input
+                                value={newDescription}
+                                onChange={(e) => setNewDescription(e.target.value)}
+                                placeholder="Ej: Compra de arroz y aceite"
+                            />
+                        </div>
+                        <div className="md:col-span-2">
                             <Button
                                 type="submit"
                                 disabled={saving}
@@ -344,7 +354,7 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
                                                 onClick={() => handleDeleteDebtor(debtor.id)}
                                                 className="rounded-xl text-red-400 hover:bg-red-50"
                                             >
-                                                <Trash2 className="w-4 h-4" />
+                                                <Trash2 className="w-5 h-5" />
                                             </Button>
                                         </div>
                                     </td>
@@ -434,7 +444,7 @@ export function DebtorManagement({ initialDebtors }: DebtorManagementProps) {
                                     onClick={() => handleDeleteDebtor(debtor.id)}
                                     className="rounded-xl text-red-400 h-10 w-10"
                                 >
-                                    <Trash2 className="w-4 h-4" />
+                                    <Trash2 className="w-6 h-6" />
                                 </Button>
                             </div>
                         )}
