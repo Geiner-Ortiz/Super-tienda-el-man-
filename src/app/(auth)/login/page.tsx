@@ -6,8 +6,12 @@ export default function LoginPage() {
   return (
     <div className="space-y-8">
       <div className="text-center lg:text-left flex flex-col lg:flex-row items-center gap-4">
-        <div className="lg:hidden w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20">
-          <BananaIcon className="w-10 h-10 text-white" />
+        {/* Mobile Header with Logo & Brand Name */}
+        <div className="lg:hidden flex items-center gap-3 mb-2">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20">
+            <BananaIcon className="w-8 h-8 text-white" />
+          </div>
+          <span className="text-2xl font-black text-yellow-600 dark:text-yellow-500 tracking-tight">Tu Súper Tienda</span>
         </div>
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold text-foreground leading-tight">Inicia sesión en tu cuenta para continuar</h1>
