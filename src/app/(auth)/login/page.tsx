@@ -11,7 +11,7 @@ export default function LoginPage() {
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20">
             <BananaIcon className="w-8 h-8 text-white" />
           </div>
-          <span className="text-2xl font-black text-yellow-600 dark:text-yellow-500 tracking-tight">Tu Súper Tienda</span>
+          <span className="text-2xl font-black text-primary-600 dark:text-primary-400 tracking-tight">Tu Súper Tienda</span>
         </div>
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold text-foreground leading-tight">Inicia sesión en tu cuenta para continuar</h1>
