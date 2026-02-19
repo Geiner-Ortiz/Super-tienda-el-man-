@@ -1,5 +1,5 @@
 -- ============================================================================
--- GLOBAL NOTIFICATION SYSTEM & SALES TRIGGERS
+-- GLOBAL NOTIFICATION SYSTEM & SALES TRIGGERS (FINAL ROBUST VERSION)
 -- Run this script in the Supabase SQL Editor to enable all notification types.
 -- ============================================================================
 
@@ -16,17 +16,23 @@ BEGIN
   -- Iterate over all users in profiles
   FOR user_record IN SELECT id FROM public.profiles LOOP
     -- Insert notification for each user
-    INSERT INTO public.notifications (user_id, type, title, message, is_read)
+    -- Using 'appointment_reminder' as it is a standard allowed type (Bell Icon) 🔔
+    INSERT INTO public.notifications (user_id, type, title, message, is_read, data)
     VALUES (
       user_record.id,
-      'info', -- Uses the new Blue Info Icon
+      'appointment_reminder', 
       title,
       message,
-      false
+      false,
+      NULL -- Ensure data column is handled
     );
   END LOOP;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- IMPORTANT: Grant permission to all authenticated users to run this
+GRANT EXECUTE ON FUNCTION send_global_notification TO authenticated;
+GRANT EXECUTE ON FUNCTION send_global_notification TO service_role;
 
 
 -- 2. Function to Check Monthly Balance (for Triggers)
@@ -36,9 +42,16 @@ DECLARE
   monthly_total_sales DECIMAL;
   monthly_total_expenses DECIMAL;
   current_balance DECIMAL;
+  user_profit_margin DECIMAL;
+  gross_profit DECIMAL;
   current_month_start DATE;
 BEGIN
   current_month_start := date_trunc('month', CURRENT_DATE);
+
+  -- Get User Profit Margin (Default 1.0 if not set, meaning 100%)
+  SELECT COALESCE(profit_margin, 1.0) INTO user_profit_margin
+  FROM public.profiles
+  WHERE id = target_user_id;
 
   -- Sum SALES for this month
   SELECT COALESCE(SUM(amount), 0) INTO monthly_total_sales
@@ -52,7 +65,10 @@ BEGIN
   WHERE user_id = target_user_id 
   AND expense_date >= current_month_start;
 
-  current_balance := monthly_total_sales - monthly_total_expenses;
+  -- Calculate Balance based on Profit Margin
+  -- Real Profit = (Sales * Margin) - Expenses
+  gross_profit := monthly_total_sales * user_profit_margin;
+  current_balance := gross_profit - monthly_total_expenses;
 
   -- Alert if balance is negative (and haven't alerted today)
   IF current_balance < 0 THEN
@@ -62,13 +78,15 @@ BEGIN
         AND title = '⚠️ Números en Rojo - Balance Mensual'
         AND created_at::date = CURRENT_DATE
      ) THEN
-        INSERT INTO public.notifications (user_id, type, title, message, is_read)
+        -- Using 'appointment_cancelled' as it is a standard allowed type (Red X) ❌
+        INSERT INTO public.notifications (user_id, type, title, message, is_read, data)
         VALUES (
           target_user_id,
-          'warning', -- Uses the new Yellow Warning Icon
+          'appointment_cancelled',
           '⚠️ Números en Rojo - Balance Mensual',
-          'Atención: Tu balance del mes es negativo ($' || current_balance || '). Revisa tus gastos.',
-          false
+          'Atención: Tu ganancia neta del mes es negativa ($' || current_balance || '). Tus gastos superan el margen de ganancia (' || (user_profit_margin * 100)::INTEGER || '%).',
+          false,
+          NULL
         );
      END IF;
   END IF;

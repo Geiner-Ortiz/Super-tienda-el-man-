@@ -13,7 +13,7 @@ if (!PROJECT_REF || !ACCESS_TOKEN) {
 }
 
 async function applyMigration() {
-    const sqlPath = path.resolve(__dirname, 'supabase/migrations/20260217_admin_access.sql');
+    const sqlPath = path.resolve(__dirname, 'supabase/migrations/20260218_multiple_debts.sql');
     const sql = fs.readFileSync(sqlPath, 'utf8');
 
     console.log(`Aplicando migración a ${PROJECT_REF}...`);
