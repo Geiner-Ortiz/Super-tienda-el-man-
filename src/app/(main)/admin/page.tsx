@@ -16,6 +16,7 @@ interface ClientProfile {
     store_name: string | null
     created_at: string
     role: string
+    subscription_status?: string | null
 }
 
 interface ClientStats {
@@ -223,6 +224,7 @@ export default function AdminDashboard() {
                                 <th className="text-left px-6 py-4 font-semibold text-gray-500">ID Cliente</th>
                                 <th className="text-left px-6 py-4 font-semibold text-gray-500">Nombre / Tienda</th>
                                 <th className="text-left px-6 py-4 font-semibold text-gray-500">Email</th>
+                                <th className="text-left px-6 py-4 font-semibold text-gray-500">Plan</th>
                                 <th className="text-left px-6 py-4 font-semibold text-gray-500">Registro</th>
                                 <th className="text-right px-6 py-4 font-semibold text-gray-500">Acciones</th>
                             </tr>
@@ -275,6 +277,17 @@ export default function AdminDashboard() {
                                         </td>
                                         <td className="px-6 py-4 text-gray-500">
                                             {client.email || 'Sin correo'}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {client.subscription_status === 'active' ? (
+                                                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-black rounded-full border border-green-200 dark:border-green-800">
+                                                    PRO
+                                                </span>
+                                            ) : (
+                                                <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-[10px] font-bold rounded-full border border-gray-200 dark:border-gray-700">
+                                                    FREE
+                                                </span>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4 text-gray-400">
                                             {new Date(client.created_at).toLocaleDateString()}

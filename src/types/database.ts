@@ -12,6 +12,7 @@ export interface Profile {
   role: UserRole
   store_name?: string
   profit_margin?: number
+  subscription_status?: string | null
   created_at: string
   updated_at: string
 }
