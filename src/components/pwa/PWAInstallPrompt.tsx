@@ -70,7 +70,7 @@ export function PWAInstallPrompt() {
 
                     <div className="flex-1 min-w-0">
                         <h4 className="font-black text-gray-900 dark:text-white text-base leading-tight mb-1 italic">
-                            ¡Instala El Maná!
+                            ¡Instala Tu Súper Tienda!
                         </h4>
                         <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-normal mb-4">
                             Acceso rápido y sin navegador para tu negocio.

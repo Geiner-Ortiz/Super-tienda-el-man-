@@ -124,7 +124,7 @@ export function StepConfirm() {
           {/* Detalles */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-foreground-muted mb-1">Tipo de consulta</p>
+              <p className="text-sm text-foreground-muted mb-1">Tipo de servicio</p>
               <p className="font-medium text-foreground">{turnoType.name}</p>
             </div>
             <div>
@@ -152,7 +152,7 @@ export function StepConfirm() {
 
           {/* Precio */}
           <div className="flex items-center justify-between">
-            <span className="text-foreground-secondary">Costo de la consulta</span>
+            <span className="text-foreground-secondary">Costo del servicio</span>
             <span className="text-2xl font-bold text-secondary-600">
               ${turnoType.price}
             </span>
@@ -171,7 +171,7 @@ export function StepConfirm() {
             onChange={(e) => setNotes(e.target.value)}
             className="w-full p-3 border rounded-lg resize-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             rows={3}
-            placeholder="Describe brevemente el motivo de tu consulta..."
+            placeholder="Describe brevemente el motivo de tu turno..."
           />
         </label>
       </Card>

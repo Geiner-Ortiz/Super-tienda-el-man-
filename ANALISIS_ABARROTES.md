@@ -1,4 +1,4 @@
-# 📊 Análisis - Súper Tienda El Maná
+# 📊 Análisis - Tu Súper Tienda
 ## Sistema de Control de Ventas y Ganancias Nítido
 
 **Fecha de Análisis:** 14 de Febrero, 2026

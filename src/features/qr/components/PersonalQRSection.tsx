@@ -56,7 +56,7 @@ export function PersonalQRSection({ personalId, personalSlug, personalName }: Pe
     if (navigator.share) {
       await navigator.share({
         title: `Agendar turno con ${personalName}`,
-        text: `Agenda tu consulta legal con ${personalName}`,
+        text: `Agenda tu turno con ${personalName} en Tu Súper Tienda`,
         url: bookingUrl
       })
     } else {

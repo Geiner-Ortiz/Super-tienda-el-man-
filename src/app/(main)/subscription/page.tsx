@@ -1,45 +1,44 @@
-﻿uiumupuourutu u{u ucurueuautueuCuluiueunutu u}u ufuruoumu u'u@u/uluiubu/usuuupuaubuausueu/usueuruvueuru'uu
-uiumupuourutu u{u urueuduiurueucutu u}u ufuruoumu u'unueuxutu/unuauvuiuguautuiuounu'uu
-uiumupuourutu u{u uSuuubusucuruiuputuiuounuBuaununueuru u}u ufuruoumu u'u@u/ufueuautuuurueusu/upuauyumueunutusu/ucuoumupuounueunutusu/uSuuubusucuruiuputuiuounuBuaununueuru'uu
-uu
-ueuxupuourutu ucuounusutu umueutuauduautuau u=u u{uu
-u u u u utuiutulueu:u u'uSuuusucuruiupucuiuÃu³unu u|u uTuuu uSuÃuºupueuru uTuiueunuduau'uu
-u}uu
-uu
-ueuxupuourutu udueufuauuulutu uausuyunucu ufuuunucutuiuounu uSuuubusucuruiuputuiuounuPuaugueu(u)u u{uu
-u u u u ucuounusutu usuuupuaubuausueu u=u uauwuauiutu ucurueuautueuCuluiueunutu(u)uu
-u u u u ucuounusutu u{u uduautuau:u u{u uuusueuru u}u u}u u=u uauwuauiutu usuuupuaubuausueu.uauuutuhu.ugueutuUusueuru(u)uu
-uu
-u u u u uiufu u(u!uuusueuru)u u{uu
-u u u u u u u u urueuduiurueucutu(u'u/uluouguiunu'u)uu
-u u u u u}uu
-uu
-u u u u urueutuuurunu u(uu
-u u u u u u u u u<uduiuvu uculuaususuNuaumueu=u"upu-u6u umudu:upu-u8u umuauxu-uwu-u7uxulu umuxu-uauuutuou"u>uu
-u u u u u u u u u u u u u<uduiuvu uculuaususuNuaumueu=u"umubu-u8u"u>uu
-u u u u u u u u u u u u u u u u u<uhu1u uculuaususuNuaumueu=u"utueuxutu-u3uxulu ufuounutu-ubuouludu utueuxutu-ufuourueuguruouuunudu"u>uSuuusucuruiupucuiuÃu³unu<u/uhu1u>uu
-u u u u u u u u u u u u u u u u u<upu uculuaususuNuaumueu=u"utueuxutu-ufuourueuguruouuunudu-usueucuounuduauruyu umutu-u1u utueuxutu-ulugu"u>uu
-u u u u u u u u u u u u u u u u u u u u uMueujuouruau utuuu ucuuueunutuau upuauruau uaucucueudueuru uau ufuuunucuiuounueusu ueuxuculuuusuiuvuausuu
-u u u u u u u u u u u u u u u u u<u/upu>uu
-u u u u u u u u u u u u u<u/uduiuvu>uu
-uu
-u u u u u u u u u u u u u<uSuuubusucuruiuputuiuounuBuaununueuru u/u>uu
-uu
-u u u u u u u u u u u u u<uduiuvu uculuaususuNuaumueu=u"umutu-u1u2u uguruiudu uguruiudu-ucuoulusu-u1u umudu:uguruiudu-ucuoulusu-u3u uguaupu-u6u"u>uu
-u u u u u u u u u u u u u u u u u<uduiuvu uculuaususuNuaumueu=u"upu-u6u uruouuunudueudu-u2uxulu ubugu-uwuhuiutueu uduauruku:ubugu-uguruauyu-u9u0u0u ubuourudueuru ubuourudueuru-ubuourudueuru usuhuauduouwu-usumu"u>uu
-u u u u u u u u u u u u u u u u u u u u u<uhu4u uculuaususuNuaumueu=u"ufuounutu-ubuouludu utueuxutu-ulugu umubu-u2u"u>uWuhuautusuAupupu uIuluiumuiutuauduou<u/uhu4u>uu
-u u u u u u u u u u u u u u u u u u u u u<upu uculuaususuNuaumueu=u"utueuxutu-ufuourueuguruouuunudu-usueucuounuduauruyu utueuxutu-usumu"u>uEunuvuÃu­uau urueucuouruduautuouruiuousu uauuutuoumuÃu¡utuiucuousu uau utuouduousu utuuusu uculuiueunutueusu usuiunu uluÃu­umuiutueusu.u<u/upu>uu
-u u u u u u u u u u u u u u u u u<u/uduiuvu>uu
-u u u u u u u u u u u u u u u u u<uduiuvu uculuaususuNuaumueu=u"upu-u6u uruouuunudueudu-u2uxulu ubugu-uwuhuiutueu uduauruku:ubugu-uguruauyu-u9u0u0u ubuourudueuru ubuourudueuru-ubuourudueuru usuhuauduouwu-usumu"u>uu
-u u u u u u u u u u u u u u u u u u u u u<uhu4u uculuaususuNuaumueu=u"ufuounutu-ubuouludu utueuxutu-ulugu umubu-u2u"u>uRueupuourutueusu uPuruou<u/uhu4u>uu
-u u u u u u u u u u u u u u u u u u u u u<upu uculuaususuNuaumueu=u"utueuxutu-ufuourueuguruouuunudu-usueucuounuduauruyu utueuxutu-usumu"u>uVuiusuuuauluiuzuau ueulu ucurueucuiumuiueunutuou udueu utuuu unueuguoucuiuou ucuounu uguruÃu¡ufuiucuausu uyu uaunuÃu¡uluiusuiusu uauvuaunuzuauduousu.u<u/upu>uu
-u u u u u u u u u u u u u u u u u<u/uduiuvu>uu
-u u u u u u u u u u u u u u u u u<uduiuvu uculuaususuNuaumueu=u"upu-u6u uruouuunudueudu-u2uxulu ubugu-uwuhuiutueu uduauruku:ubugu-uguruauyu-u9u0u0u ubuourudueuru ubuourudueuru-ubuourudueuru usuhuauduouwu-usumu"u>uu
-u u u u u u u u u u u u u u u u u u u u u<uhu4u uculuaususuNuaumueu=u"ufuounutu-ubuouludu utueuxutu-ulugu umubu-u2u"u>uSuoupuourutueu uPuruiuouruiutuauruiuou<u/uhu4u>uu
-u u u u u u u u u u u u u u u u u u u u u<upu uculuaususuNuaumueu=u"utueuxutu-ufuourueuguruouuunudu-usueucuounuduauruyu utueuxutu-usumu"u>uRueucuiubueu uauyuuuduau utuÃu©ucunuiucuau uiunumueuduiuautuau udueu unuuueusuturuou ueuquuuiupuou udueu ueuxupueurutuousu.u<u/upu>uu
-u u u u u u u u u u u u u u u u u<u/uduiuvu>uu
-u u u u u u u u u u u u u<u/uduiuvu>uu
-u u u u u u u u u<u/uduiuvu>uu
-u u u u u)uu
-u}uu
-u
+﻿import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import { SubscriptionBanner } from '@/features/payments/components/SubscriptionBanner'
+
+export const metadata = {
+    title: 'Suscripción | Tu Súper Tienda'
+}
+
+export default async function SubscriptionPage() {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+        redirect('/login')
+    }
+
+    return (
+        <div className="p-6 md:p-8 max-w-7xl mx-auto">
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Suscripción</h1>
+                <p className="text-gray-500 dark:text-gray-400 mt-1 text-lg">
+                    Mejora tu tienda para acceder a nuevas funcionalidades exclusivas.
+                </p>
+            </div>
+
+            <SubscriptionBanner />
+
+            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="p-6 rounded-2xl border border-gray-100 bg-white dark:bg-slate-900 shadow-sm shadow-black/5">
+                    <h4 className="font-bold text-lg mb-2">Ventas Al Paso</h4>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Registra ventas al instante de manera rápida y sin complicaciones.</p>
+                </div>
+                <div className="p-6 rounded-2xl border border-gray-100 bg-white dark:bg-slate-900 shadow-sm shadow-black/5">
+                    <h4 className="font-bold text-lg mb-2">Reportes Pro</h4>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Visualiza tus ingresos de manera gráfica y analiza tus ganancias al instante.</p>
+                </div>
+                <div className="p-6 rounded-2xl border border-gray-100 bg-white dark:bg-slate-900 shadow-sm shadow-black/5">
+                    <h4 className="font-bold text-lg mb-2">Soporte Prioritario</h4>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Recibe ayuda técnica inmediata de nuestro equipo de expertos.</p>
+                </div>
+            </div>
+        </div>
+    )
+}

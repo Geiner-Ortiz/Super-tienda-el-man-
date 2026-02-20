@@ -40,24 +40,24 @@ export function turnoCreatedClientEmail(data: TurnoEmailData): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Turno Confirmada - Tu Súper Tienda</title>
+  <title>Turno Confirmado - Tu Súper Tienda</title>
   <style>${baseStyles}</style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <h1>Tu Súper Tienda</h1>
-      <p>Tu turno ha sido agendada</p>
+      <p>Tu turno ha sido agendado</p>
     </div>
     <div class="content">
       <p class="greeting">Hola ${data.clientName},</p>
       <p class="message">
-        Tu turno con <strong>${data.personalName}</strong> ha sido agendada exitosamente.
+        Tu turno con <strong>${data.personalName}</strong> ha sido agendado exitosamente.
         A continuaci&oacute;n encontrar&aacute;s los detalles de tu turno.
       </p>
 
       <div class="details-card">
-        <h3>Detalles de la Turno</h3>
+        <h3>Detalles del Turno</h3>
         <div class="detail-row">
           <span class="detail-label">Personal</span>
           <span class="detail-value">${data.personalName}</span>
@@ -93,7 +93,7 @@ export function turnoCreatedClientEmail(data: TurnoEmailData): string {
     </div>
     <div class="footer">
       <p>Este correo fue enviado autom&aacute;ticamente por Tu Súper Tienda</p>
-      <p>&copy; ${new Date().getFullYear()} Tu Súper Tienda - Gesti&oacute;n Legal Inteligente</p>
+      <p>&copy; ${new Date().getFullYear()} Tu Súper Tienda - Gesti&oacute;n de Tienda Inteligente</p>
     </div>
   </div>
 </body>
@@ -108,24 +108,24 @@ export function turnoCreatedPersonalEmail(data: TurnoEmailData): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nueva Turno Agendada - Tu Súper Tienda</title>
+  <title>Nuevo Turno Agendado - Tu Súper Tienda</title>
   <style>${baseStyles}</style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <h1>Tu Súper Tienda</h1>
-      <p>Nueva turno agendada</p>
+      <p>Nuevo turno agendado</p>
     </div>
     <div class="content">
       <p class="greeting">Hola ${data.personalName},</p>
       <p class="message">
-        El cliente <strong>${data.clientName}</strong> ha agendado una turno contigo.
+        El cliente <strong>${data.clientName}</strong> ha agendado un turno contigo.
         A continuaci&oacute;n encontrar&aacute;s los detalles.
       </p>
 
       <div class="details-card">
-        <h3>Detalles de la Turno</h3>
+        <h3>Detalles del Turno</h3>
         <div class="detail-row">
           <span class="detail-label">Cliente</span>
           <span class="detail-value">${data.clientName}</span>
@@ -156,7 +156,7 @@ export function turnoCreatedPersonalEmail(data: TurnoEmailData): string {
     </div>
     <div class="footer">
       <p>Este correo fue enviado autom&aacute;ticamente por Tu Súper Tienda</p>
-      <p>&copy; ${new Date().getFullYear()} Tu Súper Tienda - Gesti&oacute;n Legal Inteligente</p>
+      <p>&copy; ${new Date().getFullYear()} Tu Súper Tienda - Gesti&oacute;n de Tienda Inteligente</p>
     </div>
   </div>
 </body>
@@ -171,23 +171,23 @@ export function turnoCreatedAdminEmail(data: TurnoEmailData): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nueva Turno en el Sistema - Tu Súper Tienda</title>
+  <title>Nuevo Turno en el Sistema - Tu Súper Tienda</title>
   <style>${baseStyles}</style>
 </head>
 <body>
   <div class="container">
     <div class="header" style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);">
       <h1>Tu Súper Tienda Admin</h1>
-      <p>Nueva turno registrada en el sistema</p>
+      <p>Nuevo turno registrado en el sistema</p>
     </div>
     <div class="content">
       <p class="greeting">Notificaci&oacute;n de Administrador</p>
       <p class="message">
-        Se ha registrado una nueva turno en el sistema Tu Súper Tienda.
+        Se ha registrado un nuevo turno en el sistema Tu Súper Tienda.
       </p>
 
       <div class="details-card">
-        <h3>Detalles de la Turno</h3>
+        <h3>Detalles del Turno</h3>
         <div class="detail-row">
           <span class="detail-label">Cliente</span>
           <span class="detail-value">${data.clientName}</span>
@@ -230,9 +230,9 @@ export function turnoStatusChangedEmail(
   data: TurnoEmailData & { status: 'confirmed' | 'cancelled' | 'completed'; recipientType: 'client' | 'personal' }
 ): string {
   const statusConfig = {
-    confirmed: { label: 'Confirmada', class: 'status-confirmed', message: 'Tu turno ha sido confirmada' },
-    cancelled: { label: 'Cancelada', class: 'status-cancelled', message: 'Tu turno ha sido cancelada' },
-    completed: { label: 'Completada', class: 'status-confirmed', message: 'Tu turno ha sido marcada como completada' },
+    confirmed: { label: 'Confirmado', class: 'status-confirmed', message: 'Tu turno ha sido confirmado' },
+    cancelled: { label: 'Cancelado', class: 'status-cancelled', message: 'Tu turno ha sido cancelado' },
+    completed: { label: 'Completado', class: 'status-confirmed', message: 'Tu turno ha sido marcado como completado' },
   }
 
   const config = statusConfig[data.status]
@@ -290,7 +290,7 @@ export function turnoStatusChangedEmail(
     </div>
     <div class="footer">
       <p>Este correo fue enviado autom&aacute;ticamente por Tu Súper Tienda</p>
-      <p>&copy; ${new Date().getFullYear()} Tu Súper Tienda - Gesti&oacute;n Legal Inteligente</p>
+      <p>&copy; ${new Date().getFullYear()} Tu Súper Tienda - Gesti&oacute;n de Tienda Inteligente</p>
     </div>
   </div>
 </body>

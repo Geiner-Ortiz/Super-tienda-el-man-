@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps) {
 
   return {
     title: `Agendar turno con ${profile?.full_name || 'Personal'} | Tu Súper Tienda`,
-    description: `Agenda tu consulta legal con ${profile?.full_name}. Especialidad: ${personal.specialty}`
+    description: `Agenda tu turno con ${profile?.full_name}. Especialidad: ${personal.specialty}`
   }
 }
 

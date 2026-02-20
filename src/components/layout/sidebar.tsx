@@ -36,6 +36,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: HomeIcon, roles: ['admin', 'personal', 'client', 'super_admin'] },
+  { href: '/turnos', label: 'Mis Turnos', icon: UsersIcon, roles: ['admin', 'personal', 'client', 'super_admin'] },
   { href: '/debtors', label: 'Clientes Morosos', icon: UsersIcon, roles: ['admin', 'personal', 'client', 'super_admin'] },
   { href: '/finances', label: 'Contabilidad', icon: CalculatorIcon, roles: ['admin', 'personal', 'client', 'super_admin'], tourId: 'nav-finances' },
   { href: '/admin', label: 'Panel Maestro', icon: ShieldCheckIcon, roles: ['super_admin'] },

@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       turnoId: turno.id,
-      message: 'Turno creada exitosamente'
+      message: 'Turno creado exitosamente'
     })
 
   } catch (error) {

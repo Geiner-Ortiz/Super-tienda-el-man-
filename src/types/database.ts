@@ -259,6 +259,42 @@ export interface ProjectWithRelations extends Omit<Project, 'personal' | 'client
 }
 
 // ============================================
+// Sistema de Ventas y Gastos
+// ============================================
+
+export interface Sale {
+  id: string
+  amount: number
+  profit: number
+  sale_date: string
+  user_id: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Expense {
+  id: string
+  category: 'fijo' | 'variable'
+  type: string
+  amount: number
+  description: string | null
+  expense_date: string
+  user_id: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Debtor {
+  id: string
+  user_id: string
+  name: string
+  phone: string
+  amount: number
+  created_at: string
+  updated_at: string
+}
+
+// ============================================
 // Permisos por Rol
 // ============================================
 
@@ -344,6 +380,26 @@ export interface Database {
         Row: Turno
         Insert: CreateTurnoDTO & { client_id: string }
         Update: UpdateTurnoDTO
+      }
+      sales: {
+        Row: Sale
+        Insert: Omit<Sale, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Sale, 'id' | 'created_at' | 'updated_at'>>
+      }
+      expenses: {
+        Row: Expense
+        Insert: Omit<Expense, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Expense, 'id' | 'created_at' | 'updated_at'>>
+      }
+      debtors: {
+        Row: Debtor
+        Insert: Omit<Debtor, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Debtor, 'id' | 'created_at' | 'updated_at'>>
+      }
+      notifications: {
+        Row: Notification
+        Insert: Omit<Notification, 'id' | 'created_at'>
+        Update: Partial<Omit<Notification, 'id' | 'created_at'>>
       }
     }
   }

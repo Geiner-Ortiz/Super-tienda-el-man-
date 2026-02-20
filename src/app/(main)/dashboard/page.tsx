@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { DashboardContainer } from '@/features/dashboard/components/DashboardContainer'
 
 export const metadata = {
-  title: 'Dashboard | Abarrotes Profit'
+  title: 'Dashboard | Tu Súper Tienda'
 }
 
 export default async function DashboardPage() {

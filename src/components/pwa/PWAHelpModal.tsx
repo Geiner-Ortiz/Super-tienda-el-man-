@@ -131,7 +131,7 @@ export function PWAHelpModal({ isOpen, onClose, initialPlatform }: PWAHelpModalP
                         </div>
                         <div>
                             <h2 className="text-2xl font-black italic tracking-tight uppercase leading-none">Instalar App</h2>
-                            <p className="text-white/70 text-sm font-medium">Súper Tienda El Maná</p>
+                            <p className="text-white/70 text-sm font-medium">Tu Súper Tienda</p>
                         </div>
                     </div>
 

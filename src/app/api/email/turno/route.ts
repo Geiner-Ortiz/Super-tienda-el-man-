@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
         resend.emails.send({
           from: EMAIL_CONFIG.from,
           to: clientEmail,
-          subject: `Turno Confirmada con ${personalName} - Tu Súper Tienda`,
+          subject: `Turno Confirmado con ${personalName} - Tu Súper Tienda`,
           html: turnoCreatedClientEmail(emailData),
         })
       )
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
         resend.emails.send({
           from: EMAIL_CONFIG.from,
           to: personalEmail,
-          subject: `Nueva Turno: ${clientName} - ${turnoDate} - Tu Súper Tienda`,
+          subject: `Nuevo Turno: ${clientName} - ${turnoDate} - Tu Súper Tienda`,
           html: turnoCreatedPersonalEmail(emailData),
         })
       )
@@ -88,16 +88,16 @@ export async function POST(request: NextRequest) {
           resend.emails.send({
             from: EMAIL_CONFIG.from,
             to: ADMIN_EMAIL,
-            subject: `[Admin] Nueva Turno: ${clientName} con ${personalName} - Tu Súper Tienda`,
+            subject: `[Admin] Nuevo Turno: ${clientName} con ${personalName} - Tu Súper Tienda`,
             html: turnoCreatedAdminEmail(emailData),
           })
         )
       }
     } else if (type === 'status_changed' && status) {
       const statusLabels = {
-        confirmed: 'Confirmada',
-        cancelled: 'Cancelada',
-        completed: 'Completada',
+        confirmed: 'Confirmado',
+        cancelled: 'Cancelado',
+        completed: 'Completado',
       }
 
       // Email to client
