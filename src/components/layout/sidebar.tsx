@@ -61,7 +61,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { openPWAHelp } = useUIStore()
   // ... (rest same)
 
-  const [userRole, setUserRole] = useState<UserRole>('client')
+  const [userRole, setUserRole] = useState<UserRole | null>(null)
   const [userName, setUserName] = useState<string>('')
   const [storeName, setStoreName] = useState<string>('Tu Súper Tienda')
   const [userId, setUserId] = useState<string | null>(null)
@@ -109,7 +109,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     router.push('/login')
   }
 
-  const filteredNavItems = navItems.filter(item => item.roles.includes(userRole))
+  const filteredNavItems = navItems.filter(item => {
+    if (!userRole) return false;
+    return item.roles.includes(userRole);
+  })
 
   return (
     <>
