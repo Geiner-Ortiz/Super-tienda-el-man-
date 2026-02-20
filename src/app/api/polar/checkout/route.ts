@@ -1,25 +1,26 @@
 ﻿import { Checkout } from "@polar-sh/nextjs";
 import { type NextRequest } from "next/server";
 
-// Fuerza el redespliegue - V4 - Diagnóstico General
+// Diagnóstico V5 - Búsqueda Exhaustiva
 export const GET = async (request: NextRequest) => {
-    const token = process.env.POLAR_ACCESS_TOKEN;
+    // Intentar encontrar cualquier variable que se parezca a lo que buscamos
+    const allEnvKeys = Object.keys(process.env);
+    const lowercasePolarKey = allEnvKeys.find(k => k.toLowerCase().includes('polar') && k.toLowerCase().includes('token'));
+
+    // El token real que intentaremos usar
+    const token = process.env.POLAR_ACCESS_TOKEN || (lowercasePolarKey ? process.env[lowercasePolarKey] : null);
 
     if (!token) {
-        // Diagnóstico profundo
-        const allKeys = Object.keys(process.env);
-        const polarKeys = allKeys.filter(k => k.startsWith('POLAR'));
-        const supabaseKeys = allKeys.filter(k => k.startsWith('NEXT_PUBLIC_SUPABASE'));
-
         return new Response(JSON.stringify({
-            error: "Token no detectado",
+            error: "Token no encontrado en el sistema",
             diagnostics: {
-                polar_keys_found: polarKeys,
-                supabase_keys_visible: supabaseKeys.length > 0,
-                total_env_keys: allKeys.length,
+                total_keys: allEnvKeys.length,
+                keys_containing_polar: allEnvKeys.filter(k => k.toLowerCase().includes('polar')),
+                keys_containing_token: allEnvKeys.filter(k => k.toLowerCase().includes('token')),
+                example_key_visible: allEnvKeys.find(k => k.startsWith('NEXT_PUBLIC_')) ? "Sí" : "No",
                 node_env: process.env.NODE_ENV
             },
-            instruction: "Si polar_keys_found está vacío pero supabase_keys_visible es true, Vercel está ignorando específicamente las llaves de Polar. Intenta borrarlas y crearlas de nuevo en Vercel."
+            instruction: "Si 'keys_containing_polar' está vacío, Vercel no está inyectando la variable. Por favor, verifica que no existan ESPACIOS al principio o final del nombre de la variable en Vercel."
         }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
