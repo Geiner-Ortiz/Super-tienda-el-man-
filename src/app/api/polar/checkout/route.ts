@@ -1,7 +1,7 @@
 ﻿import { Checkout } from "@polar-sh/nextjs";
 import { type NextRequest } from "next/server";
 
-// Fuerza el redespliegue para cargar las nuevas variables de entorno
+// Fuerza el redespliegue - timestamp: 2026-02-20 03:42
 export const GET = async (request: NextRequest) => {
     // Diagnóstico avanzado de variables de entorno
     const token = process.env.POLAR_ACCESS_TOKEN;
