@@ -67,15 +67,19 @@ export function SubscriptionBanner() {
                 </div>
 
                 <div className="flex flex-col items-center md:items-end gap-3">
-                    <div className="text-right">
-                        <span className="text-sm font-bold text-primary-100 uppercase tracking-widest line-through">$49.99USD</span>
+                    <div className="text-right flex flex-col items-center md:items-end">
+                        <span className="text-xs font-bold text-primary-100 uppercase tracking-widest line-through mb-1">$49.99 USD</span>
                         <div className="flex items-baseline gap-1">
-                            <span className="text-4xl font-black">$14.90</span>
+                            <span className="text-4xl md:text-5xl font-black">$14.90</span>
                             <span className="text-sm font-bold text-primary-50">USD/mes</span>
                         </div>
-                        <p className="text-[10px] font-bold text-primary-100/80 mt-1 uppercase tracking-tighter">
-                            ≈ COP $59.900 aprox.
-                        </p>
+                        <div className="mt-2 py-1.5 px-3 bg-white/10 rounded-xl backdrop-blur-sm border border-white/10">
+                            <p className="text-sm md:text-base font-black text-white flex items-center gap-1.5">
+                                <span className="text-[10px] font-bold text-primary-100 uppercase uppercase">≈</span>
+                                <span>COP $59.900</span>
+                                <span className="text-[10px] font-bold text-primary-100 uppercase">aprox.</span>
+                            </p>
+                        </div>
                     </div>
                     <Button
                         onClick={handleCheckout}

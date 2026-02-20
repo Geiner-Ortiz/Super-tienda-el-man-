@@ -231,8 +231,12 @@ export function PricingManager({ initialTurnoTypes, initialPersonals }: PricingM
                 <div className="flex items-center justify-between mt-6">
                   <div>
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Inversión Sugerida</p>
-                    <p className="text-3xl font-black text-indigo-600">${type.price.toLocaleString()}</p>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">≈ COP ${(type.price * 4000).toLocaleString()}</p>
+                    <div className="flex flex-col">
+                      <p className="text-2xl font-black text-indigo-600">${type.price.toLocaleString()} <span className="text-[10px] text-gray-400">USD</span></p>
+                      <p className="text-sm font-black text-gray-700 dark:text-gray-300 mt-0.5 bg-gray-50 dark:bg-gray-800/50 px-2 py-0.5 rounded-lg w-fit">
+                        ≈ COP ${(type.price * 4000).toLocaleString()}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 transition-transform">
                     <Button
@@ -334,10 +338,14 @@ export function PricingManager({ initialTurnoTypes, initialPersonals }: PricingM
                           <span className="text-[10px] font-bold text-gray-400 uppercase">/ hr</span>
                         </div>
                       ) : (
-                        <div>
-                          <span className="text-2xl font-black text-gray-900 dark:text-white">${personal.hourly_rate.toLocaleString()}</span>
-                          <span className="text-[10px] font-bold text-gray-400 ml-1 uppercase">/ hr</span>
-                          <p className="text-[9px] font-bold text-gray-400">≈ COP ${(personal.hourly_rate * 4000).toLocaleString()}</p>
+                        <div className="flex flex-col">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-xl font-black text-gray-900 dark:text-white">${personal.hourly_rate.toLocaleString()}</span>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase">USD / hr</span>
+                          </div>
+                          <p className="text-xs font-black text-indigo-600 mt-1">
+                            ≈ COP ${(personal.hourly_rate * 4000).toLocaleString()} <span className="text-[8px] font-bold opacity-70">est.</span>
+                          </p>
                         </div>
                       )}
                     </td>
