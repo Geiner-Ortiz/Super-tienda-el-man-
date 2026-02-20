@@ -41,6 +41,7 @@ const navItems: NavItem[] = [
   { href: '/debtors', label: 'Clientes Morosos', icon: UsersIcon, roles: ['admin', 'personal', 'client', 'super_admin'] },
   { href: '/finances', label: 'Contabilidad', icon: CalculatorIcon, roles: ['admin', 'personal', 'client', 'super_admin'], tourId: 'nav-finances' },
   { href: '/admin', label: 'Panel Maestro', icon: ShieldCheckIcon, roles: ['super_admin'] },
+  { href: '/admin/pricing', label: 'Gestión de Precios', icon: CalculatorIcon, roles: ['super_admin'] },
   { href: '/guia', label: 'Guía de Uso', icon: HelpCircleIcon, roles: ['admin', 'personal', 'client', 'super_admin'] },
   { href: '/settings', label: 'Configuración', icon: Cog6ToothIcon, roles: ['admin', 'personal', 'client', 'super_admin'] },
 ]
