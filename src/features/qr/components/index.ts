@@ -1,1 +1,1 @@
-export { StaffQRSection } from './StaffQRSection'
+export { PersonalQRSection } from './PersonalQRSection'

@@ -1,4 +1,4 @@
-export { BookingCard, type Booking } from './Booking-card'
+export { TurnoCard, type Turno } from './turno-card'
 export { Calendar } from './calendar'
-export { StaffProfileCard, type Staff } from './Staff-profile-card'
+export { PersonalProfileCard, type Personal } from './personal-profile-card'
 export { TimeSlotPicker } from './time-slot-picker'

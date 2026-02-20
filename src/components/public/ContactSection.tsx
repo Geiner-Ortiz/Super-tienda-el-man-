@@ -11,7 +11,7 @@ export function ContactSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           title="Nuestro equipo est&aacute; aqu&iacute; para ayudar."
-          subtitle="&iquest;Tiene alguna pregunta o desea programar una cita? Cont&aacute;ctenos."
+          subtitle="&iquest;Tiene alguna pregunta o desea programar una turno? Cont&aacute;ctenos."
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-14">

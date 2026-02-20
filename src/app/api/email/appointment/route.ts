@@ -1,25 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getResend, EMAIL_CONFIG } from '@/lib/email'
 import {
-  BookingCreatedClientEmail,
-  BookingCreatedStaffEmail,
-  BookingCreatedAdminEmail,
-  BookingStatusChangedEmail,
+  turnoCreatedClientEmail,
+  turnoCreatedPersonalEmail,
+  turnoCreatedAdminEmail,
+  turnoStatusChangedEmail,
 } from '@/lib/email'
 
 // Admin email to receive all notifications
 const ADMIN_EMAIL = 'sinsajo.creators@gmail.com'
 
-interface BookingEmailRequest {
+interface TurnoEmailRequest {
   type: 'created' | 'status_changed'
-  BookingId: string
+  turnoId: string
   clientName: string
   clientEmail: string
-  StaffName: string
-  StaffEmail: string
-  BookingDate: string
-  BookingTime: string
-  BookingType: string
+  personalName: string
+  personalEmail: string
+  turnoDate: string
+  turnoTime: string
+  turnoType: string
   duration: number
   status?: 'confirmed' | 'cancelled' | 'completed'
 }
@@ -33,30 +33,30 @@ export async function POST(request: NextRequest) {
     }
 
     const resend = getResend()
-    const body: BookingEmailRequest = await request.json()
+    const body: TurnoEmailRequest = await request.json()
 
     const {
       type,
-      BookingId,
+      turnoId,
       clientName,
       clientEmail,
-      StaffName,
-      StaffEmail,
-      BookingDate,
-      BookingTime,
-      BookingType,
+      personalName,
+      personalEmail,
+      turnoDate,
+      turnoTime,
+      turnoType,
       duration,
       status,
     } = body
 
     const emailData = {
       clientName,
-      StaffName,
-      BookingDate,
-      BookingTime,
-      BookingType,
+      personalName,
+      turnoDate,
+      turnoTime,
+      turnoType,
       duration,
-      BookingId,
+      turnoId,
     }
 
     const emailPromises: Promise<unknown>[] = []
@@ -67,29 +67,29 @@ export async function POST(request: NextRequest) {
         resend.emails.send({
           from: EMAIL_CONFIG.from,
           to: clientEmail,
-          subject: `Cita Confirmada con ${StaffName} - Tu Súper Tienda`,
-          html: BookingCreatedClientEmail(emailData),
+          subject: `Turno Confirmada con ${personalName} - Tu SÃºper Tienda`,
+          html: turnoCreatedClientEmail(emailData),
         })
       )
 
-      // Email to Staff
+      // Email to personal
       emailPromises.push(
         resend.emails.send({
           from: EMAIL_CONFIG.from,
-          to: StaffEmail,
-          subject: `Nueva Cita: ${clientName} - ${BookingDate} - Tu Súper Tienda`,
-          html: BookingCreatedStaffEmail(emailData),
+          to: personalEmail,
+          subject: `Nueva Turno: ${clientName} - ${turnoDate} - Tu SÃºper Tienda`,
+          html: turnoCreatedPersonalEmail(emailData),
         })
       )
 
-      // Email to admin (if Staff is not admin)
-      if (StaffEmail !== ADMIN_EMAIL) {
+      // Email to admin (if personal is not admin)
+      if (personalEmail !== ADMIN_EMAIL) {
         emailPromises.push(
           resend.emails.send({
             from: EMAIL_CONFIG.from,
             to: ADMIN_EMAIL,
-            subject: `[Admin] Nueva Cita: ${clientName} con ${StaffName} - Tu Súper Tienda`,
-            html: BookingCreatedAdminEmail(emailData),
+            subject: `[Admin] Nueva Turno: ${clientName} con ${personalName} - Tu SÃºper Tienda`,
+            html: turnoCreatedAdminEmail(emailData),
           })
         )
       }
@@ -105,18 +105,18 @@ export async function POST(request: NextRequest) {
         resend.emails.send({
           from: EMAIL_CONFIG.from,
           to: clientEmail,
-          subject: `Cita ${statusLabels[status]} - Tu Súper Tienda`,
-          html: BookingStatusChangedEmail({ ...emailData, status, recipientType: 'client' }),
+          subject: `Turno ${statusLabels[status]} - Tu SÃºper Tienda`,
+          html: turnoStatusChangedEmail({ ...emailData, status, recipientType: 'client' }),
         })
       )
 
-      // Email to Staff
+      // Email to personal
       emailPromises.push(
         resend.emails.send({
           from: EMAIL_CONFIG.from,
-          to: StaffEmail,
-          subject: `Cita ${statusLabels[status]}: ${clientName} - Tu Súper Tienda`,
-          html: BookingStatusChangedEmail({ ...emailData, status, recipientType: 'Staff' }),
+          to: personalEmail,
+          subject: `Turno ${statusLabels[status]}: ${clientName} - Tu SÃºper Tienda`,
+          html: turnoStatusChangedEmail({ ...emailData, status, recipientType: 'personal' }),
         })
       )
     }
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
       failed: failures.length,
     })
   } catch (error) {
-    console.error('Error sending Booking emails:', error)
+    console.error('Error sending turno emails:', error)
     return NextResponse.json(
       { success: false, error: 'Failed to send emails' },
       { status: 500 }

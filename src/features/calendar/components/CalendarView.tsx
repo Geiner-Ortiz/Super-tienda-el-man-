@@ -3,17 +3,17 @@
 import { useState, useMemo } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import type { BookingWithRelations, BookingStatus, UserRole } from '@/types/database'
+import type { TurnoWithRelations, TurnoStatus, UserRole } from '@/types/database'
 
 type ViewMode = 'day' | 'week' | 'month'
 
 interface CalendarViewProps {
-  initialBookings: BookingWithRelations[]
-  Staffs: { id: string; profile: { full_name: string } }[]
+  initialTurnos: TurnoWithRelations[]
+  personals: { id: string; profile: { full_name: string } }[]
   userRole: UserRole
 }
 
-const STATUS_COLORS: Record<BookingStatus, { bg: string; border: string; text: string }> = {
+const STATUS_COLORS: Record<TurnoStatus, { bg: string; border: string; text: string }> = {
   pending: { bg: 'bg-warning-100', border: 'border-l-warning-500', text: 'text-warning-700' },
   confirmed: { bg: 'bg-accent-100', border: 'border-l-accent-500', text: 'text-accent-700' },
   completed: { bg: 'bg-success-100', border: 'border-l-success-500', text: 'text-success-700' },
@@ -22,7 +22,7 @@ const STATUS_COLORS: Record<BookingStatus, { bg: string; border: string; text: s
   no_show: { bg: 'bg-gray-100', border: 'border-l-gray-500', text: 'text-gray-700' },
 }
 
-const STATUS_LABELS: Record<BookingStatus, string> = {
+const STATUS_LABELS: Record<TurnoStatus, string> = {
   pending: 'Pendiente',
   confirmed: 'Confirmada',
   completed: 'Completada',
@@ -36,25 +36,25 @@ const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 8) // 8am to 7pm
 
 // Helper to get client name from profile or direct field (for guest clients)
-const getClientName = (client: BookingWithRelations['client'] | undefined): string => {
+const getClientName = (client: TurnoWithRelations['client'] | undefined): string => {
   if (!client) return 'Cliente'
   return client.profile?.full_name || client.full_name || 'Cliente'
 }
 
-export function CalendarView({ initialBookings, Staffs, userRole }: CalendarViewProps) {
+export function CalendarView({ initialTurnos, personals, userRole }: CalendarViewProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('week')
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [selectedStaff, setSelectedStaff] = useState<string>('all')
-  const [selectedStatus, setSelectedStatus] = useState<BookingStatus | 'all'>('all')
-  const [selectedBooking, setSelectedBooking] = useState<BookingWithRelations | null>(null)
+  const [selectedPersonal, setSelectedPersonal] = useState<string>('all')
+  const [selectedStatus, setSelectedStatus] = useState<TurnoStatus | 'all'>('all')
+  const [selectedTurno, setSelectedTurno] = useState<TurnoWithRelations | null>(null)
 
-  const Bookings = useMemo(() => {
-    return initialBookings.filter(apt => {
-      if (selectedStaff !== 'all' && apt.Staff_id !== selectedStaff) return false
+  const turnos = useMemo(() => {
+    return initialTurnos.filter(apt => {
+      if (selectedPersonal !== 'all' && apt.personal_id !== selectedPersonal) return false
       if (selectedStatus !== 'all' && apt.status !== selectedStatus) return false
       return true
     })
-  }, [initialBookings, selectedStaff, selectedStatus])
+  }, [initialTurnos, selectedPersonal, selectedStatus])
 
   const navigate = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate)
@@ -98,15 +98,15 @@ export function CalendarView({ initialBookings, Staffs, userRole }: CalendarView
     return days
   }
 
-  const getBookingsForDate = (date: Date) => {
-    return Bookings.filter(apt => {
+  const getTurnosForDate = (date: Date) => {
+    return turnos.filter(apt => {
       const aptDate = new Date(apt.scheduled_at)
       return aptDate.toDateString() === date.toDateString()
     })
   }
 
-  const getBookingsForHour = (date: Date, hour: number) => {
-    return Bookings.filter(apt => {
+  const getTurnosForHour = (date: Date, hour: number) => {
+    return turnos.filter(apt => {
       const aptDate = new Date(apt.scheduled_at)
       return aptDate.toDateString() === date.toDateString() && aptDate.getHours() === hour
     })
@@ -165,18 +165,18 @@ export function CalendarView({ initialBookings, Staffs, userRole }: CalendarView
       {/* Filters */}
       <Card className="p-4">
         <div className="flex flex-wrap gap-4">
-          {userRole === 'admin' && Staffs.length > 0 && (
+          {userRole === 'admin' && personals.length > 0 && (
             <div>
               <label className="block text-xs font-medium text-foreground-secondary mb-1">
                 Personal
               </label>
               <select
-                value={selectedStaff}
-                onChange={(e) => setSelectedStaff(e.target.value)}
+                value={selectedPersonal}
+                onChange={(e) => setSelectedPersonal(e.target.value)}
                 className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent-500"
               >
                 <option value="all">Todos</option>
-                {Staffs.map(l => (
+                {personals.map(l => (
                   <option key={l.id} value={l.id}>{l.profile.full_name}</option>
                 ))}
               </select>
@@ -189,7 +189,7 @@ export function CalendarView({ initialBookings, Staffs, userRole }: CalendarView
             </label>
             <select
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value as BookingStatus | 'all')}
+              onChange={(e) => setSelectedStatus(e.target.value as TurnoStatus | 'all')}
               className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent-500"
             >
               <option value="all">Todos</option>
@@ -204,7 +204,7 @@ export function CalendarView({ initialBookings, Staffs, userRole }: CalendarView
             <div className="flex flex-wrap gap-3 text-xs">
               {Object.entries(STATUS_LABELS).slice(0, 4).map(([status, label]) => (
                 <div key={status} className="flex items-center gap-1.5">
-                  <div className={`w-3 h-3 rounded ${STATUS_COLORS[status as BookingStatus].bg} border-l-2 ${STATUS_COLORS[status as BookingStatus].border}`} />
+                  <div className={`w-3 h-3 rounded ${STATUS_COLORS[status as TurnoStatus].bg} border-l-2 ${STATUS_COLORS[status as TurnoStatus].border}`} />
                   <span className="text-foreground-secondary">{label}</span>
                 </div>
               ))}
@@ -218,8 +218,8 @@ export function CalendarView({ initialBookings, Staffs, userRole }: CalendarView
         {viewMode === 'month' && (
           <MonthView
             days={getMonthDays()}
-            Bookings={Bookings}
-            onSelectBooking={setSelectedBooking}
+            turnos={turnos}
+            onSelectTurno={setSelectedTurno}
           />
         )}
 
@@ -227,8 +227,8 @@ export function CalendarView({ initialBookings, Staffs, userRole }: CalendarView
           <WeekView
             days={getWeekDays()}
             hours={HOURS}
-            getBookingsForHour={getBookingsForHour}
-            onSelectBooking={setSelectedBooking}
+            getTurnosForHour={getTurnosForHour}
+            onSelectTurno={setSelectedTurno}
           />
         )}
 
@@ -236,17 +236,17 @@ export function CalendarView({ initialBookings, Staffs, userRole }: CalendarView
           <DayView
             date={currentDate}
             hours={HOURS}
-            getBookingsForHour={getBookingsForHour}
-            onSelectBooking={setSelectedBooking}
+            getTurnosForHour={getTurnosForHour}
+            onSelectTurno={setSelectedTurno}
           />
         )}
       </Card>
 
-      {/* Booking Detail Modal */}
-      {selectedBooking && (
-        <BookingModal
-          Booking={selectedBooking}
-          onClose={() => setSelectedBooking(null)}
+      {/* Turno Detail Modal */}
+      {selectedTurno && (
+        <TurnoModal
+          turno={selectedTurno}
+          onClose={() => setSelectedTurno(null)}
         />
       )}
     </div>
@@ -256,15 +256,15 @@ export function CalendarView({ initialBookings, Staffs, userRole }: CalendarView
 // Month View Component
 function MonthView({
   days,
-  Bookings,
-  onSelectBooking
+  turnos,
+  onSelectTurno
 }: {
   days: (Date | null)[]
-  Bookings: BookingWithRelations[]
-  onSelectBooking: (apt: BookingWithRelations) => void
+  turnos: TurnoWithRelations[]
+  onSelectTurno: (apt: TurnoWithRelations) => void
 }) {
-  const getBookingsForDate = (date: Date) => {
-    return Bookings.filter(apt => {
+  const getTurnosForDate = (date: Date) => {
+    return turnos.filter(apt => {
       const aptDate = new Date(apt.scheduled_at)
       return aptDate.toDateString() === date.toDateString()
     })
@@ -282,7 +282,7 @@ function MonthView({
       <div className="grid grid-cols-7">
         {days.map((date, i) => {
           const isCurrentDay = date && date.toDateString() === new Date().toDateString()
-          const dayBookings = date ? getBookingsForDate(date) : []
+          const dayTurnos = date ? getTurnosForDate(date) : []
 
           return (
             <div
@@ -301,21 +301,21 @@ function MonthView({
                     {date.getDate()}
                   </div>
                   <div className="space-y-1">
-                    {dayBookings.slice(0, 3).map(apt => {
+                    {dayTurnos.slice(0, 3).map(apt => {
                       const colors = STATUS_COLORS[apt.status]
                       return (
                         <button
                           key={apt.id}
-                          onClick={() => onSelectBooking(apt)}
+                          onClick={() => onSelectTurno(apt)}
                           className={`w-full text-left px-2 py-1 rounded text-xs truncate ${colors.bg} ${colors.text} border-l-2 ${colors.border} hover:opacity-80 transition-opacity`}
                         >
                           {new Date(apt.scheduled_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} - {getClientName(apt.client)}
                         </button>
                       )
                     })}
-                    {dayBookings.length > 3 && (
+                    {dayTurnos.length > 3 && (
                       <p className="text-xs text-foreground-secondary pl-2">
-                        +{dayBookings.length - 3} más
+                        +{dayTurnos.length - 3} más
                       </p>
                     )}
                   </div>
@@ -333,13 +333,13 @@ function MonthView({
 function WeekView({
   days,
   hours,
-  getBookingsForHour,
-  onSelectBooking
+  getTurnosForHour,
+  onSelectTurno
 }: {
   days: Date[]
   hours: number[]
-  getBookingsForHour: (date: Date, hour: number) => BookingWithRelations[]
-  onSelectBooking: (apt: BookingWithRelations) => void
+  getTurnosForHour: (date: Date, hour: number) => TurnoWithRelations[]
+  onSelectTurno: (apt: TurnoWithRelations) => void
 }) {
   return (
     <div className="overflow-auto max-h-[600px]">
@@ -367,22 +367,22 @@ function WeekView({
               {hour}:00
             </div>
             {days.map((date, i) => {
-              const hourBookings = getBookingsForHour(date, hour)
+              const hourTurnos = getTurnosForHour(date, hour)
               return (
                 <div key={i} className="p-1 border-r border-border relative">
-                  {hourBookings.map(apt => {
+                  {hourTurnos.map(apt => {
                     const colors = STATUS_COLORS[apt.status]
                     return (
                       <button
                         key={apt.id}
-                        onClick={() => onSelectBooking(apt)}
+                        onClick={() => onSelectTurno(apt)}
                         className={`w-full text-left px-2 py-1 rounded text-xs ${colors.bg} ${colors.text} border-l-2 ${colors.border} hover:opacity-80 transition-opacity mb-1`}
                       >
                         <div className="font-medium truncate">
                           {getClientName(apt.client)}
                         </div>
                         <div className="text-[10px] opacity-75">
-                          {apt.Booking_type?.name || 'Consulta'}
+                          {apt.turno_type?.name || 'Reserva'}
                         </div>
                       </button>
                     )
@@ -401,13 +401,13 @@ function WeekView({
 function DayView({
   date,
   hours,
-  getBookingsForHour,
-  onSelectBooking
+  getTurnosForHour,
+  onSelectTurno
 }: {
   date: Date
   hours: number[]
-  getBookingsForHour: (date: Date, hour: number) => BookingWithRelations[]
-  onSelectBooking: (apt: BookingWithRelations) => void
+  getTurnosForHour: (date: Date, hour: number) => TurnoWithRelations[]
+  onSelectTurno: (apt: TurnoWithRelations) => void
 }) {
   return (
     <div className="overflow-auto max-h-[600px]">
@@ -417,19 +417,19 @@ function DayView({
         </h3>
       </div>
       {hours.map(hour => {
-        const hourBookings = getBookingsForHour(date, hour)
+        const hourTurnos = getTurnosForHour(date, hour)
         return (
           <div key={hour} className="flex border-b border-border min-h-[80px]">
             <div className="w-20 p-3 text-sm text-foreground-secondary border-r border-border text-right shrink-0">
               {hour}:00
             </div>
             <div className="flex-1 p-2 space-y-2">
-              {hourBookings.map(apt => {
+              {hourTurnos.map(apt => {
                 const colors = STATUS_COLORS[apt.status]
                 return (
                   <button
                     key={apt.id}
-                    onClick={() => onSelectBooking(apt)}
+                    onClick={() => onSelectTurno(apt)}
                     className={`w-full text-left px-4 py-3 rounded-xl ${colors.bg} ${colors.text} border-l-4 ${colors.border} hover:opacity-80 transition-opacity`}
                   >
                     <div className="flex items-center justify-between">
@@ -437,12 +437,12 @@ function DayView({
                       <span className="text-sm">{apt.duration_minutes} min</span>
                     </div>
                     <div className="text-sm opacity-75 mt-1">
-                      {apt.Booking_type?.name || 'Consulta'} - {apt.Staff?.profile?.full_name || 'Personal'}
+                      {apt.turno_type?.name || 'Reserva'} - {apt.personal?.profile?.full_name || 'Personal'}
                     </div>
                   </button>
                 )
               })}
-              {hourBookings.length === 0 && (
+              {hourTurnos.length === 0 && (
                 <div className="h-full flex items-center justify-center text-sm text-foreground-muted">
                   Disponible
                 </div>
@@ -455,15 +455,15 @@ function DayView({
   )
 }
 
-// Booking Modal
-function BookingModal({
-  Booking,
+// Turno Modal
+function TurnoModal({
+  turno,
   onClose
 }: {
-  Booking: BookingWithRelations
+  turno: TurnoWithRelations
   onClose: () => void
 }) {
-  const colors = STATUS_COLORS[Booking.status]
+  const colors = STATUS_COLORS[turno.status]
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
@@ -471,10 +471,10 @@ function BookingModal({
         <div className="flex items-start justify-between mb-4">
           <div>
             <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${colors.bg} ${colors.text}`}>
-              {STATUS_LABELS[Booking.status]}
+              {STATUS_LABELS[turno.status]}
             </span>
             <h3 className="text-xl font-bold text-foreground mt-2">
-              {Booking.Booking_type?.name || 'Consulta Legal'}
+              {turno.turno_type?.name || 'Reserva Legal'}
             </h3>
           </div>
           <button onClick={onClose} className="text-foreground-secondary hover:text-foreground">
@@ -489,7 +489,7 @@ function BookingModal({
             </div>
             <div>
               <p className="text-sm text-foreground-secondary">Cliente</p>
-              <p className="font-medium text-foreground">{getClientName(Booking.client)}</p>
+              <p className="font-medium text-foreground">{getClientName(turno.client)}</p>
             </div>
           </div>
 
@@ -499,7 +499,7 @@ function BookingModal({
             </div>
             <div>
               <p className="text-sm text-foreground-secondary">Personal</p>
-              <p className="font-medium text-foreground">{Booking.Staff?.profile?.full_name}</p>
+              <p className="font-medium text-foreground">{turno.personal?.profile?.full_name}</p>
             </div>
           </div>
 
@@ -510,7 +510,7 @@ function BookingModal({
             <div>
               <p className="text-sm text-foreground-secondary">Fecha y Hora</p>
               <p className="font-medium text-foreground">
-                {new Date(Booking.scheduled_at).toLocaleDateString('es-ES', {
+                {new Date(turno.scheduled_at).toLocaleDateString('es-ES', {
                   weekday: 'long',
                   day: 'numeric',
                   month: 'long',
@@ -518,18 +518,18 @@ function BookingModal({
                 })}
               </p>
               <p className="text-sm text-foreground-secondary">
-                {new Date(Booking.scheduled_at).toLocaleTimeString('es-ES', {
+                {new Date(turno.scheduled_at).toLocaleTimeString('es-ES', {
                   hour: '2-digit',
                   minute: '2-digit'
-                })} - {Booking.duration_minutes} minutos
+                })} - {turno.duration_minutes} minutos
               </p>
             </div>
           </div>
 
-          {Booking.notes && (
+          {turno.notes && (
             <div className="p-3 bg-gray-50 rounded-xl">
               <p className="text-sm text-foreground-secondary mb-1">Notas:</p>
-              <p className="text-sm text-foreground">{Booking.notes}</p>
+              <p className="text-sm text-foreground">{turno.notes}</p>
             </div>
           )}
         </div>

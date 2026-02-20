@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card'
 import { PricingManager } from './PricingManager'
 
 export const metadata = {
-  title: 'Gestión de Tienda | Tu Súper Tienda'
+  title: 'Gestión de Precios | Tu Súper Tienda Admin'
 }
 
 export default async function AdminPricingPage() {
@@ -22,35 +22,35 @@ export default async function AdminPricingPage() {
     .eq('id', user.id)
     .single()
 
-  if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
+  if (profile?.role !== 'admin') {
     redirect('/dashboard')
   }
 
-  // Obtener tipos de cita existentes
-  const { data: BookingTypes } = await supabase
-    .from('Booking_types')
+  // Obtener tipos de turno existentes
+  const { data: turnoTypes } = await supabase
+    .from('turno_types')
     .select('*')
     .order('name')
 
-  // Obtener Personals con  // Fetch staff
-  const { data: staff } = await supabase
-    .from('staff')
-    .select('*, profile:profiles(*)')
+  // Obtener personals con sus tarifas
+  const { data: personals } = await supabase
+    .from('personals')
+    .select('*, profile:profiles(full_name, email)')
     .order('created_at', { ascending: false })
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-foreground">Gestión de Tienda</h1>
+        <h1 className="text-2xl font-bold text-foreground">Gestión de Precios</h1>
         <p className="text-foreground-secondary mt-1">
-          Configura tus ganancias y gestiona tu equipo
+          Configura tipos de servicio y tarifas por personal
         </p>
       </div>
 
       <PricingManager
-        initialBookingTypes={BookingTypes || []}
-        initialStaff={staff || []}
+        initialTurnoTypes={turnoTypes || []}
+        initialPersonals={personals || []}
       />
     </div>
   )

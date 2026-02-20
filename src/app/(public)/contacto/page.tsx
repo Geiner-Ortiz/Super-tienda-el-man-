@@ -20,7 +20,7 @@ export default function ContactoPage() {
           <SectionHeading
             label="Contáctenos"
             title="Estamos Aquí para Ayudarle"
-            subtitle="¿Tiene alguna pregunta o desea programar una cita? Envíenos un mensaje o llámenos directamente."
+            subtitle="¿Tiene alguna pregunta o desea programar una turno? Envíenos un mensaje o llámenos directamente."
             light
           />
         </div>

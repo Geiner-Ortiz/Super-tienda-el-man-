@@ -20,8 +20,7 @@ import {
   LogoutIcon,
   ShieldCheckIcon,
   XIcon,
-  SmartphoneIcon,
-  DollarIcon
+  SmartphoneIcon
 } from '@/components/public/icons'
 import { useTheme } from '@/shared/components/ThemeProvider'
 import { Button } from '@/components/ui/button'
@@ -36,14 +35,12 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: '/dashboard', label: 'Dashboard', icon: HomeIcon, roles: ['admin', 'staff', 'client', 'super_admin'] },
-  { href: '/subscription', label: 'Mi Suscripción', icon: DollarIcon, roles: ['admin', 'staff', 'client', 'super_admin'] },
-  { href: '/debtors', label: 'Clientes Morosos', icon: UsersIcon, roles: ['admin', 'staff', 'client', 'super_admin'] },
-  { href: '/finances', label: 'Contabilidad', icon: CalculatorIcon, roles: ['admin', 'staff', 'client', 'super_admin'], tourId: 'nav-finances' },
-  { href: '/admin/pricing', label: 'Gestión de Tienda', icon: Cog6ToothIcon, roles: ['admin', 'super_admin'] },
-  { href: '/admin', label: 'Panel Maestro', icon: ShieldCheckIcon, roles: ['admin', 'super_admin'] },
-  { href: '/guia', label: 'Guía de Uso', icon: HelpCircleIcon, roles: ['admin', 'staff', 'client', 'super_admin'] },
-  { href: '/settings', label: 'Configuración', icon: Cog6ToothIcon, roles: ['admin', 'staff', 'client', 'super_admin'] },
+  { href: '/dashboard', label: 'Dashboard', icon: HomeIcon, roles: ['admin', 'personal', 'client', 'super_admin'] },
+  { href: '/debtors', label: 'Clientes Morosos', icon: UsersIcon, roles: ['admin', 'personal', 'client', 'super_admin'] },
+  { href: '/finances', label: 'Contabilidad', icon: CalculatorIcon, roles: ['admin', 'personal', 'client', 'super_admin'], tourId: 'nav-finances' },
+  { href: '/admin', label: 'Panel Maestro', icon: ShieldCheckIcon, roles: ['super_admin'] },
+  { href: '/guia', label: 'Guía de Uso', icon: HelpCircleIcon, roles: ['admin', 'personal', 'client', 'super_admin'] },
+  { href: '/settings', label: 'Configuración', icon: Cog6ToothIcon, roles: ['admin', 'personal', 'client', 'super_admin'] },
 ]
 
 interface SidebarProps {
@@ -59,6 +56,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const router = useRouter()
   const { startTour } = useTour()
   const { openPWAHelp } = useUIStore()
+  // ... (rest same)
 
   const [userRole, setUserRole] = useState<UserRole>('client')
   const [userName, setUserName] = useState<string>('')
@@ -70,35 +68,24 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   useEffect(() => {
     const fetchUserRole = async () => {
-      try {
-        const supabase = createClient()
-        const { data: { user }, error: authError } = await supabase.auth.getUser()
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
 
-        if (authError) {
-          console.error('Error fetching user:', authError)
-          setIsLoading(false)
-          return
+      if (user) {
+        setUserId(user.id)
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role, full_name, store_name')
+          .eq('id', user.id)
+          .single()
+
+        if (profile) {
+          setUserRole(profile.role as UserRole)
+          setUserName(profile.full_name || user.email?.split('@')[0] || 'Usuario')
+          setStoreName(profile.store_name || 'Tu Súper Tienda')
         }
-
-        if (user) {
-          setUserId(user.id)
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role, full_name, store_name')
-            .eq('id', user.id)
-            .single()
-
-          if (profile) {
-            setUserRole(profile.role as UserRole)
-            setUserName(profile.full_name || user.email?.split('@')[0] || 'Usuario')
-            setStoreName(profile.store_name || 'Tu Súper Tienda')
-          }
-        }
-      } catch (err) {
-        console.error('Sidebar Critical Error:', err)
-      } finally {
-        setIsLoading(false)
       }
+      setIsLoading(false)
     }
 
     fetchUserRole()
@@ -119,16 +106,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     router.push('/login')
   }
 
-  const currentUserRole = userRole || 'client'
-  const filteredNavItems = navItems.filter(item => {
-    // El super_admin no ve "Mi Suscripción" porque es el dueño de la plataforma
-    if (item.href === '/subscription') {
-      return currentUserRole !== 'super_admin'
-    }
-
-    // Para cualquier otro item, usamos la lista de roles permitidos
-    return item.roles.includes(currentUserRole)
-  })
+  const filteredNavItems = navItems.filter(item => item.roles.includes(userRole))
 
   return (
     <>

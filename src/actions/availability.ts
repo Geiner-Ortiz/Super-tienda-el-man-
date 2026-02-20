@@ -10,8 +10,8 @@ interface AvailabilityData {
   is_available: boolean
 }
 
-export async function updateStaffAvailability(
-  StaffId: string,
+export async function updatePersonalAvailability(
+  personalId: string,
   availabilities: AvailabilityData[]
 ) {
   const supabase = await createClient()
@@ -19,21 +19,21 @@ export async function updateStaffAvailability(
 
   if (!user) return { error: 'No autenticado' }
 
-  // Verificar que el usuario es el Personal
-  const { data: Staff } = await supabase
-    .from('Staffs')
+  // Verificar que el usuario es el personal
+  const { data: personal } = await supabase
+    .from('personals')
     .select('id')
-    .eq('id', StaffId)
+    .eq('id', personalId)
     .eq('user_id', user.id)
     .single()
 
-  if (!Staff) return { error: 'No autorizado' }
+  if (!personal) return { error: 'No autorizado' }
 
   // Eliminar disponibilidades existentes
   await supabase
     .from('availability')
     .delete()
-    .eq('Staff_id', StaffId)
+    .eq('personal_id', personalId)
 
   // Insertar nuevas
   const { error } = await supabase
@@ -41,18 +41,18 @@ export async function updateStaffAvailability(
     .insert(
       availabilities.map(a => ({
         ...a,
-        Staff_id: StaffId
+        personal_id: personalId
       }))
     )
 
   if (error) return { error: error.message }
 
-  revalidatePath(`/Staffs/${StaffId}`)
+  revalidatePath(`/personals/${personalId}`)
   return { success: true }
 }
 
 export async function toggleDayAvailability(
-  StaffId: string,
+  personalId: string,
   dayOfWeek: number,
   isAvailable: boolean
 ) {
@@ -64,17 +64,17 @@ export async function toggleDayAvailability(
   const { error } = await supabase
     .from('availability')
     .upsert({
-      Staff_id: StaffId,
+      personal_id: personalId,
       day_of_week: dayOfWeek,
       is_available: isAvailable,
       start_time: '09:00:00',
       end_time: '18:00:00'
     }, {
-      onConflict: 'Staff_id,day_of_week'
+      onConflict: 'personal_id,day_of_week'
     })
 
   if (error) return { error: error.message }
 
-  revalidatePath(`/Staffs/${StaffId}`)
+  revalidatePath(`/personals/${personalId}`)
   return { success: true }
 }

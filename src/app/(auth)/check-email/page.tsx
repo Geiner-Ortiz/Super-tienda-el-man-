@@ -52,7 +52,7 @@ export default function CheckEmailPage() {
         <p className="mt-6 text-xs text-foreground-muted">
           ¿No recibiste el correo? Revisa tu carpeta de spam o{' '}
           <button className="font-medium text-accent-500 hover:text-accent-600 hover:underline">
-            solicita uno nuevo
+            soliturno uno nuevo
           </button>
         </p>
       </div>

@@ -3,38 +3,38 @@
 import { createClient } from '@/lib/supabase/server'
 import type { PaymentStatus } from '@/types/database'
 
-export interface PaymentWithBooking {
+export interface PaymentWithTurno {
   id: string
-  Booking_id: string
+  turno_id: string
   amount: number
   status: PaymentStatus
   payment_method: string | null
   transaction_id: string | null
   paid_at: string | null
   created_at: string
-  Booking: {
+  turno: {
     id: string
     scheduled_at: string
     client: { profile: { full_name: string; email: string } }
-    Staff: { profile: { full_name: string } }
-    Booking_type: { name: string; price: number } | null
+    personal: { profile: { full_name: string } }
+    turno_type: { name: string; price: number } | null
   } | null
 }
 
 export const paymentService = {
-  async getPaymentsByUser(userId: string, role: 'client' | 'Staff' | 'admin') {
+  async getPaymentsByUser(userId: string, role: 'client' | 'personal' | 'admin') {
     const supabase = await createClient()
 
     let query = supabase
       .from('payments')
       .select(`
         *,
-        Booking:Bookings(
+        turno:turnos(
           id,
           scheduled_at,
           client:clients(profile:profiles(full_name, email)),
-          Staff:Staffs(profile:profiles(full_name)),
-          Booking_type:Booking_types(name, price)
+          personal:personals(profile:profiles(full_name)),
+          turno_type:turno_types(name, price)
         )
       `)
       .order('created_at', { ascending: false })
@@ -47,17 +47,17 @@ export const paymentService = {
         .single()
 
       if (client) {
-        query = query.eq('Booking.client_id', client.id)
+        query = query.eq('turno.client_id', client.id)
       }
-    } else if (role === 'Staff') {
-      const { data: Staff } = await supabase
-        .from('Staffs')
+    } else if (role === 'personal') {
+      const { data: personal } = await supabase
+        .from('personals')
         .select('id')
         .eq('user_id', userId)
         .single()
 
-      if (Staff) {
-        query = query.eq('Booking.Staff_id', Staff.id)
+      if (personal) {
+        query = query.eq('turno.personal_id', personal.id)
       }
     }
 
@@ -68,10 +68,10 @@ export const paymentService = {
       return []
     }
 
-    return data as PaymentWithBooking[]
+    return data as PaymentWithTurno[]
   },
 
-  async getPaymentStats(userId: string, role: 'client' | 'Staff' | 'admin') {
+  async getPaymentStats(userId: string, role: 'client' | 'personal' | 'admin') {
     const supabase = await createClient()
 
     const startOfMonth = new Date()
@@ -82,15 +82,15 @@ export const paymentService = {
       .from('payments')
       .select('amount, status, created_at')
 
-    if (role === 'Staff') {
-      const { data: Staff } = await supabase
-        .from('Staffs')
+    if (role === 'personal') {
+      const { data: personal } = await supabase
+        .from('personals')
         .select('id')
         .eq('user_id', userId)
         .single()
 
-      if (Staff) {
-        query = query.eq('Booking.Staff_id', Staff.id)
+      if (personal) {
+        query = query.eq('turno.personal_id', personal.id)
       }
     }
 
@@ -145,19 +145,19 @@ export const paymentService = {
       return { error: error.message }
     }
 
-    // If payment completed, update Booking status to 'paid'
+    // If payment completed, update turno status to 'paid'
     if (status === 'completed') {
       const { data: payment } = await supabase
         .from('payments')
-        .select('Booking_id')
+        .select('turno_id')
         .eq('id', paymentId)
         .single()
 
       if (payment) {
         await supabase
-          .from('Bookings')
+          .from('turnos')
           .update({ status: 'paid' })
-          .eq('id', payment.Booking_id)
+          .eq('id', payment.turno_id)
       }
     }
 

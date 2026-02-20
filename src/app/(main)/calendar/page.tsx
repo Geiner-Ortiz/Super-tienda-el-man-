@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { CalendarView } from '@/features/calendar/components/CalendarView'
 
 export const metadata = {
-  title: 'Calendario | Tu Súper Tienda'
+  title: 'Calendario | Tu SÃºper Tienda'
 }
 
 export default async function CalendarPage() {
@@ -14,7 +14,7 @@ export default async function CalendarPage() {
     redirect('/login')
   }
 
-  // Verificar rol (solo admin y Staff)
+  // Verificar rol (solo admin y personal)
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
@@ -25,49 +25,49 @@ export default async function CalendarPage() {
     redirect('/dashboard')
   }
 
-  // Obtener citas del mes actual
+  // Obtener turnos del mes actual
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
 
-  let BookingsQuery = supabase
-    .from('Bookings')
+  let turnosQuery = supabase
+    .from('turnos')
     .select(`
       *,
       client:clients(id, user_id, full_name, email, phone, address, notes, created_at, updated_at, profile:profiles(*)),
-      Staff:Staffs(*, profile:profiles(*)),
-      Booking_type:Booking_types(*)
+      personal:personals(*, profile:profiles(*)),
+      turno_type:turno_types(*)
     `)
     .gte('scheduled_at', startOfMonth.toISOString())
     .lte('scheduled_at', endOfMonth.toISOString())
     .order('scheduled_at', { ascending: true })
 
-  // Si es Personal, solo sus citas
-  if (profile?.role === 'Staff') {
-    const { data: Staff } = await supabase
-      .from('Staffs')
+  // Si es personal, solo sus turnos
+  if (profile?.role === 'personal') {
+    const { data: personal } = await supabase
+      .from('personals')
       .select('id')
       .eq('user_id', user.id)
       .single()
 
-    if (Staff) {
-      BookingsQuery = BookingsQuery.eq('Staff_id', Staff.id)
+    if (personal) {
+      turnosQuery = turnosQuery.eq('personal_id', personal.id)
     }
   }
 
-  const { data: Bookings } = await BookingsQuery
+  const { data: turnos } = await turnosQuery
 
-  // Obtener lista de Personals para filtro (solo admin)
+  // Obtener lista de personals para filtro (solo admin)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let Staffs: any[] = []
+  let personals: any[] = []
   if (profile?.role === 'admin') {
     const { data } = await supabase
-      .from('Staffs')
+      .from('personals')
       .select('id, profile:profiles(full_name)')
       .eq('is_active', true)
 
     // Transform the data to match expected format
-    Staffs = (data || []).map((l: { id: string; profile: { full_name: string }[] | { full_name: string } }) => ({
+    personals = (data || []).map((l: { id: string; profile: { full_name: string }[] | { full_name: string } }) => ({
       id: l.id,
       profile: Array.isArray(l.profile) ? l.profile[0] : l.profile
     }))
@@ -76,8 +76,8 @@ export default async function CalendarPage() {
   return (
     <div className="p-6 md:p-8">
       <CalendarView
-        initialBookings={Bookings || []}
-        Staffs={Staffs}
+        initialTurnos={turnos || []}
+        personals={personals}
         userRole={profile?.role || 'client'}
       />
     </div>

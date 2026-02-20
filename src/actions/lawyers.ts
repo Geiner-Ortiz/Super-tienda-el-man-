@@ -2,45 +2,45 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import type { CreateStaffDTO, UpdateStaffDTO } from '@/types/database'
+import type { CreatePersonalDTO, UpdatePersonalDTO } from '@/types/database'
 
-export async function createStaff(data: CreateStaffDTO) {
+export async function createPersonal(data: CreatePersonalDTO) {
   const supabase = await createClient()
 
-  const { error } = await supabase.from('Staffs').insert(data)
+  const { error } = await supabase.from('personals').insert(data)
 
   if (error) return { error: error.message }
 
-  // Actualizar rol del usuario a Staff
+  // Actualizar rol del usuario a personal
   await supabase
     .from('profiles')
-    .update({ role: 'Staff' })
+    .update({ role: 'personal' })
     .eq('id', data.user_id)
 
-  revalidatePath('/Staffs')
+  revalidatePath('/personals')
   return { success: true }
 }
 
-export async function updateStaff(id: string, data: UpdateStaffDTO) {
+export async function updatePersonal(id: string, data: UpdatePersonalDTO) {
   const supabase = await createClient()
 
   const { error } = await supabase
-    .from('Staffs')
+    .from('personals')
     .update(data)
     .eq('id', id)
 
   if (error) return { error: error.message }
 
-  revalidatePath('/Staffs')
-  revalidatePath(`/Staffs/${id}`)
+  revalidatePath('/personals')
+  revalidatePath(`/personals/${id}`)
   return { success: true }
 }
 
-export async function getStaffByUserId(userId: string) {
+export async function getPersonalByUserId(userId: string) {
   const supabase = await createClient()
 
   const { data, error } = await supabase
-    .from('Staffs')
+    .from('personals')
     .select('*')
     .eq('user_id', userId)
     .single()

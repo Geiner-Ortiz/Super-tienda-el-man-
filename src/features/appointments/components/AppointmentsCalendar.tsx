@@ -4,13 +4,13 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { BookingWithRelations } from '@/types/database'
+import type { TurnoWithRelations } from '@/types/database'
 
 type ViewType = 'week' | 'month'
 
-interface BookingsCalendarProps {
-  Bookings: BookingWithRelations[]
-  userRole: 'client' | 'Staff' | 'admin'
+interface TurnosCalendarProps {
+  turnos: TurnoWithRelations[]
+  userRole: 'client' | 'personal' | 'admin'
 }
 
 const DAYS_SHORT = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
@@ -38,31 +38,31 @@ const statusLabels: Record<string, string> = {
 }
 
 // Helper to get client name from profile or direct field (for guest clients)
-const getClientName = (client: BookingWithRelations['client'] | undefined): string => {
+const getClientName = (client: TurnoWithRelations['client'] | undefined): string => {
   if (!client) return 'Cliente'
   return client.profile?.full_name || client.full_name || 'Cliente'
 }
 
-export function BookingsCalendar({ Bookings, userRole }: BookingsCalendarProps) {
+export function TurnosCalendar({ turnos, userRole }: TurnosCalendarProps) {
   const [view, setView] = useState<ViewType>('week')
   const [currentDate, setCurrentDate] = useState(new Date())
 
-  // Get Bookings map by date
-  const BookingsByDate = useMemo(() => {
-    const map = new Map<string, BookingWithRelations[]>()
-    Bookings.forEach(apt => {
+  // Get turnos map by date
+  const turnosByDate = useMemo(() => {
+    const map = new Map<string, TurnoWithRelations[]>()
+    turnos.forEach(apt => {
       const dateKey = new Date(apt.scheduled_at).toDateString()
       if (!map.has(dateKey)) {
         map.set(dateKey, [])
       }
       map.get(dateKey)!.push(apt)
     })
-    // Sort Bookings by time within each day
+    // Sort turnos by time within each day
     map.forEach((apts) => {
       apts.sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
     })
     return map
-  }, [Bookings])
+  }, [turnos])
 
   // Get week dates
   const getWeekDates = (date: Date) => {
@@ -150,16 +150,16 @@ export function BookingsCalendar({ Bookings, userRole }: BookingsCalendarProps) 
     return `${MONTHS[currentDate.getMonth()]} ${currentDate.getFullYear()}`
   }
 
-  const renderBooking = (apt: BookingWithRelations, compact = false) => {
-    const personName = userRole === 'Staff'
+  const renderTurno = (apt: TurnoWithRelations, compact = false) => {
+    const personName = userRole === 'personal'
       ? getClientName(apt.client)
-      : apt.Staff?.profile?.full_name || 'Personal'
+      : apt.personal?.profile?.full_name || 'Personal'
 
     if (compact) {
       return (
         <Link
           key={apt.id}
-          href={`/Bookings/${apt.id}`}
+          href={`/turnos/${apt.id}`}
           className={`block text-xs p-1.5 rounded-lg text-white truncate hover:opacity-90 transition-opacity ${statusColors[apt.status]}`}
         >
           {formatTime(apt.scheduled_at)} {personName.split(' ')[0]}
@@ -170,7 +170,7 @@ export function BookingsCalendar({ Bookings, userRole }: BookingsCalendarProps) 
     return (
       <Link
         key={apt.id}
-        href={`/Bookings/${apt.id}`}
+        href={`/turnos/${apt.id}`}
         className={`block p-3 rounded-xl border-l-4 bg-white shadow-sm hover:shadow-md transition-all ${statusColors[apt.status]}`}
       >
         <div className="flex items-start justify-between gap-2">
@@ -179,9 +179,9 @@ export function BookingsCalendar({ Bookings, userRole }: BookingsCalendarProps) 
             <p className="text-sm text-foreground-secondary">
               {formatTime(apt.scheduled_at)} - {apt.duration_minutes} min
             </p>
-            {apt.Booking_type && (
+            {apt.turno_type && (
               <p className="text-xs text-foreground-muted mt-1 truncate">
-                {apt.Booking_type.name}
+                {apt.turno_type.name}
               </p>
             )}
           </div>
@@ -227,19 +227,21 @@ export function BookingsCalendar({ Bookings, userRole }: BookingsCalendarProps) 
           <div className="flex bg-white rounded-xl p-1 shadow-sm">
             <button
               onClick={() => setView('week')}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${view === 'week'
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                view === 'week'
                   ? 'bg-primary-500 text-white shadow-sm'
                   : 'text-foreground-secondary hover:text-foreground'
-                }`}
+              }`}
             >
               Semana
             </button>
             <button
               onClick={() => setView('month')}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${view === 'month'
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                view === 'month'
                   ? 'bg-primary-500 text-white shadow-sm'
                   : 'text-foreground-secondary hover:text-foreground'
-                }`}
+              }`}
             >
               Mes
             </button>
@@ -252,7 +254,7 @@ export function BookingsCalendar({ Bookings, userRole }: BookingsCalendarProps) 
         // Week View
         <div className="divide-y divide-border">
           {weekDates.map((date, idx) => {
-            const dayBookings = BookingsByDate.get(date.toDateString()) || []
+            const dayTurnos = turnosByDate.get(date.toDateString()) || []
             const today = isToday(date)
 
             return (
@@ -273,15 +275,15 @@ export function BookingsCalendar({ Bookings, userRole }: BookingsCalendarProps) 
                   )}
                 </div>
 
-                {/* Bookings */}
+                {/* Turnos */}
                 <div className="flex-1 p-3 min-h-[100px]">
-                  {dayBookings.length > 0 ? (
+                  {dayTurnos.length > 0 ? (
                     <div className="space-y-2">
-                      {dayBookings.map(apt => renderBooking(apt))}
+                      {dayTurnos.map(apt => renderTurno(apt))}
                     </div>
                   ) : (
                     <div className="h-full flex items-center justify-center text-sm text-foreground-muted">
-                      Sin citas
+                      Sin turnos
                     </div>
                   )}
                 </div>
@@ -304,27 +306,29 @@ export function BookingsCalendar({ Bookings, userRole }: BookingsCalendarProps) 
           {/* Calendar Grid */}
           <div className="grid grid-cols-7">
             {monthDates.map(({ date, isCurrentMonth }, idx) => {
-              const dayBookings = BookingsByDate.get(date.toDateString()) || []
+              const dayTurnos = turnosByDate.get(date.toDateString()) || []
               const today = isToday(date)
 
               return (
                 <div
                   key={idx}
-                  className={`min-h-[120px] p-2 border-b border-r border-border ${!isCurrentMonth ? 'bg-gray-50/50' : ''
-                    } ${today ? 'bg-accent-50' : ''}`}
+                  className={`min-h-[120px] p-2 border-b border-r border-border ${
+                    !isCurrentMonth ? 'bg-gray-50/50' : ''
+                  } ${today ? 'bg-accent-50' : ''}`}
                 >
-                  <div className={`text-sm font-medium mb-1 ${today
+                  <div className={`text-sm font-medium mb-1 ${
+                    today
                       ? 'w-7 h-7 rounded-full bg-accent-500 text-white flex items-center justify-center'
                       : isCurrentMonth ? 'text-foreground' : 'text-foreground-muted'
-                    }`}>
+                  }`}>
                     {date.getDate()}
                   </div>
 
                   <div className="space-y-1">
-                    {dayBookings.slice(0, 3).map(apt => renderBooking(apt, true))}
-                    {dayBookings.length > 3 && (
+                    {dayTurnos.slice(0, 3).map(apt => renderTurno(apt, true))}
+                    {dayTurnos.length > 3 && (
                       <p className="text-xs text-foreground-secondary text-center">
-                        +{dayBookings.length - 3} más
+                        +{dayTurnos.length - 3} más
                       </p>
                     )}
                   </div>
@@ -336,29 +340,29 @@ export function BookingsCalendar({ Bookings, userRole }: BookingsCalendarProps) 
       )}
 
       {/* Empty State */}
-      {Bookings.length === 0 && (
+      {turnos.length === 0 && (
         <div className="p-12 text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
             <CalendarIcon className="w-8 h-8 text-gray-400" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Calendario de Turnos</h1>
-          <p className="text-foreground-secondary mt-1">
-            Visualiza los turnos del personal
+          <h3 className="text-lg font-medium text-foreground mb-2">No tienes turnos programadas</h3>
+          <p className="text-foreground-secondary mb-6">
+            Las turnos aparecerán aquí cuando las programes
           </p>
           {userRole === 'client' && (
             <Link
-              href="/Bookings/new"
+              href="/turnos/new"
               className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors"
             >
               <PlusIcon className="w-4 h-4" />
-              Agendar Primera Cita
+              Agendar Primera Turno
             </Link>
           )}
         </div>
       )}
 
       {/* Legend */}
-      {Bookings.length > 0 && (
+      {turnos.length > 0 && (
         <div className="p-4 border-t border-border bg-gray-50">
           <div className="flex flex-wrap items-center gap-4 text-xs">
             <span className="text-foreground-secondary font-medium">Estados:</span>

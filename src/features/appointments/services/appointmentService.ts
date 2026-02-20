@@ -1,62 +1,62 @@
 import { createClient } from '@/lib/supabase/client'
-import type { BookingWithRelations } from '@/types/database'
+import type { TurnoWithRelations } from '@/types/database'
 
-export const BookingService = {
-  async getByClient(clientId: string): Promise<BookingWithRelations[]> {
+export const turnoService = {
+  async getByClient(clientId: string): Promise<TurnoWithRelations[]> {
     const supabase = createClient()
     const { data, error } = await supabase
-      .from('Bookings')
+      .from('turnos')
       .select(`
         *,
         client:clients(*, profile:profiles(*)),
-        Staff:Staffs(*, profile:profiles(*)),
-        Booking_type:Booking_types(*)
+        personal:personals(*, profile:profiles(*)),
+        turno_type:turno_types(*)
       `)
       .eq('client_id', clientId)
       .order('scheduled_at', { ascending: false })
 
     if (error) throw error
-    return data as BookingWithRelations[]
+    return data as TurnoWithRelations[]
   },
 
-  async getByStaff(StaffId: string): Promise<BookingWithRelations[]> {
+  async getByPersonal(personalId: string): Promise<TurnoWithRelations[]> {
     const supabase = createClient()
     const { data, error } = await supabase
-      .from('Bookings')
+      .from('turnos')
       .select(`
         *,
         client:clients(*, profile:profiles(*)),
-        Staff:Staffs(*, profile:profiles(*)),
-        Booking_type:Booking_types(*)
+        personal:personals(*, profile:profiles(*)),
+        turno_type:turno_types(*)
       `)
-      .eq('Staff_id', StaffId)
+      .eq('personal_id', personalId)
       .order('scheduled_at', { ascending: false })
 
     if (error) throw error
-    return data as BookingWithRelations[]
+    return data as TurnoWithRelations[]
   },
 
-  async getById(id: string): Promise<BookingWithRelations | null> {
+  async getById(id: string): Promise<TurnoWithRelations | null> {
     const supabase = createClient()
     const { data, error } = await supabase
-      .from('Bookings')
+      .from('turnos')
       .select(`
         *,
         client:clients(*, profile:profiles(*)),
-        Staff:Staffs(*, profile:profiles(*)),
-        Booking_type:Booking_types(*)
+        personal:personals(*, profile:profiles(*)),
+        turno_type:turno_types(*)
       `)
       .eq('id', id)
       .single()
 
     if (error) return null
-    return data as BookingWithRelations
+    return data as TurnoWithRelations
   },
 
-  async getBookingTypes() {
+  async getTurnoTypes() {
     const supabase = createClient()
     const { data, error } = await supabase
-      .from('Booking_types')
+      .from('turno_types')
       .select('*')
       .eq('is_active', true)
       .order('price')

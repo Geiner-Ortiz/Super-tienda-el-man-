@@ -17,7 +17,7 @@ export function CTABanner() {
               Llame hoy para hablar sobre su caso de derecho familiar
             </h2>
             <p className="text-body-lg text-teal-200">
-              Consulta inicial gratuita. Estamos listos para ayudarle.
+              Reserva inicial gratuita. Estamos listos para ayudarle.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0">
@@ -32,7 +32,7 @@ export function CTABanner() {
               href="/contacto"
               className="bg-secondary-500 hover:bg-secondary-600 text-white font-bold px-8 py-4 rounded-xl transition-colors shadow-lg uppercase tracking-wider text-body-sm"
             >
-              Agendar Consulta
+              Agendar Reserva
             </Link>
           </div>
         </div>

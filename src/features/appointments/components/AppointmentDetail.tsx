@@ -5,22 +5,22 @@ import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { updateBookingStatus, addBookingNotes } from '@/actions/Bookings'
-import type { BookingWithRelations } from '@/types/database'
+import { updateTurnoStatus, addTurnoNotes } from '@/actions/turnos'
+import type { TurnoWithRelations } from '@/types/database'
 
-interface BookingDetailProps {
-  Booking: BookingWithRelations
-  userRole: 'client' | 'Staff'
+interface TurnoDetailProps {
+  turno: TurnoWithRelations
+  userRole: 'client' | 'personal'
 }
 
-export function BookingDetail({ Booking, userRole }: BookingDetailProps) {
+export function TurnoDetail({ turno, userRole }: TurnoDetailProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [notes, setNotes] = useState(Booking.notes || '')
+  const [notes, setNotes] = useState(turno.notes || '')
 
   const handleStatusChange = async (status: 'confirmed' | 'cancelled' | 'completed') => {
     setLoading(true)
-    const result = await updateBookingStatus(Booking.id, status)
+    const result = await updateTurnoStatus(turno.id, status)
     setLoading(false)
 
     if (result.error) {
@@ -32,7 +32,7 @@ export function BookingDetail({ Booking, userRole }: BookingDetailProps) {
 
   const handleSaveNotes = async () => {
     setLoading(true)
-    const result = await addBookingNotes(Booking.id, notes)
+    const result = await addTurnoNotes(turno.id, notes)
     setLoading(false)
 
     if (result.error) {
@@ -40,8 +40,8 @@ export function BookingDetail({ Booking, userRole }: BookingDetailProps) {
     }
   }
 
-  const scheduledDate = new Date(Booking.scheduled_at)
-  const endTime = new Date(scheduledDate.getTime() + Booking.duration_minutes * 60000)
+  const scheduledDate = new Date(turno.scheduled_at)
+  const endTime = new Date(scheduledDate.getTime() + turno.duration_minutes * 60000)
 
   const statusVariant: Record<string, 'pending' | 'confirmed' | 'cancelled'> = {
     pending: 'pending',
@@ -67,14 +67,14 @@ export function BookingDetail({ Booking, userRole }: BookingDetailProps) {
         <div className="flex items-start justify-between mb-6">
           <div>
             <h2 className="text-xl font-semibold text-foreground mb-1">
-              {Booking.Booking_type?.name || 'Consulta Legal'}
+              {turno.turno_type?.name || 'Reserva Legal'}
             </h2>
             <p className="text-foreground-secondary">
-              {Booking.Booking_type?.description}
+              {turno.turno_type?.description}
             </p>
           </div>
-          <Badge variant={statusVariant[Booking.status]}>
-            {statusLabel[Booking.status]}
+          <Badge variant={statusVariant[turno.status]}>
+            {statusLabel[turno.status]}
           </Badge>
         </div>
 
@@ -100,7 +100,7 @@ export function BookingDetail({ Booking, userRole }: BookingDetailProps) {
                 {scheduledDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                 {' - '}
                 {endTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-                {' '}({Booking.duration_minutes} min)
+                {' '}({turno.duration_minutes} min)
               </p>
             </div>
           </div>
@@ -113,21 +113,21 @@ export function BookingDetail({ Booking, userRole }: BookingDetailProps) {
               {userRole === 'client' ? (
                 <>
                   <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center text-white font-medium">
-                    {Booking.Staff?.profile?.full_name?.charAt(0) || 'A'}
+                    {turno.personal?.profile?.full_name?.charAt(0) || 'A'}
                   </div>
                   <div>
-                    <p className="font-medium">{Booking.Staff?.profile?.full_name}</p>
-                    <p className="text-sm text-foreground-secondary">{Booking.Staff?.specialty}</p>
+                    <p className="font-medium">{turno.personal?.profile?.full_name}</p>
+                    <p className="text-sm text-foreground-secondary">{turno.personal?.specialty}</p>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
-                    {Booking.client?.profile?.full_name?.charAt(0) || 'C'}
+                    {turno.client?.profile?.full_name?.charAt(0) || 'C'}
                   </div>
                   <div>
-                    <p className="font-medium">{Booking.client?.profile?.full_name}</p>
-                    <p className="text-sm text-foreground-secondary">{Booking.client?.phone || 'Sin teléfono'}</p>
+                    <p className="font-medium">{turno.client?.profile?.full_name}</p>
+                    <p className="text-sm text-foreground-secondary">{turno.client?.phone || 'Sin teléfono'}</p>
                   </div>
                 </>
               )}
@@ -135,27 +135,27 @@ export function BookingDetail({ Booking, userRole }: BookingDetailProps) {
           </div>
         </div>
 
-        {Booking.Booking_type?.price && (
+        {turno.turno_type?.price && (
           <div className="mt-6 pt-6 border-t">
             <div className="flex justify-between items-center">
               <span className="text-foreground-secondary">Costo de la consulta</span>
               <span className="text-xl font-semibold text-secondary-600">
-                ${Booking.Booking_type.price}
+                ${turno.turno_type.price}
               </span>
             </div>
           </div>
         )}
       </Card>
 
-      {userRole === 'Staff' && (
+      {userRole === 'personal' && (
         <Card className="p-6">
-          <h3 className="font-medium text-foreground mb-3">Notas del Personal</h3>
+          <h3 className="font-medium text-foreground mb-3">Notas del personal</h3>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             className="w-full p-3 border rounded-lg resize-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             rows={4}
-            placeholder="Agregar notas sobre la cita..."
+            placeholder="Agregar notas sobre la turno..."
           />
           <Button
             onClick={handleSaveNotes}
@@ -168,23 +168,23 @@ export function BookingDetail({ Booking, userRole }: BookingDetailProps) {
         </Card>
       )}
 
-      {Booking.client_notes && (
+      {turno.client_notes && (
         <Card className="p-6">
           <h3 className="font-medium text-foreground mb-3">Notas del cliente</h3>
-          <p className="text-foreground-secondary">{Booking.client_notes}</p>
+          <p className="text-foreground-secondary">{turno.client_notes}</p>
         </Card>
       )}
 
-      {Booking.status === 'pending' && (
+      {turno.status === 'pending' && (
         <Card className="p-6">
           <h3 className="font-medium text-foreground mb-4">Acciones</h3>
           <div className="flex flex-wrap gap-3">
-            {userRole === 'Staff' && (
+            {userRole === 'personal' && (
               <Button
                 onClick={() => handleStatusChange('confirmed')}
                 disabled={loading}
               >
-                Confirmar Cita
+                Confirmar Turno
               </Button>
             )}
             <Button
@@ -193,13 +193,13 @@ export function BookingDetail({ Booking, userRole }: BookingDetailProps) {
               disabled={loading}
               className="text-error-600 border-error-300 hover:bg-error-50"
             >
-              Cancelar Cita
+              Cancelar Turno
             </Button>
           </div>
         </Card>
       )}
 
-      {Booking.status === 'confirmed' && userRole === 'Staff' && (
+      {turno.status === 'confirmed' && userRole === 'personal' && (
         <Card className="p-6">
           <h3 className="font-medium text-foreground mb-4">Acciones</h3>
           <div className="flex flex-wrap gap-3">
@@ -215,7 +215,7 @@ export function BookingDetail({ Booking, userRole }: BookingDetailProps) {
               disabled={loading}
               className="text-error-600 border-error-300 hover:bg-error-50"
             >
-              Cancelar Cita
+              Cancelar Turno
             </Button>
           </div>
         </Card>

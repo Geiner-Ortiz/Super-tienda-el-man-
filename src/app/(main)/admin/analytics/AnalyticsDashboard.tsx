@@ -2,10 +2,10 @@
 
 import { Card } from '@/components/ui/card'
 
-interface StaffMetric {
+interface PersonalMetric {
   id: string
   name: string
-  Bookings: number
+  turnos: number
   completed: number
   revenue: number
   hoursWorked: number
@@ -19,7 +19,7 @@ interface AnalyticsStats {
     previous: number
     change: number
   }
-  Bookings: {
+  turnos: {
     current: number
     previous: number
     change: number
@@ -30,7 +30,7 @@ interface AnalyticsStats {
   }
   conversionRate: number
   accountsReceivable: number
-  StaffMetrics: StaffMetric[]
+  personalMetrics: PersonalMetric[]
 }
 
 export function AnalyticsDashboard({ stats }: { stats: AnalyticsStats }) {
@@ -73,13 +73,13 @@ export function AnalyticsDashboard({ stats }: { stats: AnalyticsStats }) {
           </div>
         </Card>
 
-        {/* Citas */}
+        {/* Turnos */}
         <Card className="p-6 border-l-4 border-accent-500">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-foreground-secondary">Citas del Mes</p>
+              <p className="text-sm font-medium text-foreground-secondary">Turnos del Mes</p>
               <p className="text-3xl font-bold text-foreground mt-2">
-                {stats.Bookings.current}
+                {stats.turnos.current}
               </p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-accent-100 flex items-center justify-center">
@@ -87,8 +87,8 @@ export function AnalyticsDashboard({ stats }: { stats: AnalyticsStats }) {
             </div>
           </div>
           <div className="mt-4 flex items-center gap-2">
-            <span className={`text-sm font-medium ${stats.Bookings.change >= 0 ? 'text-success-600' : 'text-error-600'}`}>
-              {formatPercent(stats.Bookings.change)}
+            <span className={`text-sm font-medium ${stats.turnos.change >= 0 ? 'text-success-600' : 'text-error-600'}`}>
+              {formatPercent(stats.turnos.change)}
             </span>
             <span className="text-sm text-foreground-secondary">vs mes anterior</span>
           </div>
@@ -129,7 +129,7 @@ export function AnalyticsDashboard({ stats }: { stats: AnalyticsStats }) {
           </div>
           <div className="mt-4">
             <span className="text-sm text-foreground-secondary">
-              Citas completadas/total
+              Turnos completadas/total
             </span>
           </div>
         </Card>
@@ -171,51 +171,51 @@ export function AnalyticsDashboard({ stats }: { stats: AnalyticsStats }) {
               <thead>
                 <tr className="border-b border-border">
                   <th className="text-left py-3 text-sm font-medium text-foreground-secondary">Personal</th>
-                  <th className="text-center py-3 text-sm font-medium text-foreground-secondary">Citas</th>
+                  <th className="text-center py-3 text-sm font-medium text-foreground-secondary">Turnos</th>
                   <th className="text-center py-3 text-sm font-medium text-foreground-secondary">Completadas</th>
                   <th className="text-right py-3 text-sm font-medium text-foreground-secondary">Ingresos</th>
                   <th className="text-right py-3 text-sm font-medium text-foreground-secondary">Utilización</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {stats.StaffMetrics.map(Staff => (
-                  <tr key={Staff.id} className="hover:bg-gray-50/50">
+                {stats.personalMetrics.map(personal => (
+                  <tr key={personal.id} className="hover:bg-gray-50/50">
                     <td className="py-3">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
                           <span className="text-xs font-semibold text-primary-600">
-                            {Staff.name.slice(0, 2).toUpperCase()}
+                            {personal.name.slice(0, 2).toUpperCase()}
                           </span>
                         </div>
-                        <span className="font-medium text-foreground">{Staff.name}</span>
+                        <span className="font-medium text-foreground">{personal.name}</span>
                       </div>
                     </td>
-                    <td className="py-3 text-center text-foreground-secondary">{Staff.Bookings}</td>
+                    <td className="py-3 text-center text-foreground-secondary">{personal.turnos}</td>
                     <td className="py-3 text-center">
                       <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-success-100 text-success-700">
-                        {Staff.completed}
+                        {personal.completed}
                       </span>
                     </td>
                     <td className="py-3 text-right font-semibold text-secondary-600">
-                      {formatCurrency(Staff.revenue)}
+                      {formatCurrency(personal.revenue)}
                     </td>
                     <td className="py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-accent-500 rounded-full"
-                            style={{ width: `${Math.min(Staff.utilizationRate, 100)}%` }}
+                            style={{ width: `${Math.min(personal.utilizationRate, 100)}%` }}
                           />
                         </div>
-                        <span className="text-sm text-foreground-secondary">{Staff.utilizationRate}%</span>
+                        <span className="text-sm text-foreground-secondary">{personal.utilizationRate}%</span>
                       </div>
                     </td>
                   </tr>
                 ))}
-                {stats.StaffMetrics.length === 0 && (
+                {stats.personalMetrics.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-foreground-secondary">
-                      No hay datos de Personals
+                      No hay datos de personals
                     </td>
                   </tr>
                 )}
@@ -233,7 +233,7 @@ export function AnalyticsDashboard({ stats }: { stats: AnalyticsStats }) {
             <div>
               <p className="font-medium text-warning-800">Cuentas Pendientes de Cobro</p>
               <p className="text-sm text-warning-700">
-                Tienes {formatCurrency(stats.accountsReceivable)} en citas completadas pendientes de pago.
+                Tienes {formatCurrency(stats.accountsReceivable)} en turnos completadas pendientes de pago.
               </p>
             </div>
           </div>

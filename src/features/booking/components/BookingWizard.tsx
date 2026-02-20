@@ -3,16 +3,16 @@
 import { useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { BookingProgress } from './BookingProgress'
-import { StepSelectStaff } from './StepSelectStaff'
+import { StepSelectPersonal } from './StepSelectPersonal'
 import { StepSelectDateTime } from './StepSelectDateTime'
 import { StepConfirm } from './StepConfirm'
 import { useBookingStore } from '../store/bookingStore'
 
 interface BookingWizardProps {
-  preselectedStaffId?: string
+  preselectedPersonalId?: string
 }
 
-export function BookingWizard({ preselectedStaffId }: BookingWizardProps) {
+export function BookingWizard({ preselectedPersonalId }: BookingWizardProps) {
   const { currentStep, goToStep, reset } = useBookingStore()
 
   // Limpiar estado al desmontar
@@ -42,7 +42,7 @@ export function BookingWizard({ preselectedStaffId }: BookingWizardProps) {
       {/* Contenido del paso actual */}
       <Card className="p-6">
         {currentStep === 1 && (
-          <StepSelectStaff preselectedStaffId={preselectedStaffId} />
+          <StepSelectPersonal preselectedPersonalId={preselectedPersonalId} />
         )}
         {currentStep === 2 && <StepSelectDateTime />}
         {currentStep === 3 && <StepConfirm />}

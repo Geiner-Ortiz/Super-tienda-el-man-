@@ -10,31 +10,31 @@ export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params
   const supabase = await createClient()
 
-  const { data: lawyer } = await supabase
-    .from('lawyers')
+  const { data: personal } = await supabase
+    .from('personals')
     .select('profile:profiles(full_name), specialty')
     .eq('id', slug)
     .single()
 
-  if (!lawyer) {
-    return { title: 'Abogado no encontrado | LexAgenda' }
+  if (!personal) {
+    return { title: 'Personal no encontrado | Tu Súper Tienda' }
   }
 
-  const profile = Array.isArray(lawyer.profile) ? lawyer.profile[0] : lawyer.profile
+  const profile = Array.isArray(personal.profile) ? personal.profile[0] : personal.profile
 
   return {
-    title: `Agendar cita con ${profile?.full_name || 'Abogado'} | LexAgenda`,
-    description: `Agenda tu consulta legal con ${profile?.full_name}. Especialidad: ${lawyer.specialty}`
+    title: `Agendar turno con ${profile?.full_name || 'Personal'} | Tu Súper Tienda`,
+    description: `Agenda tu consulta legal con ${profile?.full_name}. Especialidad: ${personal.specialty}`
   }
 }
 
-export default async function BookLawyerPage({ params }: PageProps) {
+export default async function BookPersonalPage({ params }: PageProps) {
   const { slug } = await params
   const supabase = await createClient()
 
-  // Try to find lawyer by ID or slug
-  const { data: lawyer } = await supabase
-    .from('lawyers')
+  // Try to find personal by ID or slug
+  const { data: personal } = await supabase
+    .from('personals')
     .select(`
       *,
       profile:profiles(id, full_name, email, avatar_url),
@@ -44,34 +44,34 @@ export default async function BookLawyerPage({ params }: PageProps) {
     .eq('is_active', true)
     .single()
 
-  if (!lawyer) {
+  if (!personal) {
     notFound()
   }
 
-  // Get appointment types
-  const { data: appointmentTypes } = await supabase
-    .from('appointment_types')
+  // Get turno types
+  const { data: turnoTypes } = await supabase
+    .from('turno_types')
     .select('*')
     .eq('is_active', true)
     .order('price', { ascending: true })
 
-  const profile = Array.isArray(lawyer.profile) ? lawyer.profile[0] : lawyer.profile
+  const profile = Array.isArray(personal.profile) ? personal.profile[0] : personal.profile
 
   return (
     <PublicBookingPage
-      lawyer={{
-        id: lawyer.id,
-        name: profile?.full_name || 'Abogado',
+      personal={{
+        id: personal.id,
+        name: profile?.full_name || 'Personal',
         email: profile?.email || '',
         avatar: profile?.avatar_url,
-        specialty: lawyer.specialty,
-        bio: lawyer.bio,
-        experience_years: lawyer.experience_years,
-        hourly_rate: lawyer.hourly_rate,
-        rating: lawyer.rating,
-        availability: lawyer.availability || []
+        specialty: personal.specialty,
+        bio: personal.bio,
+        experience_years: personal.experience_years,
+        hourly_rate: personal.hourly_rate,
+        rating: personal.rating,
+        availability: personal.availability || []
       }}
-      appointmentTypes={appointmentTypes || []}
+      turnoTypes={turnoTypes || []}
     />
   )
 }

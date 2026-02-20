@@ -4,22 +4,22 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { createBooking } from '@/actions/Bookings'
+import { createTurno } from '@/actions/turnos'
 import { useBookingStore } from '../store/bookingStore'
-import { StaffService } from '@/features/Staffs/services/StaffService'
-import { BookingService } from '@/features/Bookings/services/BookingService'
-import type { StaffWithProfile, BookingType } from '@/types/database'
+import { personalService } from '@/features/personals/services/personalService'
+import { turnoService } from '@/features/turnos/services/turnoService'
+import type { PersonalWithProfile, TurnoType } from '@/types/database'
 
 export function StepConfirm() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [Staff, setStaff] = useState<StaffWithProfile | null>(null)
-  const [BookingType, setBookingType] = useState<BookingType | null>(null)
+  const [personal, setPersonal] = useState<PersonalWithProfile | null>(null)
+  const [turnoType, setTurnoType] = useState<TurnoType | null>(null)
 
   const {
-    StaffId,
-    BookingTypeId,
+    personalId,
+    turnoTypeId,
     selectedDate,
     selectedTime,
     clientNotes,
@@ -28,24 +28,24 @@ export function StepConfirm() {
     reset
   } = useBookingStore()
 
-  // Cargar datos del Personal y tipo de cita
+  // Cargar datos del personal y tipo de turno
   useEffect(() => {
     async function loadData() {
-      if (StaffId) {
-        const l = await StaffService.getById(StaffId)
-        setStaff(l)
+      if (personalId) {
+        const l = await personalService.getById(personalId)
+        setPersonal(l)
       }
-      if (BookingTypeId) {
-        const types = await BookingService.getBookingTypes()
-        const t = types.find(t => t.id === BookingTypeId)
-        if (t) setBookingType(t)
+      if (turnoTypeId) {
+        const types = await turnoService.getTurnoTypes()
+        const t = types.find(t => t.id === turnoTypeId)
+        if (t) setTurnoType(t)
       }
     }
     loadData()
-  }, [StaffId, BookingTypeId])
+  }, [personalId, turnoTypeId])
 
   const handleConfirm = async () => {
-    if (!StaffId || !BookingTypeId || !selectedDate || !selectedTime) {
+    if (!personalId || !turnoTypeId || !selectedDate || !selectedTime) {
       return
     }
 
@@ -57,9 +57,9 @@ export function StepConfirm() {
     const scheduledAt = new Date(selectedDate)
     scheduledAt.setHours(hours, minutes, 0, 0)
 
-    const result = await createBooking({
-      Staff_id: StaffId,
-      Booking_type_id: BookingTypeId,
+    const result = await createTurno({
+      personal_id: personalId,
+      turno_type_id: turnoTypeId,
       scheduled_at: scheduledAt.toISOString(),
       client_notes: clientNotes || undefined
     })
@@ -70,11 +70,11 @@ export function StepConfirm() {
       setError(result.error)
     } else {
       reset()
-      router.push('/Bookings')
+      router.push('/turnos')
     }
   }
 
-  if (!Staff || !BookingType || !selectedDate || !selectedTime) {
+  if (!personal || !turnoType || !selectedDate || !selectedTime) {
     return (
       <div className="text-center py-12">
         <p className="text-foreground-secondary">Cargando resumen...</p>
@@ -82,7 +82,7 @@ export function StepConfirm() {
     )
   }
 
-  const initials = Staff.profile?.full_name
+  const initials = personal.profile?.full_name
     ?.split(' ')
     .map(n => n[0])
     .join('')
@@ -92,18 +92,18 @@ export function StepConfirm() {
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-semibold text-foreground">
-        Confirma tu cita
+        Confirma tu turno
       </h3>
 
-      {/* Resumen de la cita */}
+      {/* Resumen de la turno */}
       <Card className="p-6">
         <div className="space-y-6">
           {/* Personal */}
           <div className="flex items-center gap-4">
-            {Staff.profile?.avatar_url ? (
+            {personal.profile?.avatar_url ? (
               <img
-                src={Staff.profile.avatar_url}
-                alt={Staff.profile.full_name || 'Personal'}
+                src={personal.profile.avatar_url}
+                alt={personal.profile.full_name || 'Personal'}
                 className="w-16 h-16 rounded-full object-cover"
               />
             ) : (
@@ -113,9 +113,9 @@ export function StepConfirm() {
             )}
             <div>
               <h4 className="font-semibold text-foreground">
-                {Staff.profile?.full_name}
+                {personal.profile?.full_name}
               </h4>
-              <p className="text-sm text-accent-500">{Staff.specialty}</p>
+              <p className="text-sm text-accent-500">{personal.specialty}</p>
             </div>
           </div>
 
@@ -125,11 +125,11 @@ export function StepConfirm() {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-foreground-muted mb-1">Tipo de consulta</p>
-              <p className="font-medium text-foreground">{BookingType.name}</p>
+              <p className="font-medium text-foreground">{turnoType.name}</p>
             </div>
             <div>
               <p className="text-sm text-foreground-muted mb-1">Duración</p>
-              <p className="font-medium text-foreground">{BookingType.duration_minutes} minutos</p>
+              <p className="font-medium text-foreground">{turnoType.duration_minutes} minutos</p>
             </div>
             <div>
               <p className="text-sm text-foreground-muted mb-1">Fecha</p>
@@ -154,7 +154,7 @@ export function StepConfirm() {
           <div className="flex items-center justify-between">
             <span className="text-foreground-secondary">Costo de la consulta</span>
             <span className="text-2xl font-bold text-secondary-600">
-              ${BookingType.price}
+              ${turnoType.price}
             </span>
           </div>
         </div>
@@ -202,7 +202,7 @@ export function StepConfirm() {
             </>
           ) : (
             <>
-              Confirmar Cita
+              Confirmar Turno
               <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>

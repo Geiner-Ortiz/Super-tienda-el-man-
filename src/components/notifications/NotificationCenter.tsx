@@ -12,10 +12,10 @@ interface NotificationCenterProps {
 }
 
 const NOTIFICATION_ICONS: Record<NotificationType, React.FC<{ className?: string }>> = {
-  Booking_created: CalendarPlusIcon,
-  Booking_confirmed: CheckCircleIcon,
-  Booking_cancelled: XCircleIcon,
-  Booking_reminder: BellIcon,
+  turno_created: CalendarPlusIcon,
+  turno_confirmed: CheckCircleIcon,
+  turno_cancelled: XCircleIcon,
+  turno_reminder: BellIcon,
   payment_received: CurrencyIcon,
   case_update: DocumentIcon,
   document_request: FolderIcon,
@@ -25,10 +25,10 @@ const NOTIFICATION_ICONS: Record<NotificationType, React.FC<{ className?: string
 }
 
 const NOTIFICATION_COLORS: Record<NotificationType, string> = {
-  Booking_created: 'bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-400',
-  Booking_confirmed: 'bg-success-100 text-success-600 dark:bg-success-900/30 dark:text-success-400',
-  Booking_cancelled: 'bg-error-100 text-error-600 dark:bg-error-900/30 dark:text-error-400',
-  Booking_reminder: 'bg-warning-100 text-warning-600 dark:bg-warning-900/30 dark:text-warning-400',
+  turno_created: 'bg-accent-100 text-accent-600 dark:bg-accent-900/30 dark:text-accent-400',
+  turno_confirmed: 'bg-success-100 text-success-600 dark:bg-success-900/30 dark:text-success-400',
+  turno_cancelled: 'bg-error-100 text-error-600 dark:bg-error-900/30 dark:text-error-400',
+  turno_reminder: 'bg-warning-100 text-warning-600 dark:bg-warning-900/30 dark:text-warning-400',
   payment_received: 'bg-secondary-100 text-secondary-600 dark:bg-secondary-900/30 dark:text-secondary-400',
   case_update: 'bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400',
   document_request: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',

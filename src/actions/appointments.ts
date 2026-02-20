@@ -3,59 +3,59 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import type { CreateBookingDTO, UpdateBookingDTO, BookingStatus } from '@/types/database'
+import type { CreateTurnoDTO, UpdateTurnoDTO, TurnoStatus } from '@/types/database'
 
-// Helper to send Booking emails
-async function sendBookingEmails(params: {
+// Helper to send turno emails
+async function sendTurnoEmails(params: {
   type: 'created' | 'status_changed'
-  BookingId: string
+  turnoId: string
   clientName: string
   clientEmail: string
-  StaffName: string
-  StaffEmail: string
+  personalName: string
+  personalEmail: string
   scheduledAt: string
-  BookingType: string
+  turnoType: string
   duration: number
   status?: 'confirmed' | 'cancelled' | 'completed'
 }) {
   try {
     const scheduledDate = new Date(params.scheduledAt)
-    const BookingDate = scheduledDate.toLocaleDateString('es-ES', {
+    const turnoDate = scheduledDate.toLocaleDateString('es-ES', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     })
-    const BookingTime = scheduledDate.toLocaleTimeString('es-ES', {
+    const turnoTime = scheduledDate.toLocaleTimeString('es-ES', {
       hour: '2-digit',
       minute: '2-digit'
     })
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://saas-factory-theta.vercel.app'
 
-    await fetch(`${baseUrl}/api/email/Booking`, {
+    await fetch(`${baseUrl}/api/email/turno`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         type: params.type,
-        BookingId: params.BookingId,
+        turnoId: params.turnoId,
         clientName: params.clientName,
         clientEmail: params.clientEmail,
-        StaffName: params.StaffName,
-        StaffEmail: params.StaffEmail,
-        BookingDate,
-        BookingTime,
-        BookingType: params.BookingType,
+        personalName: params.personalName,
+        personalEmail: params.personalEmail,
+        turnoDate,
+        turnoTime,
+        turnoType: params.turnoType,
         duration: params.duration,
         status: params.status,
       }),
     })
   } catch (error) {
-    console.error('Error sending Booking emails:', error)
+    console.error('Error sending turno emails:', error)
   }
 }
 
-export async function createBooking(data: CreateBookingDTO) {
+export async function createTurno(data: CreateTurnoDTO) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -87,26 +87,26 @@ export async function createBooking(data: CreateBookingDTO) {
     client = newClient
   }
 
-  // Obtener datos del Personal
-  const { data: Staff } = await supabase
-    .from('Staffs')
+  // Obtener datos del personal
+  const { data: personal } = await supabase
+    .from('personals')
     .select('user_id, profile:profiles(full_name, email)')
-    .eq('id', data.Staff_id)
+    .eq('id', data.personal_id)
     .single()
 
-  // Obtener tipo de cita
-  const { data: BookingType } = await supabase
-    .from('Booking_types')
+  // Obtener tipo de turno
+  const { data: turnoType } = await supabase
+    .from('turno_types')
     .select('name, duration_minutes')
-    .eq('id', data.Booking_type_id)
+    .eq('id', data.turno_type_id)
     .single()
 
-  const { data: Booking, error } = await supabase
-    .from('Bookings')
+  const { data: turno, error } = await supabase
+    .from('turnos')
     .insert({
       ...data,
       client_id: client.id,
-      duration_minutes: BookingType?.duration_minutes || 30
+      duration_minutes: turnoType?.duration_minutes || 30
     })
     .select('id')
     .single()
@@ -114,114 +114,114 @@ export async function createBooking(data: CreateBookingDTO) {
   if (error) return { error: error.message }
 
   // Send email notifications (non-blocking)
-  if (Booking && Staff?.profile && clientProfile) {
+  if (turno && personal?.profile && clientProfile) {
     // Handle profile as it might be an array from the join
-    const StaffProfileData = Array.isArray(Staff.profile) ? Staff.profile[0] : Staff.profile
-    if (StaffProfileData) {
-      sendBookingEmails({
+    const personalProfileData = Array.isArray(personal.profile) ? personal.profile[0] : personal.profile
+    if (personalProfileData) {
+      sendTurnoEmails({
         type: 'created',
-        BookingId: Booking.id,
+        turnoId: turno.id,
         clientName: clientProfile.full_name || 'Cliente',
         clientEmail: clientProfile.email,
-        StaffName: StaffProfileData.full_name || 'Personal',
-        StaffEmail: StaffProfileData.email,
+        personalName: personalProfileData.full_name || 'Personal',
+        personalEmail: personalProfileData.email,
         scheduledAt: data.scheduled_at,
-        BookingType: BookingType?.name || 'Consulta',
-        duration: BookingType?.duration_minutes || 30,
+        turnoType: turnoType?.name || 'Reserva',
+        duration: turnoType?.duration_minutes || 30,
       })
     }
   }
 
-  revalidatePath('/Bookings')
-  redirect('/Bookings')
+  revalidatePath('/turnos')
+  redirect('/turnos')
 }
 
-export async function updateBookingStatus(
+export async function updateTurnoStatus(
   id: string,
-  status: BookingStatus,
+  status: TurnoStatus,
   cancellationReason?: string
 ) {
   const supabase = await createClient()
 
-  // Get Booking details for email
-  const { data: Booking } = await supabase
-    .from('Bookings')
+  // Get turno details for email
+  const { data: turno } = await supabase
+    .from('turnos')
     .select(`
       *,
       client:clients(user_id, profile:profiles(full_name, email)),
-      Staff:Staffs(user_id, profile:profiles(full_name, email)),
-      Booking_type:Booking_types(name)
+      personal:personals(user_id, profile:profiles(full_name, email)),
+      turno_type:turno_types(name)
     `)
     .eq('id', id)
     .single()
 
-  const updateData: UpdateBookingDTO = { status }
+  const updateData: UpdateTurnoDTO = { status }
   if (cancellationReason) {
     updateData.cancellation_reason = cancellationReason
   }
 
   const { error } = await supabase
-    .from('Bookings')
+    .from('turnos')
     .update(updateData)
     .eq('id', id)
 
   if (error) return { error: error.message }
 
   // Send email for status changes (confirmed, cancelled, completed)
-  if (Booking && ['confirmed', 'cancelled', 'completed'].includes(status)) {
+  if (turno && ['confirmed', 'cancelled', 'completed'].includes(status)) {
     // Handle profiles as they might be arrays from the join
-    const clientProfileData = Array.isArray(Booking.client?.profile)
-      ? Booking.client?.profile[0]
-      : Booking.client?.profile
-    const StaffProfileData = Array.isArray(Booking.Staff?.profile)
-      ? Booking.Staff?.profile[0]
-      : Booking.Staff?.profile
+    const clientProfileData = Array.isArray(turno.client?.profile)
+      ? turno.client?.profile[0]
+      : turno.client?.profile
+    const personalProfileData = Array.isArray(turno.personal?.profile)
+      ? turno.personal?.profile[0]
+      : turno.personal?.profile
 
-    if (clientProfileData && StaffProfileData) {
-      sendBookingEmails({
+    if (clientProfileData && personalProfileData) {
+      sendTurnoEmails({
         type: 'status_changed',
-        BookingId: id,
+        turnoId: id,
         clientName: clientProfileData.full_name || 'Cliente',
         clientEmail: clientProfileData.email,
-        StaffName: StaffProfileData.full_name || 'Personal',
-        StaffEmail: StaffProfileData.email,
-        scheduledAt: Booking.scheduled_at,
-        BookingType: Booking.Booking_type?.name || 'Consulta',
-        duration: Booking.duration_minutes,
+        personalName: personalProfileData.full_name || 'Personal',
+        personalEmail: personalProfileData.email,
+        scheduledAt: turno.scheduled_at,
+        turnoType: turno.turno_type?.name || 'Reserva',
+        duration: turno.duration_minutes,
         status: status as 'confirmed' | 'cancelled' | 'completed',
       })
     }
   }
 
-  revalidatePath('/Bookings')
-  revalidatePath(`/Bookings/${id}`)
+  revalidatePath('/turnos')
+  revalidatePath(`/turnos/${id}`)
   return { success: true }
 }
 
-export async function addBookingNotes(id: string, notes: string) {
+export async function addTurnoNotes(id: string, notes: string) {
   const supabase = await createClient()
 
   const { error } = await supabase
-    .from('Bookings')
+    .from('turnos')
     .update({ notes })
     .eq('id', id)
 
   if (error) return { error: error.message }
 
-  revalidatePath(`/Bookings/${id}`)
+  revalidatePath(`/turnos/${id}`)
   return { success: true }
 }
 
-export async function rescheduleBooking(id: string, newDate: string) {
+export async function rescheduleTurno(id: string, newDate: string) {
   const supabase = await createClient()
 
   const { error } = await supabase
-    .from('Bookings')
+    .from('turnos')
     .update({ scheduled_at: newDate, status: 'pending' })
     .eq('id', id)
 
   if (error) return { error: error.message }
 
-  revalidatePath('/Bookings')
+  revalidatePath('/turnos')
   return { success: true }
 }

@@ -31,21 +31,21 @@ export default function TerminosPage() {
             <div>
               <h2 className="font-heading text-display-xs text-gray-900 mb-3">2. Servicios Legales</h2>
               <p>
-                La información proporcionada en este sitio web es de carácter general e informativo. No constituye asesoramiento legal. La relación Personal-cliente solo se establece mediante un acuerdo formal de servicios legales firmado por ambas partes.
+                La información proporcionada en este sitio web es de carácter general e informativo. No constituye asesoramiento legal. La relación personal-cliente solo se establece mediante un acuerdo formal de servicios legales firmado por ambas partes.
               </p>
             </div>
 
             <div>
-              <h2 className="font-heading text-display-xs text-gray-900 mb-3">3. Consultas y Comunicaciones</h2>
+              <h2 className="font-heading text-display-xs text-gray-900 mb-3">3. Reservas y Comunicaciones</h2>
               <p>
-                Las consultas realizadas a través de nuestro formulario de contacto o por correo electrónico no establecen una relación Personal-cliente. La información compartida a través de estos medios puede no estar protegida por el privilegio de confidencialidad hasta que se formalice la relación profesional.
+                Las consultas realizadas a través de nuestro formulario de contacto o por correo electrónico no establecen una relación personal-cliente. La información compartida a través de estos medios puede no estar protegida por el privilegio de confidencialidad hasta que se formalice la relación profesional.
               </p>
             </div>
 
             <div>
-              <h2 className="font-heading text-display-xs text-gray-900 mb-3">4. Programación de Citas</h2>
+              <h2 className="font-heading text-display-xs text-gray-900 mb-3">4. Programación de Turnos</h2>
               <p>
-                Las citas programadas a través de nuestro sistema están sujetas a disponibilidad. Nos reservamos el derecho de reprogramar o cancelar citas cuando sea necesario. Le notificaremos con la mayor anticipación posible en caso de cambios.
+                Las turnos programadas a través de nuestro sistema están sujetas a disponibilidad. Nos reservamos el derecho de reprogramar o cancelar turnos cuando sea necesario. Le notificaremos con la mayor anticipación posible en caso de cambios.
               </p>
             </div>
 

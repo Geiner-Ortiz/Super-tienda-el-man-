@@ -2,8 +2,8 @@ import { create } from 'zustand'
 
 interface BookingState {
   // Paso 1: Selección
-  StaffId: string | null
-  BookingTypeId: string | null
+  personalId: string | null
+  turnoTypeId: string | null
 
   // Paso 2: Fecha y hora
   selectedDate: Date | null
@@ -16,8 +16,8 @@ interface BookingState {
   currentStep: 1 | 2 | 3
 
   // Acciones
-  setStaff: (id: string) => void
-  setBookingType: (id: string) => void
+  setPersonal: (id: string) => void
+  setTurnoType: (id: string) => void
   setDate: (date: Date) => void
   setTime: (time: string) => void
   setNotes: (notes: string) => void
@@ -33,8 +33,8 @@ interface BookingState {
 }
 
 const initialState = {
-  StaffId: null,
-  BookingTypeId: null,
+  personalId: null,
+  turnoTypeId: null,
   selectedDate: null,
   selectedTime: null,
   clientNotes: '',
@@ -44,8 +44,8 @@ const initialState = {
 export const useBookingStore = create<BookingState>((set, get) => ({
   ...initialState,
 
-  setStaff: (id) => set({ StaffId: id }),
-  setBookingType: (id) => set({ BookingTypeId: id }),
+  setPersonal: (id) => set({ personalId: id }),
+  setTurnoType: (id) => set({ turnoTypeId: id }),
   setDate: (date) => set({ selectedDate: date, selectedTime: null }),
   setTime: (time) => set({ selectedTime: time }),
   setNotes: (notes) => set({ clientNotes: notes }),
@@ -69,8 +69,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   reset: () => set(initialState),
 
   canProceedToStep2: () => {
-    const { StaffId, BookingTypeId } = get()
-    return StaffId !== null && BookingTypeId !== null
+    const { personalId, turnoTypeId } = get()
+    return personalId !== null && turnoTypeId !== null
   },
 
   canProceedToStep3: () => {
@@ -81,8 +81,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   canSubmit: () => {
     const state = get()
     return (
-      state.StaffId !== null &&
-      state.BookingTypeId !== null &&
+      state.personalId !== null &&
+      state.turnoTypeId !== null &&
       state.selectedDate !== null &&
       state.selectedTime !== null
     )

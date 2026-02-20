@@ -2,10 +2,10 @@ import { createClient } from '@/lib/supabase/client'
 
 export const availabilityService = {
   /**
-   * Obtiene slots disponibles para un Personal en una fecha específica
-   * Considera: availability + citas ya agendadas
+   * Obtiene slots disponibles para un personal en una fecha específica
+   * Considera: availability + turnos ya agendadas
    */
-  async getAvailableSlots(StaffId: string, date: Date): Promise<string[]> {
+  async getAvailableSlots(personalId: string, date: Date): Promise<string[]> {
     const supabase = createClient()
     const dayOfWeek = date.getDay()
 
@@ -13,23 +13,23 @@ export const availabilityService = {
     const { data: availability } = await supabase
       .from('availability')
       .select('*')
-      .eq('Staff_id', StaffId)
+      .eq('personal_id', personalId)
       .eq('day_of_week', dayOfWeek)
       .eq('is_available', true)
       .single()
 
     if (!availability) return []
 
-    // 2. Obtener citas del día
+    // 2. Obtener turnos del día
     const startOfDay = new Date(date)
     startOfDay.setHours(0, 0, 0, 0)
     const endOfDay = new Date(date)
     endOfDay.setHours(23, 59, 59, 999)
 
-    const { data: Bookings } = await supabase
-      .from('Bookings')
+    const { data: turnos } = await supabase
+      .from('turnos')
       .select('scheduled_at, duration_minutes')
-      .eq('Staff_id', StaffId)
+      .eq('personal_id', personalId)
       .gte('scheduled_at', startOfDay.toISOString())
       .lte('scheduled_at', endOfDay.toISOString())
       .in('status', ['pending', 'confirmed'])
@@ -42,7 +42,7 @@ export const availabilityService = {
     )
 
     const bookedSlots = new Set(
-      (Bookings || []).map(a =>
+      (turnos || []).map(a =>
         new Date(a.scheduled_at).toTimeString().slice(0, 5)
       )
     )
@@ -50,12 +50,12 @@ export const availabilityService = {
     return allSlots.filter(slot => !bookedSlots.has(slot))
   },
 
-  async getStaffAvailability(StaffId: string) {
+  async getPersonalAvailability(personalId: string) {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('availability')
       .select('*')
-      .eq('Staff_id', StaffId)
+      .eq('personal_id', personalId)
       .order('day_of_week')
 
     if (error) throw error

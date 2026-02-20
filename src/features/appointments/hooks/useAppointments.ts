@@ -1,31 +1,31 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { BookingService } from '../services/BookingService'
-import type { BookingWithRelations, BookingStatus } from '@/types/database'
+import { turnoService } from '../services/turnoService'
+import type { TurnoWithRelations, TurnoStatus } from '@/types/database'
 
-interface UseBookingsOptions {
+interface UseTurnosOptions {
   clientId?: string
-  StaffId?: string
-  status?: BookingStatus
+  personalId?: string
+  status?: TurnoStatus
 }
 
-export function useBookings(options: UseBookingsOptions = {}) {
-  const [Bookings, setBookings] = useState<BookingWithRelations[]>([])
+export function useTurnos(options: UseTurnosOptions = {}) {
+  const [turnos, setTurnos] = useState<TurnoWithRelations[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchBookings = useCallback(async () => {
+  const fetchTurnos = useCallback(async () => {
     setLoading(true)
     setError(null)
 
     try {
-      let data: BookingWithRelations[]
+      let data: TurnoWithRelations[]
 
       if (options.clientId) {
-        data = await BookingService.getByClient(options.clientId)
-      } else if (options.StaffId) {
-        data = await BookingService.getByStaff(options.StaffId)
+        data = await turnoService.getByClient(options.clientId)
+      } else if (options.personalId) {
+        data = await turnoService.getByPersonal(options.personalId)
       } else {
         data = []
       }
@@ -34,33 +34,33 @@ export function useBookings(options: UseBookingsOptions = {}) {
         data = data.filter(a => a.status === options.status)
       }
 
-      setBookings(data)
+      setTurnos(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar citas')
+      setError(err instanceof Error ? err.message : 'Error al cargar turnos')
     } finally {
       setLoading(false)
     }
-  }, [options.clientId, options.StaffId, options.status])
+  }, [options.clientId, options.personalId, options.status])
 
   useEffect(() => {
-    fetchBookings()
-  }, [fetchBookings])
+    fetchTurnos()
+  }, [fetchTurnos])
 
-  return { Bookings, loading, error, refetch: fetchBookings }
+  return { turnos, loading, error, refetch: fetchTurnos }
 }
 
-export function useBooking(id: string) {
-  const [Booking, setBooking] = useState<BookingWithRelations | null>(null)
+export function useTurno(id: string) {
+  const [turno, setTurno] = useState<TurnoWithRelations | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetch() {
       try {
-        const data = await BookingService.getById(id)
-        setBooking(data)
+        const data = await turnoService.getById(id)
+        setTurno(data)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error al cargar cita')
+        setError(err instanceof Error ? err.message : 'Error al cargar turno')
       } finally {
         setLoading(false)
       }
@@ -69,18 +69,18 @@ export function useBooking(id: string) {
     fetch()
   }, [id])
 
-  return { Booking, loading, error }
+  return { turno, loading, error }
 }
 
-export function useBookingTypes() {
-  const [types, setTypes] = useState<Awaited<ReturnType<typeof BookingService.getBookingTypes>>>([])
+export function useTurnoTypes() {
+  const [types, setTypes] = useState<Awaited<ReturnType<typeof turnoService.getTurnoTypes>>>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetch() {
       try {
-        const data = await BookingService.getBookingTypes()
+        const data = await turnoService.getTurnoTypes()
         setTypes(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al cargar tipos')

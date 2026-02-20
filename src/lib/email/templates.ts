@@ -1,13 +1,13 @@
-// Email templates for Tu Súper Tienda
+// Email templates for Tu SÃºper Tienda
 
-interface BookingEmailData {
+interface TurnoEmailData {
   clientName: string
-  StaffName: string
-  BookingDate: string
-  BookingTime: string
-  BookingType: string
+  personalName: string
+  turnoDate: string
+  turnoTime: string
+  turnoType: string
   duration: number
-  BookingId: string
+  turnoId: string
 }
 
 const baseStyles = `
@@ -33,46 +33,46 @@ const baseStyles = `
   .status-cancelled { background-color: #fee2e2; color: #991b1b; }
 `
 
-export function BookingCreatedClientEmail(data: BookingEmailData): string {
+export function turnoCreatedClientEmail(data: TurnoEmailData): string {
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cita Confirmada - Tu Súper Tienda</title>
+  <title>Turno Confirmada - Tu SÃºper Tienda</title>
   <style>${baseStyles}</style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>Tu Súper Tienda</h1>
-      <p>Tu cita ha sido agendada</p>
+      <h1>Tu SÃºper Tienda</h1>
+      <p>Tu turno ha sido agendada</p>
     </div>
     <div class="content">
       <p class="greeting">Hola ${data.clientName},</p>
       <p class="message">
-        Tu cita con <strong>${data.StaffName}</strong> ha sido agendada exitosamente.
-        A continuaci&oacute;n encontrar&aacute;s los detalles de tu cita.
+        Tu turno con <strong>${data.personalName}</strong> ha sido agendada exitosamente.
+        A continuaci&oacute;n encontrar&aacute;s los detalles de tu turno.
       </p>
 
       <div class="details-card">
-        <h3>Detalles de la Cita</h3>
+        <h3>Detalles de la Turno</h3>
         <div class="detail-row">
           <span class="detail-label">Personal</span>
-          <span class="detail-value">${data.StaffName}</span>
+          <span class="detail-value">${data.personalName}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Fecha</span>
-          <span class="detail-value">${data.BookingDate}</span>
+          <span class="detail-value">${data.turnoDate}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Hora</span>
-          <span class="detail-value">${data.BookingTime}</span>
+          <span class="detail-value">${data.turnoTime}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Tipo de Consulta</span>
-          <span class="detail-value">${data.BookingType}</span>
+          <span class="detail-label">Tipo de Reserva</span>
+          <span class="detail-value">${data.turnoType}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Duraci&oacute;n</span>
@@ -81,19 +81,19 @@ export function BookingCreatedClientEmail(data: BookingEmailData): string {
       </div>
 
       <div style="text-align: center;">
-        <a href="https://saas-factory-theta.vercel.app/Bookings/${data.BookingId}" class="cta-button">
-          Ver Mi Cita
+        <a href="https://saas-factory-theta.vercel.app/turnos/${data.turnoId}" class="cta-button">
+          Ver Mi Turno
         </a>
       </div>
 
       <p class="message" style="margin-top: 24px; font-size: 14px;">
-        <strong>Importante:</strong> Si necesitas cancelar o reprogramar tu cita,
+        <strong>Importante:</strong> Si necesitas cancelar o reprogramar tu turno,
         por favor hazlo con al menos 24 horas de anticipaci&oacute;n.
       </p>
     </div>
     <div class="footer">
-      <p>Este correo fue enviado autom&aacute;ticamente por Tu Súper Tienda</p>
-      <p>&copy; ${new Date().getFullYear()} Tu Súper Tienda - Gesti&oacute;n Legal Inteligente</p>
+      <p>Este correo fue enviado autom&aacute;ticamente por Tu SÃºper Tienda</p>
+      <p>&copy; ${new Date().getFullYear()} Tu SÃºper Tienda - Gesti&oacute;n Legal Inteligente</p>
     </div>
   </div>
 </body>
@@ -101,46 +101,46 @@ export function BookingCreatedClientEmail(data: BookingEmailData): string {
 `
 }
 
-export function BookingCreatedStaffEmail(data: BookingEmailData): string {
+export function turnoCreatedPersonalEmail(data: TurnoEmailData): string {
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nueva Cita Agendada - Tu Súper Tienda</title>
+  <title>Nueva Turno Agendada - Tu SÃºper Tienda</title>
   <style>${baseStyles}</style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>Tu Súper Tienda</h1>
-      <p>Nueva cita agendada</p>
+      <h1>Tu SÃºper Tienda</h1>
+      <p>Nueva turno agendada</p>
     </div>
     <div class="content">
-      <p class="greeting">Hola ${data.StaffName},</p>
+      <p class="greeting">Hola ${data.personalName},</p>
       <p class="message">
-        El cliente <strong>${data.clientName}</strong> ha agendado una cita contigo.
+        El cliente <strong>${data.clientName}</strong> ha agendado una turno contigo.
         A continuaci&oacute;n encontrar&aacute;s los detalles.
       </p>
 
       <div class="details-card">
-        <h3>Detalles de la Cita</h3>
+        <h3>Detalles de la Turno</h3>
         <div class="detail-row">
           <span class="detail-label">Cliente</span>
           <span class="detail-value">${data.clientName}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Fecha</span>
-          <span class="detail-value">${data.BookingDate}</span>
+          <span class="detail-value">${data.turnoDate}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Hora</span>
-          <span class="detail-value">${data.BookingTime}</span>
+          <span class="detail-value">${data.turnoTime}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Tipo de Consulta</span>
-          <span class="detail-value">${data.BookingType}</span>
+          <span class="detail-label">Tipo de Reserva</span>
+          <span class="detail-value">${data.turnoType}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Duraci&oacute;n</span>
@@ -149,14 +149,14 @@ export function BookingCreatedStaffEmail(data: BookingEmailData): string {
       </div>
 
       <div style="text-align: center;">
-        <a href="https://saas-factory-theta.vercel.app/Bookings/${data.BookingId}" class="cta-button">
-          Ver Cita
+        <a href="https://saas-factory-theta.vercel.app/turnos/${data.turnoId}" class="cta-button">
+          Ver Turno
         </a>
       </div>
     </div>
     <div class="footer">
-      <p>Este correo fue enviado autom&aacute;ticamente por Tu Súper Tienda</p>
-      <p>&copy; ${new Date().getFullYear()} Tu Súper Tienda - Gesti&oacute;n Legal Inteligente</p>
+      <p>Este correo fue enviado autom&aacute;ticamente por Tu SÃºper Tienda</p>
+      <p>&copy; ${new Date().getFullYear()} Tu SÃºper Tienda - Gesti&oacute;n Legal Inteligente</p>
     </div>
   </div>
 </body>
@@ -164,49 +164,49 @@ export function BookingCreatedStaffEmail(data: BookingEmailData): string {
 `
 }
 
-export function BookingCreatedAdminEmail(data: BookingEmailData): string {
+export function turnoCreatedAdminEmail(data: TurnoEmailData): string {
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nueva Cita en el Sistema - Tu Súper Tienda</title>
+  <title>Nueva Turno en el Sistema - Tu SÃºper Tienda</title>
   <style>${baseStyles}</style>
 </head>
 <body>
   <div class="container">
     <div class="header" style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);">
-      <h1>Tu Súper Tienda Admin</h1>
-      <p>Nueva cita registrada en el sistema</p>
+      <h1>Tu SÃºper Tienda Admin</h1>
+      <p>Nueva turno registrada en el sistema</p>
     </div>
     <div class="content">
       <p class="greeting">Notificaci&oacute;n de Administrador</p>
       <p class="message">
-        Se ha registrado una nueva cita en el sistema Tu Súper Tienda.
+        Se ha registrado una nueva turno en el sistema Tu SÃºper Tienda.
       </p>
 
       <div class="details-card">
-        <h3>Detalles de la Cita</h3>
+        <h3>Detalles de la Turno</h3>
         <div class="detail-row">
           <span class="detail-label">Cliente</span>
           <span class="detail-value">${data.clientName}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Personal</span>
-          <span class="detail-value">${data.StaffName}</span>
+          <span class="detail-value">${data.personalName}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Fecha</span>
-          <span class="detail-value">${data.BookingDate}</span>
+          <span class="detail-value">${data.turnoDate}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Hora</span>
-          <span class="detail-value">${data.BookingTime}</span>
+          <span class="detail-value">${data.turnoTime}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Tipo de Consulta</span>
-          <span class="detail-value">${data.BookingType}</span>
+          <span class="detail-label">Tipo de Reserva</span>
+          <span class="detail-value">${data.turnoType}</span>
         </div>
       </div>
 
@@ -217,8 +217,8 @@ export function BookingCreatedAdminEmail(data: BookingEmailData): string {
       </div>
     </div>
     <div class="footer">
-      <p>Notificaci&oacute;n autom&aacute;tica del sistema Tu Súper Tienda</p>
-      <p>&copy; ${new Date().getFullYear()} Tu Súper Tienda</p>
+      <p>Notificaci&oacute;n autom&aacute;tica del sistema Tu SÃºper Tienda</p>
+      <p>&copy; ${new Date().getFullYear()} Tu SÃºper Tienda</p>
     </div>
   </div>
 </body>
@@ -226,18 +226,18 @@ export function BookingCreatedAdminEmail(data: BookingEmailData): string {
 `
 }
 
-export function BookingStatusChangedEmail(
-  data: BookingEmailData & { status: 'confirmed' | 'cancelled' | 'completed'; recipientType: 'client' | 'Staff' }
+export function turnoStatusChangedEmail(
+  data: TurnoEmailData & { status: 'confirmed' | 'cancelled' | 'completed'; recipientType: 'client' | 'personal' }
 ): string {
   const statusConfig = {
-    confirmed: { label: 'Confirmada', class: 'status-confirmed', message: 'Tu cita ha sido confirmada' },
-    cancelled: { label: 'Cancelada', class: 'status-cancelled', message: 'Tu cita ha sido cancelada' },
-    completed: { label: 'Completada', class: 'status-confirmed', message: 'Tu cita ha sido marcada como completada' },
+    confirmed: { label: 'Confirmada', class: 'status-confirmed', message: 'Tu turno ha sido confirmada' },
+    cancelled: { label: 'Cancelada', class: 'status-cancelled', message: 'Tu turno ha sido cancelada' },
+    completed: { label: 'Completada', class: 'status-confirmed', message: 'Tu turno ha sido marcada como completada' },
   }
 
   const config = statusConfig[data.status]
-  const recipientName = data.recipientType === 'client' ? data.clientName : data.StaffName
-  const otherParty = data.recipientType === 'client' ? data.StaffName : data.clientName
+  const recipientName = data.recipientType === 'client' ? data.clientName : data.personalName
+  const otherParty = data.recipientType === 'client' ? data.personalName : data.clientName
   const otherPartyLabel = data.recipientType === 'client' ? 'Personal' : 'Cliente'
 
   return `
@@ -246,13 +246,13 @@ export function BookingStatusChangedEmail(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cita ${config.label} - Tu Súper Tienda</title>
+  <title>Turno ${config.label} - Tu SÃºper Tienda</title>
   <style>${baseStyles}</style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>Tu Súper Tienda</h1>
+      <h1>Tu SÃºper Tienda</h1>
       <p>${config.message}</p>
     </div>
     <div class="content">
@@ -263,34 +263,34 @@ export function BookingStatusChangedEmail(
       </div>
 
       <div class="details-card">
-        <h3>Detalles de la Cita</h3>
+        <h3>Detalles de la Turno</h3>
         <div class="detail-row">
           <span class="detail-label">${otherPartyLabel}</span>
           <span class="detail-value">${otherParty}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Fecha</span>
-          <span class="detail-value">${data.BookingDate}</span>
+          <span class="detail-value">${data.turnoDate}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Hora</span>
-          <span class="detail-value">${data.BookingTime}</span>
+          <span class="detail-value">${data.turnoTime}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Tipo de Consulta</span>
-          <span class="detail-value">${data.BookingType}</span>
+          <span class="detail-label">Tipo de Reserva</span>
+          <span class="detail-value">${data.turnoType}</span>
         </div>
       </div>
 
       <div style="text-align: center;">
-        <a href="https://saas-factory-theta.vercel.app/Bookings/${data.BookingId}" class="cta-button">
+        <a href="https://saas-factory-theta.vercel.app/turnos/${data.turnoId}" class="cta-button">
           Ver Detalles
         </a>
       </div>
     </div>
     <div class="footer">
-      <p>Este correo fue enviado autom&aacute;ticamente por Tu Súper Tienda</p>
-      <p>&copy; ${new Date().getFullYear()} Tu Súper Tienda - Gesti&oacute;n Legal Inteligente</p>
+      <p>Este correo fue enviado autom&aacute;ticamente por Tu SÃºper Tienda</p>
+      <p>&copy; ${new Date().getFullYear()} Tu SÃºper Tienda - Gesti&oacute;n Legal Inteligente</p>
     </div>
   </div>
 </body>

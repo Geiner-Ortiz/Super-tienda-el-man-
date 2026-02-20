@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { UserManagement } from './UserManagement'
 
 export const metadata = {
-  title: 'Gestión de Usuarios | Tu S�per Tienda Admin'
+  title: 'Gestión de Usuarios | Tu Súper Tienda Admin'
 }
 
 export default async function AdminUsersPage() {
@@ -37,7 +37,7 @@ export default async function AdminUsersPage() {
   const stats = {
     total: users?.length || 0,
     admins: users?.filter(u => u.role === 'admin').length || 0,
-    Staffs: users?.filter(u => u.role === 'Staff').length || 0,
+    personals: users?.filter(u => u.role === 'personal').length || 0,
     clients: users?.filter(u => u.role === 'client').length || 0,
   }
 
@@ -63,7 +63,7 @@ export default async function AdminUsersPage() {
         </Card>
         <Card className="p-4 border-l-4 border-accent-500">
           <p className="text-sm text-foreground-secondary">Personals</p>
-          <p className="text-2xl font-bold text-accent-600">{stats.Staffs}</p>
+          <p className="text-2xl font-bold text-accent-600">{stats.personals}</p>
         </Card>
         <Card className="p-4 border-l-4 border-success-500">
           <p className="text-sm text-foreground-secondary">Clientes</p>

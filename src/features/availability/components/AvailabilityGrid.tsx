@@ -1,15 +1,15 @@
 'use client'
 
-import { useStaffAvailability } from '../hooks/useAvailability'
+import { usePersonalAvailability } from '../hooks/useAvailability'
 
 const DAYS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 
 interface AvailabilityGridProps {
-  StaffId: string
+  personalId: string
 }
 
-export function AvailabilityGrid({ StaffId }: AvailabilityGridProps) {
-  const { availability, loading, error } = useStaffAvailability(StaffId)
+export function AvailabilityGrid({ personalId }: AvailabilityGridProps) {
+  const { availability, loading, error } = usePersonalAvailability(personalId)
 
   if (loading) {
     return (

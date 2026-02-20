@@ -5,19 +5,19 @@ import QRCode from 'qrcode'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
-interface StaffQRSectionProps {
-  StaffId: string
-  StaffSlug: string
-  StaffName: string
+interface PersonalQRSectionProps {
+  personalId: string
+  personalSlug: string
+  personalName: string
 }
 
-export function StaffQRSection({ StaffId, StaffSlug, StaffName }: StaffQRSectionProps) {
+export function PersonalQRSection({ personalId, personalSlug, personalName }: PersonalQRSectionProps) {
   const [qrDataUrl, setQrDataUrl] = useState<string>('')
   const [copied, setCopied] = useState(false)
   const [stats, setStats] = useState({ clicks: 0, bookings: 0, conversionRate: 0 })
 
-  const bookingUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/book/${StaffSlug}`
-  const shortCode = StaffSlug.slice(0, 8).toUpperCase()
+  const bookingUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/book/${personalSlug}`
+  const shortCode = personalSlug.slice(0, 8).toUpperCase()
 
   useEffect(() => {
     generateQRCode()
@@ -27,7 +27,7 @@ export function StaffQRSection({ StaffId, StaffSlug, StaffName }: StaffQRSection
       bookings: Math.floor(Math.random() * 30) + 5,
       conversionRate: 25.5
     })
-  }, [StaffSlug, bookingUrl])
+  }, [personalSlug, bookingUrl])
 
   const generateQRCode = async () => {
     try {
@@ -55,8 +55,8 @@ export function StaffQRSection({ StaffId, StaffSlug, StaffName }: StaffQRSection
   const shareLink = async () => {
     if (navigator.share) {
       await navigator.share({
-        title: `Agendar cita con ${StaffName}`,
-        text: `Agenda tu consulta legal con ${StaffName}`,
+        title: `Agendar turno con ${personalName}`,
+        text: `Agenda tu consulta legal con ${personalName}`,
         url: bookingUrl
       })
     } else {
@@ -67,7 +67,7 @@ export function StaffQRSection({ StaffId, StaffSlug, StaffName }: StaffQRSection
   const downloadQR = async (format: 'png' | 'svg') => {
     if (format === 'png' && qrDataUrl) {
       const link = document.createElement('a')
-      link.download = `qr-${StaffSlug}.png`
+      link.download = `qr-${personalSlug}.png`
       link.href = qrDataUrl
       link.click()
     } else if (format === 'svg') {
@@ -84,7 +84,7 @@ export function StaffQRSection({ StaffId, StaffSlug, StaffName }: StaffQRSection
         const blob = new Blob([svgString], { type: 'image/svg+xml' })
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
-        link.download = `qr-${StaffSlug}.svg`
+        link.download = `qr-${personalSlug}.svg`
         link.href = url
         link.click()
         URL.revokeObjectURL(url)
@@ -183,7 +183,7 @@ export function StaffQRSection({ StaffId, StaffSlug, StaffName }: StaffQRSection
               </div>
               <div>
                 <p className="text-2xl font-bold text-accent-600">{stats.bookings}</p>
-                <p className="text-xs text-accent-600/70">Citas</p>
+                <p className="text-xs text-accent-600/70">Turnos</p>
               </div>
               <div>
                 <p className="text-2xl font-bold text-accent-600">{stats.conversionRate}%</p>

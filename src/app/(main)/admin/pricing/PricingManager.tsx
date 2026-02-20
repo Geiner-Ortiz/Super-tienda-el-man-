@@ -4,20 +4,19 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { SubscriptionBanner } from '@/features/payments/components/SubscriptionBanner'
-import type { BookingType, Staff, Profile } from '@/types/database'
+import type { TurnoType, Personal, Profile } from '@/types/database'
 
 interface PricingManagerProps {
-  initialBookingTypes: BookingType[]
-  initialStaff: (Staff & { profile: Profile })[]
+  initialTurnoTypes: TurnoType[]
+  initialPersonals: (Personal & { profile: Profile })[]
 }
 
-export function PricingManager({ initialBookingTypes, initialStaff }: PricingManagerProps) {
-  const [BookingTypes, setBookingTypes] = useState(initialBookingTypes)
-  const [staff, setStaff] = useState(initialStaff)
+export function PricingManager({ initialTurnoTypes, initialPersonals }: PricingManagerProps) {
+  const [turnoTypes, setTurnoTypes] = useState(initialTurnoTypes)
+  const [personals, setPersonals] = useState(initialPersonals)
   const [showAddType, setShowAddType] = useState(false)
-  const [editingType, setEditingType] = useState<BookingType | null>(null)
-  const [editingStaff, setEditingStaff] = useState<string | null>(null)
+  const [editingType, setEditingType] = useState<TurnoType | null>(null)
+  const [editingPersonal, setEditingPersonal] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
   // Form states
@@ -39,24 +38,24 @@ export function PricingManager({ initialBookingTypes, initialStaff }: PricingMan
 
     if (editingType) {
       const { error } = await supabase
-        .from('Booking_types')
+        .from('turno_types')
         .update(typeData)
         .eq('id', editingType.id)
 
       if (!error) {
-        setBookingTypes(types =>
+        setTurnoTypes(types =>
           types.map(t => t.id === editingType.id ? { ...t, ...typeData } : t)
         )
       }
     } else {
       const { data, error } = await supabase
-        .from('Booking_types')
+        .from('turno_types')
         .insert(typeData)
         .select()
         .single()
 
       if (!error && data) {
-        setBookingTypes([...BookingTypes, data])
+        setTurnoTypes([...turnoTypes, data])
       }
     }
 
@@ -69,44 +68,43 @@ export function PricingManager({ initialBookingTypes, initialStaff }: PricingMan
 
     const supabase = createClient()
     const { error } = await supabase
-      .from('Booking_types')
+      .from('turno_types')
       .delete()
       .eq('id', id)
 
     if (!error) {
-      setBookingTypes(types => types.filter(t => t.id !== id))
+      setTurnoTypes(types => types.filter(t => t.id !== id))
     }
   }
 
-  const handleUpdateStaffRate = async (StaffId: string, hourlyRate: number) => {
+  const handleUpdatePersonalRate = async (personalId: string, hourlyRate: number) => {
     setSaving(true)
     const supabase = createClient()
 
     const { error } = await supabase
-      .from('Staffs')
+      .from('personals')
       .update({ hourly_rate: hourlyRate })
-      .eq('id', StaffId)
+      .eq('id', personalId)
 
     if (!error) {
-      setStaffs(Staffs =>
-        Staffs.map(l => l.id === StaffId ? { ...l, hourly_rate: hourlyRate } : l)
+      setPersonals(personals =>
+        personals.map(l => l.id === personalId ? { ...l, hourly_rate: hourlyRate } : l)
       )
     }
 
     setSaving(false)
-    setEditingStaff(null)
+    setEditingPersonal(null)
   }
 
   const resetForm = () => {
     setTypeName('')
     setTypeDescription('')
-    setTypeDuration(60)
     setTypePrice(0)
     setEditingType(null)
     setShowAddType(false)
   }
 
-  const startEditType = (type: BookingType) => {
+  const startEditType = (type: TurnoType) => {
     setTypeName(type.name)
     setTypeDescription(type.description || '')
     setTypePrice(type.price)
@@ -116,12 +114,6 @@ export function PricingManager({ initialBookingTypes, initialStaff }: PricingMan
 
   return (
     <div className="space-y-8">
-      {/* Plan de Suscripción */}
-      <section>
-        <h2 className="text-xl font-bold text-foreground mb-4 italic">Suscripción de la Tienda</h2>
-        <SubscriptionBanner />
-      </section>
-
       {/* Tipos de Servicio */}
       <section>
         <div className="flex items-center justify-between mb-4">
@@ -137,16 +129,16 @@ export function PricingManager({ initialBookingTypes, initialStaff }: PricingMan
             <h3 className="font-semibold text-foreground mb-4">
               {editingType ? 'Editar Servicio' : 'Nuevo Servicio'}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-foreground-secondary mb-1">
-                  Nombre del Servicio
+                  Nombre del Servicio *
                 </label>
                 <input
                   type="text"
                   value={typeName}
                   onChange={(e) => setTypeName(e.target.value)}
-                  placeholder="Ej: Servicio de Domicilio"
+                  placeholder="Ej: Reserva Inicial"
                   className="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500"
                 />
               </div>
@@ -183,12 +175,11 @@ export function PricingManager({ initialBookingTypes, initialStaff }: PricingMan
                 {saving ? 'Guardando...' : editingType ? 'Actualizar' : 'Crear Servicio'}
               </Button>
             </div>
-          </Card >
-        )
-        }
+          </Card>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {BookingTypes.map(type => (
+          {turnoTypes.map(type => (
             <Card key={type.id} className="p-5 hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between">
                 <div>
@@ -221,7 +212,7 @@ export function PricingManager({ initialBookingTypes, initialStaff }: PricingMan
             </Card>
           ))}
 
-          {BookingTypes.length === 0 && (
+          {turnoTypes.length === 0 && (
             <Card className="col-span-full p-8 text-center">
               <p className="text-foreground-secondary">No hay servicios configurados</p>
               <Button onClick={() => setShowAddType(true)} className="mt-4">
@@ -230,73 +221,75 @@ export function PricingManager({ initialBookingTypes, initialStaff }: PricingMan
             </Card>
           )}
         </div>
-      </section >
+      </section>
 
       {/* Tarifas por Personal */}
-      < section >
+      <section>
         <h2 className="text-lg font-semibold text-foreground mb-4">Tarifas por Personal</h2>
 
         <Card className="overflow-hidden">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-border">
               <tr>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Colaborador</th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Costo por Hora</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Personal</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Especialidad</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Tarifa por Hora</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Estado</th>
                 <th className="text-right px-6 py-4 text-sm font-semibold text-foreground-secondary">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {staff.map(Staff => (
-                <tr key={Staff.id} className="hover:bg-gray-50/50">
+              {personals.map(personal => (
+                <tr key={personal.id} className="hover:bg-gray-50/50">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
                         <span className="text-sm font-semibold text-primary-600">
-                          {Staff.profile?.full_name?.slice(0, 2).toUpperCase() || '??'}
+                          {personal.profile?.full_name?.slice(0, 2).toUpperCase() || '??'}
                         </span>
                       </div>
                       <div>
-                        <p className="font-medium text-foreground">{Staff.profile?.full_name}</p>
-                        <p className="text-sm text-foreground-secondary">{Staff.profile?.email}</p>
+                        <p className="font-medium text-foreground">{personal.profile?.full_name}</p>
+                        <p className="text-sm text-foreground-secondary">{personal.profile?.email}</p>
                       </div>
                     </div>
                   </td>
+                  <td className="px-6 py-4 text-foreground-secondary">{personal.specialty}</td>
                   <td className="px-6 py-4">
-                    {editingStaff === Staff.id ? (
+                    {editingPersonal === personal.id ? (
                       <div className="flex items-center gap-2">
                         <span className="text-foreground-secondary">$</span>
                         <input
                           type="number"
-                          defaultValue={Staff.hourly_rate}
+                          defaultValue={personal.hourly_rate}
                           min={0}
                           className="w-24 px-3 py-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
-                              handleUpdateStaffRate(Staff.id, Number((e.target as HTMLInputElement).value))
+                              handleUpdatePersonalRate(personal.id, Number((e.target as HTMLInputElement).value))
                             }
                           }}
                         />
                         <span className="text-foreground-secondary">/hora</span>
                       </div>
                     ) : (
-                      <span className="font-semibold text-secondary-600">${Staff.hourly_rate}/hora</span>
+                      <span className="font-semibold text-secondary-600">${personal.hourly_rate}/hora</span>
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${Staff.is_active ? 'bg-success-100 text-success-700' : 'bg-gray-100 text-gray-600'
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${personal.is_active ? 'bg-success-100 text-success-700' : 'bg-gray-100 text-gray-600'
                       }`}>
-                      {Staff.is_active ? 'Activo' : 'Inactivo'}
+                      {personal.is_active ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    {editingStaff === Staff.id ? (
-                      <Button variant="ghost" size="sm" onClick={() => setEditingStaff(null)}>
+                    {editingPersonal === personal.id ? (
+                      <Button variant="ghost" size="sm" onClick={() => setEditingPersonal(null)}>
                         Cancelar
                       </Button>
                     ) : (
-                      <Button variant="ghost" size="sm" onClick={() => setEditingStaff(Staff.id)}>
-                        Editar Costo
+                      <Button variant="ghost" size="sm" onClick={() => setEditingPersonal(personal.id)}>
+                        Editar Tarifa
                       </Button>
                     )}
                   </td>
@@ -305,14 +298,14 @@ export function PricingManager({ initialBookingTypes, initialStaff }: PricingMan
             </tbody>
           </table>
 
-          {Staffs.length === 0 && (
+          {personals.length === 0 && (
             <div className="p-8 text-center">
-              <p className="text-foreground-secondary">No hay personal registrado</p>
+              <p className="text-foreground-secondary">No hay personals registrados</p>
             </div>
           )}
         </Card>
-      </section >
-    </div >
+      </section>
+    </div>
   )
 }
 

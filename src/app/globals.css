@@ -59,7 +59,7 @@
   --color-info: #3B82F6;
   --color-info-light: #DBEAFE;
 
-  /* Estados de citas */
+  /* Estados de turnos */
   --color-pending: #F59E0B;
   --color-confirmed: #2563EB;
   --color-completed: #10B981;
@@ -190,7 +190,7 @@ h6,
 
 @layer base {
 
-  /* Estados de citas - clases base */
+  /* Estados de turnos - clases base */
   .status-pending {
     color: var(--color-pending);
   }
@@ -238,7 +238,7 @@ h6,
     border: 1px solid var(--color-border-light);
   }
 
-  /* Badge de estado de cita */
+  /* Badge de estado de turno */
   .badge-pending {
     background-color: var(--color-warning-light);
     color: #B45309;

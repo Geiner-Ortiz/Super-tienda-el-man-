@@ -28,9 +28,8 @@ export function HeroSection() {
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter mb-6 leading-[0.9]">
-            Gestiona <span className="text-yellow-400">Tu Súper Tienda</span> <br />
-            como un Profesional
+          <h1 className="font-heading text-display-lg md:text-display-xl lg:text-display-2xl text-white mb-6 leading-tight">
+            {hero.headline}
           </h1>
           <p className="text-body-lg md:text-body-xl text-teal-100 mb-10 max-w-2xl leading-relaxed">
             {hero.subheadline}

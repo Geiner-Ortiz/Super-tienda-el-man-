@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
-import type { BookingType } from '@/types/database'
+import type { TurnoType } from '@/types/database'
 
-interface Staff {
+interface Personal {
   id: string
   name: string
   email: string
@@ -22,18 +22,18 @@ interface ExistingClient {
 }
 
 interface AdminBookingFormProps {
-  Staffs: Staff[]
-  BookingTypes: BookingType[]
+  personals: Personal[]
+  turnoTypes: TurnoType[]
   existingClients: ExistingClient[]
 }
 
-export function AdminBookingForm({ Staffs, BookingTypes, existingClients }: AdminBookingFormProps) {
+export function AdminBookingForm({ personals, turnoTypes, existingClients }: AdminBookingFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Form state
-  const [selectedStaff, setSelectedStaff] = useState('')
+  const [selectedPersonal, setSelectedPersonal] = useState('')
   const [selectedType, setSelectedType] = useState('')
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('')
@@ -46,7 +46,7 @@ export function AdminBookingForm({ Staffs, BookingTypes, existingClients }: Admi
   const [clientEmail, setClientEmail] = useState('')
   const [clientPhone, setClientPhone] = useState('')
 
-  const selectedBookingType = BookingTypes.find(t => t.id === selectedType)
+  const selectedTurnoType = turnoTypes.find(t => t.id === selectedType)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -105,61 +105,61 @@ export function AdminBookingForm({ Staffs, BookingTypes, existingClients }: Admi
       // Build scheduled_at datetime
       const scheduledAt = `${selectedDate}T${selectedTime}:00`
 
-      // Create Booking
-      const { error: BookingError } = await supabase
-        .from('Bookings')
+      // Create turno
+      const { error: turnoError } = await supabase
+        .from('turnos')
         .insert({
-          Staff_id: selectedStaff,
+          personal_id: selectedPersonal,
           client_id: clientId,
-          Booking_type_id: selectedType,
+          turno_type_id: selectedType,
           scheduled_at: scheduledAt,
-          duration_minutes: selectedBookingType?.duration_minutes || 30,
+          duration_minutes: selectedTurnoType?.duration_minutes || 30,
           status: 'confirmed',
           notes: notes || null
         })
 
-      if (BookingError) {
-        throw new Error('Error al crear cita: ' + BookingError.message)
+      if (turnoError) {
+        throw new Error('Error al crear turno: ' + turnoError.message)
       }
 
       // Send email notification
-      const Staff = Staffs.find(l => l.id === selectedStaff)
+      const personal = personals.find(l => l.id === selectedPersonal)
       try {
         const baseUrl = window.location.origin
-        await fetch(`${baseUrl}/api/email/Booking`, {
+        await fetch(`${baseUrl}/api/email/turno`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             type: 'created',
-            BookingId: 'admin-created',
+            turnoId: 'admin-created',
             clientName: clientMode === 'existing'
               ? existingClients.find(c => c.id === selectedClientId)?.full_name
               : clientName,
             clientEmail: clientMode === 'existing'
               ? existingClients.find(c => c.id === selectedClientId)?.email
               : clientEmail,
-            StaffName: Staff?.name || 'Personal',
-            StaffEmail: Staff?.email || '',
-            BookingDate: new Date(selectedDate).toLocaleDateString('es-ES', {
+            personalName: personal?.name || 'Personal',
+            personalEmail: personal?.email || '',
+            turnoDate: new Date(selectedDate).toLocaleDateString('es-ES', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
               day: 'numeric'
             }),
-            BookingTime: selectedTime,
-            BookingType: selectedBookingType?.name || 'Consulta',
-            duration: selectedBookingType?.duration_minutes || 30,
+            turnoTime: selectedTime,
+            turnoType: selectedTurnoType?.name || 'Reserva',
+            duration: selectedTurnoType?.duration_minutes || 30,
           }),
         })
       } catch {
-        // Email failed but Booking was created
+        // Email failed but turno was created
         console.error('Failed to send email notification')
       }
 
       router.push('/calendar')
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al crear la cita')
+      setError(err instanceof Error ? err.message : 'Error al crear la turno')
     } finally {
       setLoading(false)
     }
@@ -177,19 +177,19 @@ export function AdminBookingForm({ Staffs, BookingTypes, existingClients }: Admi
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Staff Selection */}
+      {/* Personal Selection */}
       <Card className="p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">1. Seleccionar Personal</h3>
         <select
-          value={selectedStaff}
-          onChange={(e) => setSelectedStaff(e.target.value)}
+          value={selectedPersonal}
+          onChange={(e) => setSelectedPersonal(e.target.value)}
           required
           className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500"
         >
-          <option value="">Seleccione un Personal</option>
-          {Staffs.map(Staff => (
-            <option key={Staff.id} value={Staff.id}>
-              {Staff.name} - {Staff.specialty}
+          <option value="">Seleccione un personal</option>
+          {personals.map(personal => (
+            <option key={personal.id} value={personal.id}>
+              {personal.name} - {personal.specialty}
             </option>
           ))}
         </select>
@@ -269,17 +269,17 @@ export function AdminBookingForm({ Staffs, BookingTypes, existingClients }: Admi
         )}
       </Card>
 
-      {/* Booking Type */}
+      {/* Turno Type */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">3. Tipo de Cita</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">3. Tipo de Turno</h3>
         <select
           value={selectedType}
           onChange={(e) => setSelectedType(e.target.value)}
           required
           className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500"
         >
-          <option value="">Seleccione tipo de cita</option>
-          {BookingTypes.map(type => (
+          <option value="">Seleccione tipo de turno</option>
+          {turnoTypes.map(type => (
             <option key={type.id} value={type.id}>
               {type.name} - {type.duration_minutes} min - ${type.price}
             </option>
@@ -325,7 +325,7 @@ export function AdminBookingForm({ Staffs, BookingTypes, existingClients }: Admi
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Notas adicionales sobre la cita..."
+          placeholder="Notas adicionales sobre la turno..."
           rows={3}
           className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 resize-none"
         />
@@ -349,7 +349,7 @@ export function AdminBookingForm({ Staffs, BookingTypes, existingClients }: Admi
           Cancelar
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? 'Creando...' : 'Crear Cita'}
+          {loading ? 'Creando...' : 'Crear Turno'}
         </Button>
       </div>
     </form>

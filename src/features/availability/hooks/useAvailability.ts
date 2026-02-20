@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { availabilityService } from '../services/availabilityService'
 import type { Availability } from '@/types/database'
 
-export function useAvailableSlots(StaffId: string, date: Date | null) {
+export function useAvailableSlots(personalId: string, date: Date | null) {
   const [slots, setSlots] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -19,7 +19,7 @@ export function useAvailableSlots(StaffId: string, date: Date | null) {
     setError(null)
 
     try {
-      const data = await availabilityService.getAvailableSlots(StaffId, date)
+      const data = await availabilityService.getAvailableSlots(personalId, date)
       setSlots(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar horarios')
@@ -27,7 +27,7 @@ export function useAvailableSlots(StaffId: string, date: Date | null) {
     } finally {
       setLoading(false)
     }
-  }, [StaffId, date])
+  }, [personalId, date])
 
   useEffect(() => {
     fetchSlots()
@@ -36,7 +36,7 @@ export function useAvailableSlots(StaffId: string, date: Date | null) {
   return { slots, loading, error, refetch: fetchSlots }
 }
 
-export function useStaffAvailability(StaffId: string) {
+export function usePersonalAvailability(personalId: string) {
   const [availability, setAvailability] = useState<Availability[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -44,7 +44,7 @@ export function useStaffAvailability(StaffId: string) {
   useEffect(() => {
     async function fetch() {
       try {
-        const data = await availabilityService.getStaffAvailability(StaffId)
+        const data = await availabilityService.getPersonalAvailability(personalId)
         setAvailability(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al cargar disponibilidad')
@@ -54,7 +54,7 @@ export function useStaffAvailability(StaffId: string) {
     }
 
     fetch()
-  }, [StaffId])
+  }, [personalId])
 
   return { availability, loading, error }
 }

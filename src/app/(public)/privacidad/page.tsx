@@ -39,7 +39,7 @@ export default function PrivacidadPage() {
               <p>La información que recopilamos se utiliza para:</p>
               <ul className="list-disc pl-6 mt-3 space-y-2">
                 <li>Responder a sus consultas y solicitudes de información</li>
-                <li>Programar citas y consultas legales</li>
+                <li>Programar turnos y consultas legales</li>
                 <li>Proporcionarle servicios legales profesionales</li>
                 <li>Comunicarnos con usted sobre su caso</li>
                 <li>Mejorar nuestros servicios</li>
@@ -49,14 +49,14 @@ export default function PrivacidadPage() {
             <div>
               <h2 className="font-heading text-display-xs text-gray-900 mb-3">3. Protección de Datos</h2>
               <p>
-                Implementamos medidas de seguridad técnicas y organizativas apropiadas para proteger su información personal contra el acceso no autorizado, la alteración, divulgación o destrucción. Toda la información proporcionada está protegida por el secreto profesional Personal-cliente conforme a las leyes de {siteConfig.contact.country}.
+                Implementamos medidas de seguridad técnicas y organizativas apropiadas para proteger su información personal contra el acceso no autorizado, la alteración, divulgación o destrucción. Toda la información proporcionada está protegida por el secreto profesional personal-cliente conforme a las leyes de {siteConfig.contact.country}.
               </p>
             </div>
 
             <div>
               <h2 className="font-heading text-display-xs text-gray-900 mb-3">4. Confidencialidad</h2>
               <p>
-                Como bufete de Personals, estamos obligados por el deber de confidencialidad profesional. Toda la información que comparta con nosotros está protegida por el privilegio Personal-cliente y no será divulgada a terceros sin su consentimiento expreso, salvo cuando la ley lo requiera.
+                Como bufete de personals, estamos obligados por el deber de confidencialidad profesional. Toda la información que comparta con nosotros está protegida por el privilegio personal-cliente y no será divulgada a terceros sin su consentimiento expreso, salvo cuando la ley lo requiera.
               </p>
             </div>
 
@@ -72,8 +72,8 @@ export default function PrivacidadPage() {
               <p>Usted tiene derecho a:</p>
               <ul className="list-disc pl-6 mt-3 space-y-2">
                 <li>Acceder a su información personal</li>
-                <li>Solicitar la corrección de datos inexactos</li>
-                <li>Solicitar la eliminación de sus datos</li>
+                <li>Soliturnor la corrección de datos inexactos</li>
+                <li>Soliturnor la eliminación de sus datos</li>
                 <li>Oponerse al procesamiento de sus datos</li>
               </ul>
             </div>

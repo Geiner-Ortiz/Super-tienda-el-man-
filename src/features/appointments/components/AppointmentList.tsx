@@ -1,21 +1,21 @@
 'use client'
 
-import { BookingCard } from '@/components/Bookings'
-import type { BookingWithRelations } from '@/types/database'
+import { TurnoCard } from '@/components/turnos'
+import type { TurnoWithRelations } from '@/types/database'
 
-interface BookingListProps {
-  Bookings: BookingWithRelations[]
+interface TurnoListProps {
+  turnos: TurnoWithRelations[]
   loading?: boolean
   emptyMessage?: string
-  userRole?: 'client' | 'staff'
+  userRole?: 'client' | 'personal'
 }
 
-export function BookingList({
-  Bookings,
+export function TurnoList({
+  turnos,
   loading = false,
-  emptyMessage = 'No hay turnos programados',
+  emptyMessage = 'No hay turnos programadas',
   userRole = 'client'
-}: BookingListProps) {
+}: TurnoListProps) {
   if (loading) {
     return (
       <div className="space-y-4">
@@ -29,7 +29,7 @@ export function BookingList({
     )
   }
 
-  if (Bookings.length === 0) {
+  if (turnos.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
@@ -41,7 +41,7 @@ export function BookingList({
           {emptyMessage}
         </h3>
         <p className="text-foreground-secondary">
-          Los turnos aparecerán aquí cuando los programes
+          Las turnos aparecerán aquí cuando las programes
         </p>
       </div>
     )
@@ -49,29 +49,29 @@ export function BookingList({
 
   return (
     <div className="space-y-4">
-      {Bookings.map(Booking => (
-        <BookingCard
-          key={Booking.id}
-          Booking={{
-            id: Booking.id,
-            staffName: Booking.staff?.profile?.full_name || 'Personal',
-            staffRole: Booking.staff?.role_description || '',
-            clientName: Booking.client?.profile?.full_name || 'Cliente',
-            date: new Date(Booking.scheduled_at).toLocaleDateString('es-ES', {
+      {turnos.map(turno => (
+        <TurnoCard
+          key={turno.id}
+          turno={{
+            id: turno.id,
+            personalName: turno.personal?.profile?.full_name || 'Personal',
+            personalSpecialty: turno.personal?.specialty || '',
+            clientName: turno.client?.profile?.full_name || 'Cliente',
+            date: new Date(turno.scheduled_at).toLocaleDateString('es-ES', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
               day: 'numeric'
             }),
-            time: new Date(Booking.scheduled_at).toLocaleTimeString('es-ES', {
+            time: new Date(turno.scheduled_at).toLocaleTimeString('es-ES', {
               hour: '2-digit',
               minute: '2-digit'
             }),
-            status: Booking.status,
-            type: Booking.Booking_type?.name || 'Consulta',
+            status: turno.status,
+            type: turno.turno_type?.name || 'Reserva',
             avatarUrl: userRole === 'client'
-              ? Booking.Staff?.profile?.avatar_url
-              : Booking.client?.profile?.avatar_url
+              ? turno.personal?.profile?.avatar_url
+              : turno.client?.profile?.avatar_url
           }}
         />
       ))}

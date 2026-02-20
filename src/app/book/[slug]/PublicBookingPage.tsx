@@ -4,10 +4,10 @@ import { useState, useMemo } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import type { AppointmentType, Availability } from '@/types/database'
+import type { TurnoType, Availability } from '@/types/database'
 import { BananaIcon } from '@/components/public/icons'
 
-interface LawyerInfo {
+interface PersonalInfo {
   id: string
   name: string
   email: string
@@ -21,17 +21,17 @@ interface LawyerInfo {
 }
 
 interface PublicBookingPageProps {
-  lawyer: LawyerInfo
-  appointmentTypes: AppointmentType[]
+  personal: PersonalInfo
+  turnoTypes: TurnoType[]
 }
 
 type BookingStep = 'service' | 'datetime' | 'info' | 'confirm' | 'success'
 
 const DAYS = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado']
 
-export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPageProps) {
+export function PublicBookingPage({ personal, turnoTypes }: PublicBookingPageProps) {
   const [step, setStep] = useState<BookingStep>('service')
-  const [selectedType, setSelectedType] = useState<AppointmentType | null>(null)
+  const [selectedType, setSelectedType] = useState<TurnoType | null>(null)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [formData, setFormData] = useState({
@@ -55,7 +55,7 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
       date.setDate(date.getDate() + i)
       const dayOfWeek = date.getDay()
 
-      const hasAvailability = lawyer.availability.some(
+      const hasAvailability = personal.availability.some(
         a => a.day_of_week === dayOfWeek && a.is_available
       )
 
@@ -65,14 +65,14 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
     }
 
     return dates
-  }, [lawyer.availability])
+  }, [personal.availability])
 
   // Generate time slots for selected date
   const timeSlots = useMemo(() => {
     if (!selectedDate) return []
 
     const dayOfWeek = selectedDate.getDay()
-    const dayAvailability = lawyer.availability.find(
+    const dayAvailability = personal.availability.find(
       a => a.day_of_week === dayOfWeek && a.is_available
     )
 
@@ -92,7 +92,7 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
     }
 
     return slots
-  }, [selectedDate, lawyer.availability, selectedType])
+  }, [selectedDate, personal.availability, selectedType])
 
   const handleSubmit = async () => {
     if (!selectedType || !selectedDate || !selectedTime) return
@@ -115,8 +115,8 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          lawyerId: lawyer.id,
-          appointmentTypeId: selectedType.id,
+          personalId: personal.id,
+          turnoTypeId: selectedType.id,
           scheduledAt,
           client: {
             name: formData.name,
@@ -130,13 +130,13 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al crear la cita')
+        throw new Error(data.error || 'Error al crear la turno')
       }
 
       setStep('success')
     } catch (err) {
       console.error('Booking error:', err)
-      setError(err instanceof Error ? err.message : 'Error al crear la cita')
+      setError(err instanceof Error ? err.message : 'Error al crear la turno')
     } finally {
       setIsSubmitting(false)
     }
@@ -168,45 +168,45 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
             </div>
             <span className="text-xl font-semibold">Tu Súper Tienda</span>
           </div>
-          <h1 className="text-3xl font-bold">Agenda tu Consulta Legal</h1>
+          <h1 className="text-3xl font-bold">Agenda tu Reserva Legal</h1>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Lawyer Profile */}
+          {/* Personal Profile */}
           <Card className="p-6 md:col-span-1 h-fit">
             <div className="text-center">
               <div className="w-24 h-24 rounded-full bg-primary-100 mx-auto mb-4 flex items-center justify-center text-3xl font-bold text-primary-600">
-                {lawyer.name.charAt(0)}
+                {personal.name.charAt(0)}
               </div>
-              <h2 className="text-xl font-bold text-foreground">{lawyer.name}</h2>
-              <p className="text-accent-600 font-medium">{lawyer.specialty}</p>
+              <h2 className="text-xl font-bold text-foreground">{personal.name}</h2>
+              <p className="text-accent-600 font-medium">{personal.specialty}</p>
 
               <div className="flex items-center justify-center gap-1 mt-2">
                 {[...Array(5)].map((_, i) => (
                   <StarIcon
                     key={i}
-                    className={`w-4 h-4 ${i < Math.floor(lawyer.rating) ? 'text-secondary-500 fill-secondary-500' : 'text-gray-300'}`}
+                    className={`w-4 h-4 ${i < Math.floor(personal.rating) ? 'text-secondary-500 fill-secondary-500' : 'text-gray-300'}`}
                   />
                 ))}
-                <span className="text-sm text-foreground-secondary ml-1">({lawyer.rating})</span>
+                <span className="text-sm text-foreground-secondary ml-1">({personal.rating})</span>
               </div>
 
               <div className="text-sm text-foreground-secondary mt-4 space-y-2">
                 <p className="flex items-center justify-center gap-2">
                   <BriefcaseIcon className="w-4 h-4" />
-                  {lawyer.experience_years} anos de experiencia
+                  {personal.experience_years} anos de experiencia
                 </p>
                 <p className="flex items-center justify-center gap-2">
                   <CurrencyIcon className="w-4 h-4" />
-                  {formatPrice(lawyer.hourly_rate)}/hora
+                  {formatPrice(personal.hourly_rate)}/hora
                 </p>
               </div>
 
-              {lawyer.bio && (
+              {personal.bio && (
                 <p className="text-sm text-foreground-secondary mt-4 text-left">
-                  {lawyer.bio}
+                  {personal.bio}
                 </p>
               )}
             </div>
@@ -241,7 +241,7 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
                   1. Selecciona el tipo de consulta
                 </h3>
                 <div className="space-y-3">
-                  {appointmentTypes.map(type => (
+                  {turnoTypes.map(type => (
                     <button
                       key={type.id}
                       onClick={() => {
@@ -423,7 +423,7 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
                     disabled={!formData.name || !formData.email || !formData.phone || !formData.acceptedTerms}
                     className="flex-1"
                   >
-                    Revisar Cita
+                    Revisar Turno
                   </Button>
                 </div>
               </Card>
@@ -433,7 +433,7 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
             {step === 'confirm' && selectedType && selectedDate && selectedTime && (
               <Card className="p-6">
                 <h3 className="text-lg font-semibold text-foreground mb-4">
-                  4. Confirma tu cita
+                  4. Confirma tu turno
                 </h3>
 
                 <div className="bg-gray-50 rounded-xl p-4 space-y-3 mb-6">
@@ -442,8 +442,8 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
                     <span className="font-medium text-foreground">{selectedType.name}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-foreground-secondary">Abogado</span>
-                    <span className="font-medium text-foreground">{lawyer.name}</span>
+                    <span className="text-foreground-secondary">Personal</span>
+                    <span className="font-medium text-foreground">{personal.name}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-foreground-secondary">Fecha</span>
@@ -491,7 +491,7 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
                         Procesando...
                       </>
                     ) : (
-                      'Confirmar Cita'
+                      'Confirmar Turno'
                     )}
                   </Button>
                 </div>
@@ -505,16 +505,16 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
                   <CheckCircleIcon className="w-12 h-12 text-success-500" />
                 </div>
                 <h3 className="text-2xl font-bold text-foreground mb-2">
-                  Cita Confirmada
+                  Turno Confirmada
                 </h3>
                 <p className="text-foreground-secondary mb-6">
-                  Hemos enviado los detalles de tu cita a {formData.email}
+                  Hemos enviado los detalles de tu turno a {formData.email}
                 </p>
 
                 <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left">
                   <div className="flex justify-between mb-2">
-                    <span className="text-foreground-secondary">Abogado</span>
-                    <span className="font-medium">{lawyer.name}</span>
+                    <span className="text-foreground-secondary">Personal</span>
+                    <span className="font-medium">{personal.name}</span>
                   </div>
                   <div className="flex justify-between mb-2">
                     <span className="text-foreground-secondary">Fecha</span>
@@ -542,7 +542,7 @@ export function PublicBookingPage({ lawyer, appointmentTypes }: PublicBookingPag
                       setFormData({ name: '', email: '', phone: '', description: '', acceptedTerms: false })
                     }}
                   >
-                    Agendar Otra Cita
+                    Agendar Otra Turno
                   </Button>
                 </div>
               </Card>
