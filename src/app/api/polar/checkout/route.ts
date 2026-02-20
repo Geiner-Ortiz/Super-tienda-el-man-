@@ -1,18 +1,30 @@
 ﻿import { Checkout } from "@polar-sh/nextjs";
 import { type NextRequest } from "next/server";
 
-// Diagnóstico V6 - Soporte para prefijo NEXT_PUBLIC
+// Diagnóstico V7 - Reporte Exhaustivo de Entorno
 export const GET = async (request: NextRequest) => {
-    // Intentar obtener el token de ambas formas (estándar y con prefijo público como respaldo)
+    const allEnvKeys = Object.keys(process.env);
+
+    // Buscar el token
     const token = process.env.POLAR_ACCESS_TOKEN || process.env.NEXT_PUBLIC_POLAR_ACCESS_TOKEN;
 
     if (!token) {
-        const allEnvKeys = Object.keys(process.env);
-        return new Response(JSON.stringify({
-            error: "Token no detectado",
-            detected_keys_polar: allEnvKeys.filter(k => k.toLowerCase().includes('polar')),
-            action: "Por favor, RENOMBRA las variables en Vercel añadiendo 'NEXT_PUBLIC_' al principio (ej: NEXT_PUBLIC_POLAR_ACCESS_TOKEN) y haz un Redeploy."
-        }), {
+        // Filtrar llaves que contengan 'polar' sin importar mayúsculas/minúsculas
+        const polarRelatedKeys = allEnvKeys.filter(k => k.toUpperCase().includes('POLAR'));
+
+        // Información de depuración
+        const debugInfo = {
+            error: "Polar Token missing in runtime",
+            env_stats: {
+                total_keys: allEnvKeys.length,
+                polar_keys_found: polarRelatedKeys,
+                has_supabase_keys: allEnvKeys.some(k => k.includes('SUPABASE')),
+            },
+            current_host: request.headers.get("host"),
+            advice: "Si 'polar_keys_found' está vacío [], Vercel no está inyectando las variables. REVISA: 1. El nombre exacto en Vercel. 2. Que estén en el entorno 'Production'. 3. Realiza un 'Redeploy' con 'Build Cache' DESACTIVADO."
+        };
+
+        return new Response(JSON.stringify(debugInfo, null, 2), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
         });
