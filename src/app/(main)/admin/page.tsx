@@ -223,8 +223,8 @@ export default function AdminDashboard() {
                             <tr className="bg-gray-50 dark:bg-gray-800/50">
                                 <th className="text-left px-6 py-4 font-semibold text-gray-500">ID Cliente</th>
                                 <th className="text-left px-6 py-4 font-semibold text-gray-500">Nombre / Tienda</th>
-                                <th className="text-left px-6 py-4 font-semibold text-gray-500">Email</th>
                                 <th className="text-left px-6 py-4 font-semibold text-gray-500">Plan</th>
+                                <th className="text-left px-6 py-4 font-semibold text-gray-500">Email</th>
                                 <th className="text-left px-6 py-4 font-semibold text-gray-500">Registro</th>
                                 <th className="text-right px-6 py-4 font-semibold text-gray-500">Acciones</th>
                             </tr>
@@ -232,11 +232,11 @@ export default function AdminDashboard() {
                         <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-8 text-center text-gray-400">Cargando directorio...</td>
+                                    <td colSpan={6} className="px-6 py-8 text-center text-gray-400">Cargando directorio...</td>
                                 </tr>
                             ) : filteredClients.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-8 text-center text-gray-400">
+                                    <td colSpan={6} className="px-6 py-8 text-center text-gray-400">
                                         {searchQuery ? `No se encontraron resultados para "${searchQuery}"` : "No hay clientes registrados todavía."}
                                     </td>
                                 </tr>
@@ -275,9 +275,6 @@ export default function AdminDashboard() {
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-gray-500">
-                                            {client.email || 'Sin correo'}
-                                        </td>
                                         <td className="px-6 py-4">
                                             {client.subscription_status === 'active' ? (
                                                 <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-black rounded-full border border-green-200 dark:border-green-800">
@@ -289,8 +286,15 @@ export default function AdminDashboard() {
                                                 </span>
                                             )}
                                         </td>
+                                        <td className="px-6 py-4 text-gray-500">
+                                            {client.email || 'Sin correo'}
+                                        </td>
                                         <td className="px-6 py-4 text-gray-400">
-                                            {new Date(client.created_at).toLocaleDateString()}
+                                            {new Date(client.created_at).toLocaleDateString('es-ES', {
+                                                day: '2-digit',
+                                                month: '2-digit',
+                                                year: 'numeric'
+                                            })}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
