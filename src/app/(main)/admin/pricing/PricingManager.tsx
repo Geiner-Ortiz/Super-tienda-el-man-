@@ -155,16 +155,16 @@ export function PricingManager({ initialTurnoTypes, initialPersonals }: PricingM
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">
-                  Precio Sugerido ($)
+                  Precio Sugerido (COP)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-indigo-600">$</span>
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-indigo-600">COP $</span>
                   <input
                     type="number"
                     value={typePrice}
                     onChange={(e) => setTypePrice(Number(e.target.value))}
                     min={0}
-                    className="w-full pl-12 pr-5 py-4 bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-800 rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all font-black text-lg text-indigo-600"
+                    className="w-full pl-20 pr-5 py-4 bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-800 rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all font-black text-lg text-indigo-600"
                   />
                 </div>
               </div>
@@ -212,8 +212,8 @@ export function PricingManager({ initialTurnoTypes, initialPersonals }: PricingM
                     </svg>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${type.is_active
-                      ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-900/20 dark:border-green-800'
-                      : 'bg-gray-50 text-gray-400 border-gray-100 dark:bg-gray-800 dark:border-gray-700'
+                    ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-900/20 dark:border-green-800'
+                    : 'bg-gray-50 text-gray-400 border-gray-100 dark:bg-gray-800 dark:border-gray-700'
                     }`}>
                     {type.is_active ? 'Disponible' : 'Pausado'}
                   </span>
@@ -231,7 +231,7 @@ export function PricingManager({ initialTurnoTypes, initialPersonals }: PricingM
                 <div className="flex items-center justify-between mt-6">
                   <div>
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Inversión Sugerida</p>
-                    <p className="text-3xl font-black text-indigo-600">${type.price}</p>
+                    <p className="text-3xl font-black text-indigo-600">COP ${type.price.toLocaleString()}</p>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 transition-transform">
                     <Button
@@ -318,12 +318,12 @@ export function PricingManager({ initialTurnoTypes, initialPersonals }: PricingM
                     <td className="px-8 py-6">
                       {editingPersonal === personal.id ? (
                         <div className="flex items-center gap-2 group-focus-within:ring-2 ring-indigo-500 rounded-xl p-1">
-                          <span className="font-black text-indigo-600">$</span>
+                          <span className="font-black text-indigo-600">COP $</span>
                           <input
                             type="number"
                             defaultValue={personal.hourly_rate}
                             min={0}
-                            className="w-20 px-2 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-lg focus:outline-none font-black text-indigo-600"
+                            className="w-24 px-2 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-lg focus:outline-none font-black text-indigo-600"
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
                                 handleUpdatePersonalRate(personal.id, Number((e.target as HTMLInputElement).value))
@@ -334,7 +334,7 @@ export function PricingManager({ initialTurnoTypes, initialPersonals }: PricingM
                         </div>
                       ) : (
                         <div>
-                          <span className="text-2xl font-black text-gray-900 dark:text-white">${personal.hourly_rate}</span>
+                          <span className="text-2xl font-black text-gray-900 dark:text-white">COP ${personal.hourly_rate.toLocaleString()}</span>
                           <span className="text-[10px] font-bold text-gray-400 ml-1 uppercase">por hora</span>
                         </div>
                       )}

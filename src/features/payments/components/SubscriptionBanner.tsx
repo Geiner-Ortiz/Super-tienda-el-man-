@@ -68,9 +68,9 @@ export function SubscriptionBanner() {
 
                 <div className="flex flex-col items-center md:items-end gap-3">
                     <div className="text-right">
-                        <span className="text-sm font-bold text-primary-100 uppercase tracking-widest line-through">$49.99</span>
+                        <span className="text-sm font-bold text-primary-100 uppercase tracking-widest line-through">COP $199.900</span>
                         <div className="flex items-baseline gap-1">
-                            <span className="text-4xl font-black">$14.90</span>
+                            <span className="text-4xl font-black">COP $59.900</span>
                             <span className="text-sm font-bold text-primary-50">/mes</span>
                         </div>
                     </div>
