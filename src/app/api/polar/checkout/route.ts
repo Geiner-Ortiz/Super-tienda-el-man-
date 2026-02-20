@@ -5,10 +5,11 @@ import { type NextRequest } from "next/server";
 export const GET = async (request: NextRequest) => {
     // Verificar token para evitar crash 500
     if (!process.env.POLAR_ACCESS_TOKEN) {
-        console.error("POLAR_ACCESS_TOKEN is not defined in environment variables");
+        console.error("POLAR_ACCESS_TOKEN is missing in Vercel environment");
         return new Response(JSON.stringify({
-            error: "Token no configurado en Vercel",
-            hint: "Asegúrate de añadir POLAR_ACCESS_TOKEN en las variables de entorno de Vercel."
+            error: "Token no detectado",
+            details: "La variable POLAR_ACCESS_TOKEN está vacía o no existe en este despliegue.",
+            action: "Verifica en Vercel: Settings -> Environment Variables. Asegúrate de que esté en 'Production' y haz un 'Redeploy' manual si es necesario."
         }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
