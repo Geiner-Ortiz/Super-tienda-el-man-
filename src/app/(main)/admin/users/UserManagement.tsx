@@ -71,11 +71,10 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
         <div className="flex gap-2">
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-              filter === 'all'
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${filter === 'all'
                 ? 'bg-primary-500 text-white'
                 : 'bg-white border border-border text-foreground-secondary hover:bg-gray-50'
-            }`}
+              }`}
           >
             Todos
           </button>
@@ -83,11 +82,10 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
             <button
               key={role.value}
               onClick={() => setFilter(role.value)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                filter === role.value
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${filter === role.value
                   ? 'bg-primary-500 text-white'
                   : 'bg-white border border-border text-foreground-secondary hover:bg-gray-50'
-              }`}
+                }`}
             >
               {role.label}s
             </button>
@@ -102,6 +100,7 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
             <tr>
               <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Usuario</th>
               <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Email</th>
+              <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Plan</th>
               <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Rol</th>
               <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Registrado</th>
               <th className="text-right px-6 py-4 text-sm font-semibold text-foreground-secondary">Acciones</th>
@@ -132,6 +131,17 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
                     {user.email}
                   </td>
                   <td className="px-6 py-4">
+                    {user.subscription_status === 'active' ? (
+                      <span className="px-3 py-1 bg-success-100 text-success-700 rounded-lg text-xs font-bold">
+                        PRO
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-lg text-xs font-medium">
+                        FREE
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
                     {isEditing ? (
                       <div className="flex gap-2">
                         {ROLES.map(role => (
@@ -139,11 +149,10 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
                             key={role.value}
                             onClick={() => handleRoleChange(user.id, role.value)}
                             disabled={saving}
-                            className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                              user.role === role.value
+                            className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${user.role === role.value
                                 ? `${role.color} ring-2 ring-offset-2 ring-primary-500`
                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                            }`}
+                              }`}
                           >
                             {role.label}
                           </button>
