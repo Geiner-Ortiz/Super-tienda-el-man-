@@ -2,7 +2,7 @@ import { Card } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 
-export interface Lawyer {
+export interface Staff {
   id: string
   name: string
   email: string
@@ -15,8 +15,8 @@ export interface Lawyer {
   bio?: string
 }
 
-interface LawyerProfileCardProps {
-  lawyer: Lawyer
+interface StaffProfileCardProps {
+  Staff: Staff
   onBook?: (id: string) => void
   onViewProfile?: (id: string) => void
 }
@@ -27,8 +27,8 @@ const availabilityStyles = {
   unavailable: { label: 'No disponible', variant: 'cancelled' as const },
 }
 
-export function LawyerProfileCard({ lawyer, onBook, onViewProfile }: LawyerProfileCardProps) {
-  const availStatus = availabilityStyles[lawyer.availability]
+export function StaffProfileCard({ Staff, onBook, onViewProfile }: StaffProfileCardProps) {
+  const availStatus = availabilityStyles[Staff.availability]
   
   return (
     <Card className="hover:shadow-card-hover transition-shadow">
@@ -36,11 +36,11 @@ export function LawyerProfileCard({ lawyer, onBook, onViewProfile }: LawyerProfi
         {/* Avatar */}
         <div className="shrink-0">
           <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center">
-            {lawyer.avatar ? (
-              <img src={lawyer.avatar} alt={lawyer.name} className="w-full h-full rounded-2xl object-cover" />
+            {Staff.avatar ? (
+              <img src={Staff.avatar} alt={Staff.name} className="w-full h-full rounded-2xl object-cover" />
             ) : (
               <span className="text-xl font-semibold text-primary-600">
-                {lawyer.name.split(' ').map(n => n[0]).join('')}
+                {Staff.name.split(' ').map(n => n[0]).join('')}
               </span>
             )}
           </div>
@@ -50,8 +50,8 @@ export function LawyerProfileCard({ lawyer, onBook, onViewProfile }: LawyerProfi
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <h3 className="font-semibold text-foreground">{lawyer.name}</h3>
-              <p className="text-sm text-foreground-secondary">{lawyer.specialty}</p>
+              <h3 className="font-semibold text-foreground">{Staff.name}</h3>
+              <p className="text-sm text-foreground-secondary">{Staff.specialty}</p>
             </div>
             <Badge variant={availStatus.variant}>{availStatus.label}</Badge>
           </div>
@@ -59,13 +59,13 @@ export function LawyerProfileCard({ lawyer, onBook, onViewProfile }: LawyerProfi
           <div className="mt-3 flex items-center gap-4 text-sm">
             <div className="flex items-center gap-1">
               <StarIcon className="w-4 h-4 text-secondary-500" />
-              <span className="font-medium text-foreground">{lawyer.rating}</span>
+              <span className="font-medium text-foreground">{Staff.rating}</span>
             </div>
-            <span className="text-foreground-muted">{lawyer.experience} años exp.</span>
+            <span className="text-foreground-muted">{Staff.experience} años exp.</span>
           </div>
           
-          {lawyer.bio && (
-            <p className="mt-2 text-sm text-foreground-secondary line-clamp-2">{lawyer.bio}</p>
+          {Staff.bio && (
+            <p className="mt-2 text-sm text-foreground-secondary line-clamp-2">{Staff.bio}</p>
           )}
         </div>
       </div>
@@ -73,12 +73,12 @@ export function LawyerProfileCard({ lawyer, onBook, onViewProfile }: LawyerProfi
       <div className="mt-4 pt-4 border-t border-border flex gap-3">
         <Button 
           size="sm" 
-          onClick={() => onBook?.(lawyer.id)}
-          disabled={lawyer.availability === 'unavailable'}
+          onClick={() => onBook?.(Staff.id)}
+          disabled={Staff.availability === 'unavailable'}
         >
           Agendar Cita
         </Button>
-        <Button size="sm" variant="outline" onClick={() => onViewProfile?.(lawyer.id)}>
+        <Button size="sm" variant="outline" onClick={() => onViewProfile?.(Staff.id)}>
           Ver Perfil
         </Button>
       </div>

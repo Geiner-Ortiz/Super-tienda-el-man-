@@ -16,6 +16,7 @@ interface ClientProfile {
     store_name: string | null
     created_at: string
     role: string
+    subscription_status?: string | null
 }
 
 interface ClientStats {
@@ -54,7 +55,7 @@ export default function AdminDashboard() {
                 .eq('id', user.id)
                 .single()
 
-            if (!profile || profile.role !== 'super_admin') {
+            if (!profile || (profile.role !== 'super_admin' && profile.role !== 'admin')) {
                 setIsAuthorized(false)
                 router.push('/dashboard')
                 return
@@ -224,6 +225,7 @@ export default function AdminDashboard() {
                                 <th className="text-left px-6 py-4 font-semibold text-gray-500">Nombre / Tienda</th>
                                 <th className="text-left px-6 py-4 font-semibold text-gray-500">Email</th>
                                 <th className="text-left px-6 py-4 font-semibold text-gray-500">Registro</th>
+                                <th className="text-left px-6 py-4 font-semibold text-gray-500">Plan</th>
                                 <th className="text-right px-6 py-4 font-semibold text-gray-500">Acciones</th>
                             </tr>
                         </thead>
@@ -278,6 +280,14 @@ export default function AdminDashboard() {
                                         </td>
                                         <td className="px-6 py-4 text-gray-400">
                                             {new Date(client.created_at).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${client.subscription_status === 'active'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-gray-100 text-gray-500'
+                                                }`}>
+                                                {client.subscription_status === 'active' ? 'PRO' : 'FREE'}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">

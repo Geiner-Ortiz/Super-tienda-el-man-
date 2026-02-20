@@ -1,4 +1,4 @@
-export { AppointmentCard, type Appointment } from './appointment-card'
+export { BookingCard, type Booking } from './Booking-card'
 export { Calendar } from './calendar'
-export { LawyerProfileCard, type Lawyer } from './lawyer-profile-card'
+export { StaffProfileCard, type Staff } from './Staff-profile-card'
 export { TimeSlotPicker } from './time-slot-picker'

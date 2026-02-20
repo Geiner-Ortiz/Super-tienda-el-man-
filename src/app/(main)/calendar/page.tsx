@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { CalendarView } from '@/features/calendar/components/CalendarView'
 
 export const metadata = {
-  title: 'Calendario | LexAgenda'
+  title: 'Calendario | Tu Súper Tienda'
 }
 
 export default async function CalendarPage() {
@@ -14,7 +14,7 @@ export default async function CalendarPage() {
     redirect('/login')
   }
 
-  // Verificar rol (solo admin y lawyer)
+  // Verificar rol (solo admin y Staff)
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
@@ -30,44 +30,44 @@ export default async function CalendarPage() {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
 
-  let appointmentsQuery = supabase
-    .from('appointments')
+  let BookingsQuery = supabase
+    .from('Bookings')
     .select(`
       *,
       client:clients(id, user_id, full_name, email, phone, address, notes, created_at, updated_at, profile:profiles(*)),
-      lawyer:lawyers(*, profile:profiles(*)),
-      appointment_type:appointment_types(*)
+      Staff:Staffs(*, profile:profiles(*)),
+      Booking_type:Booking_types(*)
     `)
     .gte('scheduled_at', startOfMonth.toISOString())
     .lte('scheduled_at', endOfMonth.toISOString())
     .order('scheduled_at', { ascending: true })
 
-  // Si es abogado, solo sus citas
-  if (profile?.role === 'lawyer') {
-    const { data: lawyer } = await supabase
-      .from('lawyers')
+  // Si es Personal, solo sus citas
+  if (profile?.role === 'Staff') {
+    const { data: Staff } = await supabase
+      .from('Staffs')
       .select('id')
       .eq('user_id', user.id)
       .single()
 
-    if (lawyer) {
-      appointmentsQuery = appointmentsQuery.eq('lawyer_id', lawyer.id)
+    if (Staff) {
+      BookingsQuery = BookingsQuery.eq('Staff_id', Staff.id)
     }
   }
 
-  const { data: appointments } = await appointmentsQuery
+  const { data: Bookings } = await BookingsQuery
 
-  // Obtener lista de abogados para filtro (solo admin)
+  // Obtener lista de Personals para filtro (solo admin)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let lawyers: any[] = []
+  let Staffs: any[] = []
   if (profile?.role === 'admin') {
     const { data } = await supabase
-      .from('lawyers')
+      .from('Staffs')
       .select('id, profile:profiles(full_name)')
       .eq('is_active', true)
 
     // Transform the data to match expected format
-    lawyers = (data || []).map((l: { id: string; profile: { full_name: string }[] | { full_name: string } }) => ({
+    Staffs = (data || []).map((l: { id: string; profile: { full_name: string }[] | { full_name: string } }) => ({
       id: l.id,
       profile: Array.isArray(l.profile) ? l.profile[0] : l.profile
     }))
@@ -76,8 +76,8 @@ export default async function CalendarPage() {
   return (
     <div className="p-6 md:p-8">
       <CalendarView
-        initialAppointments={appointments || []}
-        lawyers={lawyers}
+        initialBookings={Bookings || []}
+        Staffs={Staffs}
         userRole={profile?.role || 'client'}
       />
     </div>

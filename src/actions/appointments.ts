@@ -3,59 +3,59 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import type { CreateAppointmentDTO, UpdateAppointmentDTO, AppointmentStatus } from '@/types/database'
+import type { CreateBookingDTO, UpdateBookingDTO, BookingStatus } from '@/types/database'
 
-// Helper to send appointment emails
-async function sendAppointmentEmails(params: {
+// Helper to send Booking emails
+async function sendBookingEmails(params: {
   type: 'created' | 'status_changed'
-  appointmentId: string
+  BookingId: string
   clientName: string
   clientEmail: string
-  lawyerName: string
-  lawyerEmail: string
+  StaffName: string
+  StaffEmail: string
   scheduledAt: string
-  appointmentType: string
+  BookingType: string
   duration: number
   status?: 'confirmed' | 'cancelled' | 'completed'
 }) {
   try {
     const scheduledDate = new Date(params.scheduledAt)
-    const appointmentDate = scheduledDate.toLocaleDateString('es-ES', {
+    const BookingDate = scheduledDate.toLocaleDateString('es-ES', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     })
-    const appointmentTime = scheduledDate.toLocaleTimeString('es-ES', {
+    const BookingTime = scheduledDate.toLocaleTimeString('es-ES', {
       hour: '2-digit',
       minute: '2-digit'
     })
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://saas-factory-theta.vercel.app'
 
-    await fetch(`${baseUrl}/api/email/appointment`, {
+    await fetch(`${baseUrl}/api/email/Booking`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         type: params.type,
-        appointmentId: params.appointmentId,
+        BookingId: params.BookingId,
         clientName: params.clientName,
         clientEmail: params.clientEmail,
-        lawyerName: params.lawyerName,
-        lawyerEmail: params.lawyerEmail,
-        appointmentDate,
-        appointmentTime,
-        appointmentType: params.appointmentType,
+        StaffName: params.StaffName,
+        StaffEmail: params.StaffEmail,
+        BookingDate,
+        BookingTime,
+        BookingType: params.BookingType,
         duration: params.duration,
         status: params.status,
       }),
     })
   } catch (error) {
-    console.error('Error sending appointment emails:', error)
+    console.error('Error sending Booking emails:', error)
   }
 }
 
-export async function createAppointment(data: CreateAppointmentDTO) {
+export async function createBooking(data: CreateBookingDTO) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -87,26 +87,26 @@ export async function createAppointment(data: CreateAppointmentDTO) {
     client = newClient
   }
 
-  // Obtener datos del abogado
-  const { data: lawyer } = await supabase
-    .from('lawyers')
+  // Obtener datos del Personal
+  const { data: Staff } = await supabase
+    .from('Staffs')
     .select('user_id, profile:profiles(full_name, email)')
-    .eq('id', data.lawyer_id)
+    .eq('id', data.Staff_id)
     .single()
 
   // Obtener tipo de cita
-  const { data: appointmentType } = await supabase
-    .from('appointment_types')
+  const { data: BookingType } = await supabase
+    .from('Booking_types')
     .select('name, duration_minutes')
-    .eq('id', data.appointment_type_id)
+    .eq('id', data.Booking_type_id)
     .single()
 
-  const { data: appointment, error } = await supabase
-    .from('appointments')
+  const { data: Booking, error } = await supabase
+    .from('Bookings')
     .insert({
       ...data,
       client_id: client.id,
-      duration_minutes: appointmentType?.duration_minutes || 30
+      duration_minutes: BookingType?.duration_minutes || 30
     })
     .select('id')
     .single()
@@ -114,114 +114,114 @@ export async function createAppointment(data: CreateAppointmentDTO) {
   if (error) return { error: error.message }
 
   // Send email notifications (non-blocking)
-  if (appointment && lawyer?.profile && clientProfile) {
+  if (Booking && Staff?.profile && clientProfile) {
     // Handle profile as it might be an array from the join
-    const lawyerProfileData = Array.isArray(lawyer.profile) ? lawyer.profile[0] : lawyer.profile
-    if (lawyerProfileData) {
-      sendAppointmentEmails({
+    const StaffProfileData = Array.isArray(Staff.profile) ? Staff.profile[0] : Staff.profile
+    if (StaffProfileData) {
+      sendBookingEmails({
         type: 'created',
-        appointmentId: appointment.id,
+        BookingId: Booking.id,
         clientName: clientProfile.full_name || 'Cliente',
         clientEmail: clientProfile.email,
-        lawyerName: lawyerProfileData.full_name || 'Abogado',
-        lawyerEmail: lawyerProfileData.email,
+        StaffName: StaffProfileData.full_name || 'Personal',
+        StaffEmail: StaffProfileData.email,
         scheduledAt: data.scheduled_at,
-        appointmentType: appointmentType?.name || 'Consulta',
-        duration: appointmentType?.duration_minutes || 30,
+        BookingType: BookingType?.name || 'Consulta',
+        duration: BookingType?.duration_minutes || 30,
       })
     }
   }
 
-  revalidatePath('/appointments')
-  redirect('/appointments')
+  revalidatePath('/Bookings')
+  redirect('/Bookings')
 }
 
-export async function updateAppointmentStatus(
+export async function updateBookingStatus(
   id: string,
-  status: AppointmentStatus,
+  status: BookingStatus,
   cancellationReason?: string
 ) {
   const supabase = await createClient()
 
-  // Get appointment details for email
-  const { data: appointment } = await supabase
-    .from('appointments')
+  // Get Booking details for email
+  const { data: Booking } = await supabase
+    .from('Bookings')
     .select(`
       *,
       client:clients(user_id, profile:profiles(full_name, email)),
-      lawyer:lawyers(user_id, profile:profiles(full_name, email)),
-      appointment_type:appointment_types(name)
+      Staff:Staffs(user_id, profile:profiles(full_name, email)),
+      Booking_type:Booking_types(name)
     `)
     .eq('id', id)
     .single()
 
-  const updateData: UpdateAppointmentDTO = { status }
+  const updateData: UpdateBookingDTO = { status }
   if (cancellationReason) {
     updateData.cancellation_reason = cancellationReason
   }
 
   const { error } = await supabase
-    .from('appointments')
+    .from('Bookings')
     .update(updateData)
     .eq('id', id)
 
   if (error) return { error: error.message }
 
   // Send email for status changes (confirmed, cancelled, completed)
-  if (appointment && ['confirmed', 'cancelled', 'completed'].includes(status)) {
+  if (Booking && ['confirmed', 'cancelled', 'completed'].includes(status)) {
     // Handle profiles as they might be arrays from the join
-    const clientProfileData = Array.isArray(appointment.client?.profile)
-      ? appointment.client?.profile[0]
-      : appointment.client?.profile
-    const lawyerProfileData = Array.isArray(appointment.lawyer?.profile)
-      ? appointment.lawyer?.profile[0]
-      : appointment.lawyer?.profile
+    const clientProfileData = Array.isArray(Booking.client?.profile)
+      ? Booking.client?.profile[0]
+      : Booking.client?.profile
+    const StaffProfileData = Array.isArray(Booking.Staff?.profile)
+      ? Booking.Staff?.profile[0]
+      : Booking.Staff?.profile
 
-    if (clientProfileData && lawyerProfileData) {
-      sendAppointmentEmails({
+    if (clientProfileData && StaffProfileData) {
+      sendBookingEmails({
         type: 'status_changed',
-        appointmentId: id,
+        BookingId: id,
         clientName: clientProfileData.full_name || 'Cliente',
         clientEmail: clientProfileData.email,
-        lawyerName: lawyerProfileData.full_name || 'Abogado',
-        lawyerEmail: lawyerProfileData.email,
-        scheduledAt: appointment.scheduled_at,
-        appointmentType: appointment.appointment_type?.name || 'Consulta',
-        duration: appointment.duration_minutes,
+        StaffName: StaffProfileData.full_name || 'Personal',
+        StaffEmail: StaffProfileData.email,
+        scheduledAt: Booking.scheduled_at,
+        BookingType: Booking.Booking_type?.name || 'Consulta',
+        duration: Booking.duration_minutes,
         status: status as 'confirmed' | 'cancelled' | 'completed',
       })
     }
   }
 
-  revalidatePath('/appointments')
-  revalidatePath(`/appointments/${id}`)
+  revalidatePath('/Bookings')
+  revalidatePath(`/Bookings/${id}`)
   return { success: true }
 }
 
-export async function addAppointmentNotes(id: string, notes: string) {
+export async function addBookingNotes(id: string, notes: string) {
   const supabase = await createClient()
 
   const { error } = await supabase
-    .from('appointments')
+    .from('Bookings')
     .update({ notes })
     .eq('id', id)
 
   if (error) return { error: error.message }
 
-  revalidatePath(`/appointments/${id}`)
+  revalidatePath(`/Bookings/${id}`)
   return { success: true }
 }
 
-export async function rescheduleAppointment(id: string, newDate: string) {
+export async function rescheduleBooking(id: string, newDate: string) {
   const supabase = await createClient()
 
   const { error } = await supabase
-    .from('appointments')
+    .from('Bookings')
     .update({ scheduled_at: newDate, status: 'pending' })
     .eq('id', id)
 
   if (error) return { error: error.message }
 
-  revalidatePath('/appointments')
+  revalidatePath('/Bookings')
   return { success: true }
 }

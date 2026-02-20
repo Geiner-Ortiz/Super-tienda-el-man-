@@ -10,8 +10,8 @@ interface AvailabilityData {
   is_available: boolean
 }
 
-export async function updateLawyerAvailability(
-  lawyerId: string,
+export async function updateStaffAvailability(
+  StaffId: string,
   availabilities: AvailabilityData[]
 ) {
   const supabase = await createClient()
@@ -19,21 +19,21 @@ export async function updateLawyerAvailability(
 
   if (!user) return { error: 'No autenticado' }
 
-  // Verificar que el usuario es el abogado
-  const { data: lawyer } = await supabase
-    .from('lawyers')
+  // Verificar que el usuario es el Personal
+  const { data: Staff } = await supabase
+    .from('Staffs')
     .select('id')
-    .eq('id', lawyerId)
+    .eq('id', StaffId)
     .eq('user_id', user.id)
     .single()
 
-  if (!lawyer) return { error: 'No autorizado' }
+  if (!Staff) return { error: 'No autorizado' }
 
   // Eliminar disponibilidades existentes
   await supabase
     .from('availability')
     .delete()
-    .eq('lawyer_id', lawyerId)
+    .eq('Staff_id', StaffId)
 
   // Insertar nuevas
   const { error } = await supabase
@@ -41,18 +41,18 @@ export async function updateLawyerAvailability(
     .insert(
       availabilities.map(a => ({
         ...a,
-        lawyer_id: lawyerId
+        Staff_id: StaffId
       }))
     )
 
   if (error) return { error: error.message }
 
-  revalidatePath(`/lawyers/${lawyerId}`)
+  revalidatePath(`/Staffs/${StaffId}`)
   return { success: true }
 }
 
 export async function toggleDayAvailability(
-  lawyerId: string,
+  StaffId: string,
   dayOfWeek: number,
   isAvailable: boolean
 ) {
@@ -64,17 +64,17 @@ export async function toggleDayAvailability(
   const { error } = await supabase
     .from('availability')
     .upsert({
-      lawyer_id: lawyerId,
+      Staff_id: StaffId,
       day_of_week: dayOfWeek,
       is_available: isAvailable,
       start_time: '09:00:00',
       end_time: '18:00:00'
     }, {
-      onConflict: 'lawyer_id,day_of_week'
+      onConflict: 'Staff_id,day_of_week'
     })
 
   if (error) return { error: error.message }
 
-  revalidatePath(`/lawyers/${lawyerId}`)
+  revalidatePath(`/Staffs/${StaffId}`)
   return { success: true }
 }

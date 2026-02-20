@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react'
 import { OnboardingWizard } from './OnboardingWizard'
 
 interface OnboardingProviderProps {
-  userRole: 'client' | 'lawyer' | 'admin'
+  userRole: 'client' | 'Staff' | 'admin'
   userId: string
 }
 
-const ONBOARDING_KEY = 'lexagenda_onboarding_completed'
+const ONBOARDING_KEY = 'Tu Súper Tienda_onboarding_completed'
 
 export function OnboardingProvider({ userRole, userId }: OnboardingProviderProps) {
   const [showOnboarding, setShowOnboarding] = useState(false)

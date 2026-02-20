@@ -2,9 +2,9 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import type { AppointmentStatus } from '@/types/database'
+import type { BookingStatus } from '@/types/database'
 
-const STATUSES: { value: AppointmentStatus | 'all'; label: string }[] = [
+const STATUSES: { value: BookingStatus | 'all'; label: string }[] = [
   { value: 'all', label: 'Todas' },
   { value: 'pending', label: 'Pendientes' },
   { value: 'confirmed', label: 'Confirmadas' },
@@ -12,7 +12,7 @@ const STATUSES: { value: AppointmentStatus | 'all'; label: string }[] = [
   { value: 'cancelled', label: 'Canceladas' }
 ]
 
-export function AppointmentFilters() {
+export function BookingFilters() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const currentStatus = searchParams.get('status') || 'all'
@@ -24,7 +24,7 @@ export function AppointmentFilters() {
     } else {
       params.set('status', status)
     }
-    router.push(`/appointments?${params.toString()}`)
+    router.push(`/Bookings?${params.toString()}`)
   }
 
   return (

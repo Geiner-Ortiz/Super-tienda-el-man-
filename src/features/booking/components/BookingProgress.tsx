@@ -6,7 +6,7 @@ interface BookingProgressProps {
 }
 
 const STEPS = [
-  { number: 1, title: 'Abogado', description: 'Selecciona profesional' },
+  { number: 1, title: 'Personal', description: 'Selecciona profesional' },
   { number: 2, title: 'Horario', description: 'Fecha y hora' },
   { number: 3, title: 'Confirmar', description: 'Revisa y agenda' }
 ]

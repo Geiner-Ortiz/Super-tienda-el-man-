@@ -1,25 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getResend, EMAIL_CONFIG } from '@/lib/email'
 import {
-  appointmentCreatedClientEmail,
-  appointmentCreatedLawyerEmail,
-  appointmentCreatedAdminEmail,
-  appointmentStatusChangedEmail,
+  BookingCreatedClientEmail,
+  BookingCreatedStaffEmail,
+  BookingCreatedAdminEmail,
+  BookingStatusChangedEmail,
 } from '@/lib/email'
 
 // Admin email to receive all notifications
 const ADMIN_EMAIL = 'sinsajo.creators@gmail.com'
 
-interface AppointmentEmailRequest {
+interface BookingEmailRequest {
   type: 'created' | 'status_changed'
-  appointmentId: string
+  BookingId: string
   clientName: string
   clientEmail: string
-  lawyerName: string
-  lawyerEmail: string
-  appointmentDate: string
-  appointmentTime: string
-  appointmentType: string
+  StaffName: string
+  StaffEmail: string
+  BookingDate: string
+  BookingTime: string
+  BookingType: string
   duration: number
   status?: 'confirmed' | 'cancelled' | 'completed'
 }
@@ -33,30 +33,30 @@ export async function POST(request: NextRequest) {
     }
 
     const resend = getResend()
-    const body: AppointmentEmailRequest = await request.json()
+    const body: BookingEmailRequest = await request.json()
 
     const {
       type,
-      appointmentId,
+      BookingId,
       clientName,
       clientEmail,
-      lawyerName,
-      lawyerEmail,
-      appointmentDate,
-      appointmentTime,
-      appointmentType,
+      StaffName,
+      StaffEmail,
+      BookingDate,
+      BookingTime,
+      BookingType,
       duration,
       status,
     } = body
 
     const emailData = {
       clientName,
-      lawyerName,
-      appointmentDate,
-      appointmentTime,
-      appointmentType,
+      StaffName,
+      BookingDate,
+      BookingTime,
+      BookingType,
       duration,
-      appointmentId,
+      BookingId,
     }
 
     const emailPromises: Promise<unknown>[] = []
@@ -67,29 +67,29 @@ export async function POST(request: NextRequest) {
         resend.emails.send({
           from: EMAIL_CONFIG.from,
           to: clientEmail,
-          subject: `Cita Confirmada con ${lawyerName} - LexAgenda`,
-          html: appointmentCreatedClientEmail(emailData),
+          subject: `Cita Confirmada con ${StaffName} - Tu Súper Tienda`,
+          html: BookingCreatedClientEmail(emailData),
         })
       )
 
-      // Email to lawyer
+      // Email to Staff
       emailPromises.push(
         resend.emails.send({
           from: EMAIL_CONFIG.from,
-          to: lawyerEmail,
-          subject: `Nueva Cita: ${clientName} - ${appointmentDate} - LexAgenda`,
-          html: appointmentCreatedLawyerEmail(emailData),
+          to: StaffEmail,
+          subject: `Nueva Cita: ${clientName} - ${BookingDate} - Tu Súper Tienda`,
+          html: BookingCreatedStaffEmail(emailData),
         })
       )
 
-      // Email to admin (if lawyer is not admin)
-      if (lawyerEmail !== ADMIN_EMAIL) {
+      // Email to admin (if Staff is not admin)
+      if (StaffEmail !== ADMIN_EMAIL) {
         emailPromises.push(
           resend.emails.send({
             from: EMAIL_CONFIG.from,
             to: ADMIN_EMAIL,
-            subject: `[Admin] Nueva Cita: ${clientName} con ${lawyerName} - LexAgenda`,
-            html: appointmentCreatedAdminEmail(emailData),
+            subject: `[Admin] Nueva Cita: ${clientName} con ${StaffName} - Tu Súper Tienda`,
+            html: BookingCreatedAdminEmail(emailData),
           })
         )
       }
@@ -105,18 +105,18 @@ export async function POST(request: NextRequest) {
         resend.emails.send({
           from: EMAIL_CONFIG.from,
           to: clientEmail,
-          subject: `Cita ${statusLabels[status]} - LexAgenda`,
-          html: appointmentStatusChangedEmail({ ...emailData, status, recipientType: 'client' }),
+          subject: `Cita ${statusLabels[status]} - Tu Súper Tienda`,
+          html: BookingStatusChangedEmail({ ...emailData, status, recipientType: 'client' }),
         })
       )
 
-      // Email to lawyer
+      // Email to Staff
       emailPromises.push(
         resend.emails.send({
           from: EMAIL_CONFIG.from,
-          to: lawyerEmail,
-          subject: `Cita ${statusLabels[status]}: ${clientName} - LexAgenda`,
-          html: appointmentStatusChangedEmail({ ...emailData, status, recipientType: 'lawyer' }),
+          to: StaffEmail,
+          subject: `Cita ${statusLabels[status]}: ${clientName} - Tu Súper Tienda`,
+          html: BookingStatusChangedEmail({ ...emailData, status, recipientType: 'Staff' }),
         })
       )
     }
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
       failed: failures.length,
     })
   } catch (error) {
-    console.error('Error sending appointment emails:', error)
+    console.error('Error sending Booking emails:', error)
     return NextResponse.json(
       { success: false, error: 'Failed to send emails' },
       { status: 500 }

@@ -1,62 +1,62 @@
 import { createClient } from '@/lib/supabase/client'
-import type { AppointmentWithRelations } from '@/types/database'
+import type { BookingWithRelations } from '@/types/database'
 
-export const appointmentService = {
-  async getByClient(clientId: string): Promise<AppointmentWithRelations[]> {
+export const BookingService = {
+  async getByClient(clientId: string): Promise<BookingWithRelations[]> {
     const supabase = createClient()
     const { data, error } = await supabase
-      .from('appointments')
+      .from('Bookings')
       .select(`
         *,
         client:clients(*, profile:profiles(*)),
-        lawyer:lawyers(*, profile:profiles(*)),
-        appointment_type:appointment_types(*)
+        Staff:Staffs(*, profile:profiles(*)),
+        Booking_type:Booking_types(*)
       `)
       .eq('client_id', clientId)
       .order('scheduled_at', { ascending: false })
 
     if (error) throw error
-    return data as AppointmentWithRelations[]
+    return data as BookingWithRelations[]
   },
 
-  async getByLawyer(lawyerId: string): Promise<AppointmentWithRelations[]> {
+  async getByStaff(StaffId: string): Promise<BookingWithRelations[]> {
     const supabase = createClient()
     const { data, error } = await supabase
-      .from('appointments')
+      .from('Bookings')
       .select(`
         *,
         client:clients(*, profile:profiles(*)),
-        lawyer:lawyers(*, profile:profiles(*)),
-        appointment_type:appointment_types(*)
+        Staff:Staffs(*, profile:profiles(*)),
+        Booking_type:Booking_types(*)
       `)
-      .eq('lawyer_id', lawyerId)
+      .eq('Staff_id', StaffId)
       .order('scheduled_at', { ascending: false })
 
     if (error) throw error
-    return data as AppointmentWithRelations[]
+    return data as BookingWithRelations[]
   },
 
-  async getById(id: string): Promise<AppointmentWithRelations | null> {
+  async getById(id: string): Promise<BookingWithRelations | null> {
     const supabase = createClient()
     const { data, error } = await supabase
-      .from('appointments')
+      .from('Bookings')
       .select(`
         *,
         client:clients(*, profile:profiles(*)),
-        lawyer:lawyers(*, profile:profiles(*)),
-        appointment_type:appointment_types(*)
+        Staff:Staffs(*, profile:profiles(*)),
+        Booking_type:Booking_types(*)
       `)
       .eq('id', id)
       .single()
 
     if (error) return null
-    return data as AppointmentWithRelations
+    return data as BookingWithRelations
   },
 
-  async getAppointmentTypes() {
+  async getBookingTypes() {
     const supabase = createClient()
     const { data, error } = await supabase
-      .from('appointment_types')
+      .from('Booking_types')
       .select('*')
       .eq('is_active', true)
       .order('price')

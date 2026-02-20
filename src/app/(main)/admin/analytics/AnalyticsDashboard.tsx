@@ -2,10 +2,10 @@
 
 import { Card } from '@/components/ui/card'
 
-interface LawyerMetric {
+interface StaffMetric {
   id: string
   name: string
-  appointments: number
+  Bookings: number
   completed: number
   revenue: number
   hoursWorked: number
@@ -19,7 +19,7 @@ interface AnalyticsStats {
     previous: number
     change: number
   }
-  appointments: {
+  Bookings: {
     current: number
     previous: number
     change: number
@@ -30,7 +30,7 @@ interface AnalyticsStats {
   }
   conversionRate: number
   accountsReceivable: number
-  lawyerMetrics: LawyerMetric[]
+  StaffMetrics: StaffMetric[]
 }
 
 export function AnalyticsDashboard({ stats }: { stats: AnalyticsStats }) {
@@ -79,7 +79,7 @@ export function AnalyticsDashboard({ stats }: { stats: AnalyticsStats }) {
             <div>
               <p className="text-sm font-medium text-foreground-secondary">Citas del Mes</p>
               <p className="text-3xl font-bold text-foreground mt-2">
-                {stats.appointments.current}
+                {stats.Bookings.current}
               </p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-accent-100 flex items-center justify-center">
@@ -87,8 +87,8 @@ export function AnalyticsDashboard({ stats }: { stats: AnalyticsStats }) {
             </div>
           </div>
           <div className="mt-4 flex items-center gap-2">
-            <span className={`text-sm font-medium ${stats.appointments.change >= 0 ? 'text-success-600' : 'text-error-600'}`}>
-              {formatPercent(stats.appointments.change)}
+            <span className={`text-sm font-medium ${stats.Bookings.change >= 0 ? 'text-success-600' : 'text-error-600'}`}>
+              {formatPercent(stats.Bookings.change)}
             </span>
             <span className="text-sm text-foreground-secondary">vs mes anterior</span>
           </div>
@@ -163,14 +163,14 @@ export function AnalyticsDashboard({ stats }: { stats: AnalyticsStats }) {
           </div>
         </Card>
 
-        {/* Rendimiento por Abogado */}
+        {/* Rendimiento por Personal */}
         <Card className="p-6 lg:col-span-2">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Rendimiento por Abogado</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-4">Rendimiento por Personal</h3>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-3 text-sm font-medium text-foreground-secondary">Abogado</th>
+                  <th className="text-left py-3 text-sm font-medium text-foreground-secondary">Personal</th>
                   <th className="text-center py-3 text-sm font-medium text-foreground-secondary">Citas</th>
                   <th className="text-center py-3 text-sm font-medium text-foreground-secondary">Completadas</th>
                   <th className="text-right py-3 text-sm font-medium text-foreground-secondary">Ingresos</th>
@@ -178,44 +178,44 @@ export function AnalyticsDashboard({ stats }: { stats: AnalyticsStats }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {stats.lawyerMetrics.map(lawyer => (
-                  <tr key={lawyer.id} className="hover:bg-gray-50/50">
+                {stats.StaffMetrics.map(Staff => (
+                  <tr key={Staff.id} className="hover:bg-gray-50/50">
                     <td className="py-3">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
                           <span className="text-xs font-semibold text-primary-600">
-                            {lawyer.name.slice(0, 2).toUpperCase()}
+                            {Staff.name.slice(0, 2).toUpperCase()}
                           </span>
                         </div>
-                        <span className="font-medium text-foreground">{lawyer.name}</span>
+                        <span className="font-medium text-foreground">{Staff.name}</span>
                       </div>
                     </td>
-                    <td className="py-3 text-center text-foreground-secondary">{lawyer.appointments}</td>
+                    <td className="py-3 text-center text-foreground-secondary">{Staff.Bookings}</td>
                     <td className="py-3 text-center">
                       <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-success-100 text-success-700">
-                        {lawyer.completed}
+                        {Staff.completed}
                       </span>
                     </td>
                     <td className="py-3 text-right font-semibold text-secondary-600">
-                      {formatCurrency(lawyer.revenue)}
+                      {formatCurrency(Staff.revenue)}
                     </td>
                     <td className="py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-accent-500 rounded-full"
-                            style={{ width: `${Math.min(lawyer.utilizationRate, 100)}%` }}
+                            style={{ width: `${Math.min(Staff.utilizationRate, 100)}%` }}
                           />
                         </div>
-                        <span className="text-sm text-foreground-secondary">{lawyer.utilizationRate}%</span>
+                        <span className="text-sm text-foreground-secondary">{Staff.utilizationRate}%</span>
                       </div>
                     </td>
                   </tr>
                 ))}
-                {stats.lawyerMetrics.length === 0 && (
+                {stats.StaffMetrics.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-foreground-secondary">
-                      No hay datos de abogados
+                      No hay datos de Personals
                     </td>
                   </tr>
                 )}

@@ -2,10 +2,10 @@ import { createClient } from '@/lib/supabase/client'
 
 export const availabilityService = {
   /**
-   * Obtiene slots disponibles para un abogado en una fecha específica
+   * Obtiene slots disponibles para un Personal en una fecha específica
    * Considera: availability + citas ya agendadas
    */
-  async getAvailableSlots(lawyerId: string, date: Date): Promise<string[]> {
+  async getAvailableSlots(StaffId: string, date: Date): Promise<string[]> {
     const supabase = createClient()
     const dayOfWeek = date.getDay()
 
@@ -13,7 +13,7 @@ export const availabilityService = {
     const { data: availability } = await supabase
       .from('availability')
       .select('*')
-      .eq('lawyer_id', lawyerId)
+      .eq('Staff_id', StaffId)
       .eq('day_of_week', dayOfWeek)
       .eq('is_available', true)
       .single()
@@ -26,10 +26,10 @@ export const availabilityService = {
     const endOfDay = new Date(date)
     endOfDay.setHours(23, 59, 59, 999)
 
-    const { data: appointments } = await supabase
-      .from('appointments')
+    const { data: Bookings } = await supabase
+      .from('Bookings')
       .select('scheduled_at, duration_minutes')
-      .eq('lawyer_id', lawyerId)
+      .eq('Staff_id', StaffId)
       .gte('scheduled_at', startOfDay.toISOString())
       .lte('scheduled_at', endOfDay.toISOString())
       .in('status', ['pending', 'confirmed'])
@@ -42,7 +42,7 @@ export const availabilityService = {
     )
 
     const bookedSlots = new Set(
-      (appointments || []).map(a =>
+      (Bookings || []).map(a =>
         new Date(a.scheduled_at).toTimeString().slice(0, 5)
       )
     )
@@ -50,12 +50,12 @@ export const availabilityService = {
     return allSlots.filter(slot => !bookedSlots.has(slot))
   },
 
-  async getLawyerAvailability(lawyerId: string) {
+  async getStaffAvailability(StaffId: string) {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('availability')
       .select('*')
-      .eq('lawyer_id', lawyerId)
+      .eq('Staff_id', StaffId)
       .order('day_of_week')
 
     if (error) throw error

@@ -12,7 +12,7 @@ interface UserManagementProps {
 
 const ROLES: { value: UserRole; label: string; color: string }[] = [
   { value: 'admin', label: 'Admin', color: 'bg-secondary-100 text-secondary-700' },
-  { value: 'lawyer', label: 'Abogado', color: 'bg-accent-100 text-accent-700' },
+  { value: 'Staff', label: 'Personal', color: 'bg-accent-100 text-accent-700' },
   { value: 'client', label: 'Cliente', color: 'bg-success-100 text-success-700' },
 ]
 
@@ -71,11 +71,10 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
         <div className="flex gap-2">
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-              filter === 'all'
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${filter === 'all'
                 ? 'bg-primary-500 text-white'
                 : 'bg-white border border-border text-foreground-secondary hover:bg-gray-50'
-            }`}
+              }`}
           >
             Todos
           </button>
@@ -83,11 +82,10 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
             <button
               key={role.value}
               onClick={() => setFilter(role.value)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                filter === role.value
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${filter === role.value
                   ? 'bg-primary-500 text-white'
                   : 'bg-white border border-border text-foreground-secondary hover:bg-gray-50'
-              }`}
+                }`}
             >
               {role.label}s
             </button>
@@ -104,6 +102,7 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
               <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Email</th>
               <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Rol</th>
               <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Registrado</th>
+              <th className="text-left px-6 py-4 text-sm font-semibold text-foreground-secondary">Suscripción</th>
               <th className="text-right px-6 py-4 text-sm font-semibold text-foreground-secondary">Acciones</th>
             </tr>
           </thead>
@@ -139,11 +138,10 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
                             key={role.value}
                             onClick={() => handleRoleChange(user.id, role.value)}
                             disabled={saving}
-                            className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                              user.role === role.value
+                            className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${user.role === role.value
                                 ? `${role.color} ring-2 ring-offset-2 ring-primary-500`
                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                            }`}
+                              }`}
                           >
                             {role.label}
                           </button>
@@ -161,6 +159,14 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
                       month: 'short',
                       year: 'numeric'
                     })}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${user.subscription_status === 'active'
+                        ? 'bg-success-100 text-success-700'
+                        : 'bg-gray-100 text-gray-500'
+                      }`}>
+                      {user.subscription_status === 'active' ? 'PRO' : 'FREE'}
+                    </span>
                   </td>
                   <td className="px-6 py-4 text-right">
                     {isEditing ? (

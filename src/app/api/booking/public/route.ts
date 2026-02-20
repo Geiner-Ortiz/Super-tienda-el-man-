@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 
 interface BookingRequest {
-  lawyerId: string
-  appointmentTypeId: string
+  StaffId: string
+  BookingTypeId: string
   scheduledAt: string
   client: {
     name: string
@@ -16,10 +16,10 @@ interface BookingRequest {
 export async function POST(request: NextRequest) {
   try {
     const body: BookingRequest = await request.json()
-    const { lawyerId, appointmentTypeId, scheduledAt, client } = body
+    const { StaffId, BookingTypeId, scheduledAt, client } = body
 
     // Validate required fields
-    if (!lawyerId || !appointmentTypeId || !scheduledAt || !client.name || !client.email || !client.phone) {
+    if (!StaffId || !BookingTypeId || !scheduledAt || !client.name || !client.email || !client.phone) {
       return NextResponse.json(
         { error: 'Faltan campos requeridos' },
         { status: 400 }
@@ -28,30 +28,30 @@ export async function POST(request: NextRequest) {
 
     const supabase = createServiceClient()
 
-    // Get appointment type details
-    const { data: appointmentType, error: typeError } = await supabase
-      .from('appointment_types')
+    // Get Booking type details
+    const { data: BookingType, error: typeError } = await supabase
+      .from('Booking_types')
       .select('name, duration_minutes, price')
-      .eq('id', appointmentTypeId)
+      .eq('id', BookingTypeId)
       .single()
 
-    if (typeError || !appointmentType) {
+    if (typeError || !BookingType) {
       return NextResponse.json(
         { error: 'Tipo de cita no encontrado' },
         { status: 404 }
       )
     }
 
-    // Get lawyer details for email notification
-    const { data: lawyer, error: lawyerError } = await supabase
-      .from('lawyers')
+    // Get Staff details for email notification
+    const { data: Staff, error: StaffError } = await supabase
+      .from('Staffs')
       .select('user_id, profile:profiles(full_name, email)')
-      .eq('id', lawyerId)
+      .eq('id', StaffId)
       .single()
 
-    if (lawyerError || !lawyer) {
+    if (StaffError || !Staff) {
       return NextResponse.json(
-        { error: 'Abogado no encontrado' },
+        { error: 'Personal no encontrado' },
         { status: 404 }
       )
     }
@@ -100,60 +100,60 @@ export async function POST(request: NextRequest) {
       clientId = newClient.id
     }
 
-    // Create the appointment
-    const { data: appointment, error: appointmentError } = await supabase
-      .from('appointments')
+    // Create the Booking
+    const { data: Booking, error: BookingError } = await supabase
+      .from('Bookings')
       .insert({
-        lawyer_id: lawyerId,
+        Staff_id: StaffId,
         client_id: clientId,
-        appointment_type_id: appointmentTypeId,
+        Booking_type_id: BookingTypeId,
         scheduled_at: scheduledAt,
-        duration_minutes: appointmentType.duration_minutes,
+        duration_minutes: BookingType.duration_minutes,
         status: 'pending',
         notes: client.description || null
       })
       .select('id')
       .single()
 
-    if (appointmentError) {
-      console.error('Error creating appointment:', appointmentError)
+    if (BookingError) {
+      console.error('Error creating Booking:', BookingError)
       return NextResponse.json(
-        { error: 'Error al crear cita: ' + appointmentError.message },
+        { error: 'Error al crear cita: ' + BookingError.message },
         { status: 500 }
       )
     }
 
     // Send email notifications (non-blocking)
     try {
-      const lawyerProfile = Array.isArray(lawyer.profile) ? lawyer.profile[0] : lawyer.profile
+      const StaffProfile = Array.isArray(Staff.profile) ? Staff.profile[0] : Staff.profile
       const scheduledDate = new Date(scheduledAt)
-      const appointmentDate = scheduledDate.toLocaleDateString('es-ES', {
+      const BookingDate = scheduledDate.toLocaleDateString('es-ES', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric'
       })
-      const appointmentTime = scheduledDate.toLocaleTimeString('es-ES', {
+      const BookingTime = scheduledDate.toLocaleTimeString('es-ES', {
         hour: '2-digit',
         minute: '2-digit'
       })
 
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://saas-factory-theta.vercel.app'
 
-      await fetch(`${baseUrl}/api/email/appointment`, {
+      await fetch(`${baseUrl}/api/email/Booking`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'created',
-          appointmentId: appointment.id,
+          BookingId: Booking.id,
           clientName: client.name,
           clientEmail: client.email,
-          lawyerName: lawyerProfile?.full_name || 'Abogado',
-          lawyerEmail: lawyerProfile?.email || '',
-          appointmentDate,
-          appointmentTime,
-          appointmentType: appointmentType.name,
-          duration: appointmentType.duration_minutes,
+          StaffName: StaffProfile?.full_name || 'Personal',
+          StaffEmail: StaffProfile?.email || '',
+          BookingDate,
+          BookingTime,
+          BookingType: BookingType.name,
+          duration: BookingType.duration_minutes,
         }),
       })
     } catch (emailError) {
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      appointmentId: appointment.id,
+      BookingId: Booking.id,
       message: 'Cita creada exitosamente'
     })
 

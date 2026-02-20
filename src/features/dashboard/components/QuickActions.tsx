@@ -4,14 +4,14 @@ import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 
 interface QuickActionsProps {
-  userRole: 'client' | 'lawyer'
+  userRole: 'client' | 'staff' | 'admin' | 'super_admin'
 }
 
 export function QuickActions({ userRole }: QuickActionsProps) {
   const clientActions = [
     {
-      title: 'Agendar Cita',
-      description: 'Reserva una consulta legal',
+      title: 'Nuevo Turno',
+      description: 'Programa un nuevo turno de personal',
       href: '/appointments/new',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -21,9 +21,9 @@ export function QuickActions({ userRole }: QuickActionsProps) {
       color: 'bg-primary-500'
     },
     {
-      title: 'Ver Abogados',
-      description: 'Explora nuestros profesionales',
-      href: '/lawyers',
+      title: 'Ver Personal',
+      description: 'Ver listado de colaboradores',
+      href: '/admin/pricing',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -32,7 +32,7 @@ export function QuickActions({ userRole }: QuickActionsProps) {
       color: 'bg-accent-500'
     },
     {
-      title: 'Mis Citas',
+      title: 'Mis Turnos',
       description: 'Administra tus reservas',
       href: '/appointments',
       icon: (
@@ -44,10 +44,10 @@ export function QuickActions({ userRole }: QuickActionsProps) {
     }
   ]
 
-  const lawyerActions = [
+  const StaffActions = [
     {
-      title: 'Ver Agenda',
-      description: 'Revisa tus citas del día',
+      title: 'Ver Turnos',
+      description: 'Revisa tus turnos del día',
       href: '/appointments',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,7 +80,7 @@ export function QuickActions({ userRole }: QuickActionsProps) {
     }
   ]
 
-  const actions = userRole === 'lawyer' ? lawyerActions : clientActions
+  const actions = userRole === 'staff' ? StaffActions : clientActions
 
   return (
     <Card className="p-6">

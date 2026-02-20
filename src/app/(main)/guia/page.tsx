@@ -50,7 +50,7 @@ export default function UserGuidePage() {
         <div className="p-4 md:p-8 max-w-2xl mx-auto space-y-10 pb-20">
             {/* Header */}
             <div className="text-center space-y-4">
-                <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-yellow-500/30 animate-pulse">
+                <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-yellow-500/30">
                     <BananaIcon className="w-12 h-12 text-white" />
                 </div>
                 <div>

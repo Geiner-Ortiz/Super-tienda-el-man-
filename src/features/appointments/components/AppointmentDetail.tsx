@@ -5,22 +5,22 @@ import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { updateAppointmentStatus, addAppointmentNotes } from '@/actions/appointments'
-import type { AppointmentWithRelations } from '@/types/database'
+import { updateBookingStatus, addBookingNotes } from '@/actions/Bookings'
+import type { BookingWithRelations } from '@/types/database'
 
-interface AppointmentDetailProps {
-  appointment: AppointmentWithRelations
-  userRole: 'client' | 'lawyer'
+interface BookingDetailProps {
+  Booking: BookingWithRelations
+  userRole: 'client' | 'Staff'
 }
 
-export function AppointmentDetail({ appointment, userRole }: AppointmentDetailProps) {
+export function BookingDetail({ Booking, userRole }: BookingDetailProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [notes, setNotes] = useState(appointment.notes || '')
+  const [notes, setNotes] = useState(Booking.notes || '')
 
   const handleStatusChange = async (status: 'confirmed' | 'cancelled' | 'completed') => {
     setLoading(true)
-    const result = await updateAppointmentStatus(appointment.id, status)
+    const result = await updateBookingStatus(Booking.id, status)
     setLoading(false)
 
     if (result.error) {
@@ -32,7 +32,7 @@ export function AppointmentDetail({ appointment, userRole }: AppointmentDetailPr
 
   const handleSaveNotes = async () => {
     setLoading(true)
-    const result = await addAppointmentNotes(appointment.id, notes)
+    const result = await addBookingNotes(Booking.id, notes)
     setLoading(false)
 
     if (result.error) {
@@ -40,8 +40,8 @@ export function AppointmentDetail({ appointment, userRole }: AppointmentDetailPr
     }
   }
 
-  const scheduledDate = new Date(appointment.scheduled_at)
-  const endTime = new Date(scheduledDate.getTime() + appointment.duration_minutes * 60000)
+  const scheduledDate = new Date(Booking.scheduled_at)
+  const endTime = new Date(scheduledDate.getTime() + Booking.duration_minutes * 60000)
 
   const statusVariant: Record<string, 'pending' | 'confirmed' | 'cancelled'> = {
     pending: 'pending',
@@ -67,14 +67,14 @@ export function AppointmentDetail({ appointment, userRole }: AppointmentDetailPr
         <div className="flex items-start justify-between mb-6">
           <div>
             <h2 className="text-xl font-semibold text-foreground mb-1">
-              {appointment.appointment_type?.name || 'Consulta Legal'}
+              {Booking.Booking_type?.name || 'Consulta Legal'}
             </h2>
             <p className="text-foreground-secondary">
-              {appointment.appointment_type?.description}
+              {Booking.Booking_type?.description}
             </p>
           </div>
-          <Badge variant={statusVariant[appointment.status]}>
-            {statusLabel[appointment.status]}
+          <Badge variant={statusVariant[Booking.status]}>
+            {statusLabel[Booking.status]}
           </Badge>
         </div>
 
@@ -100,34 +100,34 @@ export function AppointmentDetail({ appointment, userRole }: AppointmentDetailPr
                 {scheduledDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                 {' - '}
                 {endTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-                {' '}({appointment.duration_minutes} min)
+                {' '}({Booking.duration_minutes} min)
               </p>
             </div>
           </div>
 
           <div>
             <h3 className="font-medium text-foreground mb-3">
-              {userRole === 'client' ? 'Abogado' : 'Cliente'}
+              {userRole === 'client' ? 'Personal' : 'Cliente'}
             </h3>
             <div className="flex items-center gap-3">
               {userRole === 'client' ? (
                 <>
                   <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center text-white font-medium">
-                    {appointment.lawyer?.profile?.full_name?.charAt(0) || 'A'}
+                    {Booking.Staff?.profile?.full_name?.charAt(0) || 'A'}
                   </div>
                   <div>
-                    <p className="font-medium">{appointment.lawyer?.profile?.full_name}</p>
-                    <p className="text-sm text-foreground-secondary">{appointment.lawyer?.specialty}</p>
+                    <p className="font-medium">{Booking.Staff?.profile?.full_name}</p>
+                    <p className="text-sm text-foreground-secondary">{Booking.Staff?.specialty}</p>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
-                    {appointment.client?.profile?.full_name?.charAt(0) || 'C'}
+                    {Booking.client?.profile?.full_name?.charAt(0) || 'C'}
                   </div>
                   <div>
-                    <p className="font-medium">{appointment.client?.profile?.full_name}</p>
-                    <p className="text-sm text-foreground-secondary">{appointment.client?.phone || 'Sin teléfono'}</p>
+                    <p className="font-medium">{Booking.client?.profile?.full_name}</p>
+                    <p className="text-sm text-foreground-secondary">{Booking.client?.phone || 'Sin teléfono'}</p>
                   </div>
                 </>
               )}
@@ -135,21 +135,21 @@ export function AppointmentDetail({ appointment, userRole }: AppointmentDetailPr
           </div>
         </div>
 
-        {appointment.appointment_type?.price && (
+        {Booking.Booking_type?.price && (
           <div className="mt-6 pt-6 border-t">
             <div className="flex justify-between items-center">
               <span className="text-foreground-secondary">Costo de la consulta</span>
               <span className="text-xl font-semibold text-secondary-600">
-                ${appointment.appointment_type.price}
+                ${Booking.Booking_type.price}
               </span>
             </div>
           </div>
         )}
       </Card>
 
-      {userRole === 'lawyer' && (
+      {userRole === 'Staff' && (
         <Card className="p-6">
-          <h3 className="font-medium text-foreground mb-3">Notas del abogado</h3>
+          <h3 className="font-medium text-foreground mb-3">Notas del Personal</h3>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -168,18 +168,18 @@ export function AppointmentDetail({ appointment, userRole }: AppointmentDetailPr
         </Card>
       )}
 
-      {appointment.client_notes && (
+      {Booking.client_notes && (
         <Card className="p-6">
           <h3 className="font-medium text-foreground mb-3">Notas del cliente</h3>
-          <p className="text-foreground-secondary">{appointment.client_notes}</p>
+          <p className="text-foreground-secondary">{Booking.client_notes}</p>
         </Card>
       )}
 
-      {appointment.status === 'pending' && (
+      {Booking.status === 'pending' && (
         <Card className="p-6">
           <h3 className="font-medium text-foreground mb-4">Acciones</h3>
           <div className="flex flex-wrap gap-3">
-            {userRole === 'lawyer' && (
+            {userRole === 'Staff' && (
               <Button
                 onClick={() => handleStatusChange('confirmed')}
                 disabled={loading}
@@ -199,7 +199,7 @@ export function AppointmentDetail({ appointment, userRole }: AppointmentDetailPr
         </Card>
       )}
 
-      {appointment.status === 'confirmed' && userRole === 'lawyer' && (
+      {Booking.status === 'confirmed' && userRole === 'Staff' && (
         <Card className="p-6">
           <h3 className="font-medium text-foreground mb-4">Acciones</h3>
           <div className="flex flex-wrap gap-3">

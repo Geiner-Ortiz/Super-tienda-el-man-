@@ -24,12 +24,13 @@ export function HeroSection() {
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 mb-6">
             <span className="w-2 h-2 bg-teal-400 rounded-full" />
             <span className="text-body-sm text-teal-100">
-              Abogados de derecho familiar en {siteConfig.contact.city}, {siteConfig.contact.country}
+              Personals de derecho familiar en {siteConfig.contact.city}, {siteConfig.contact.country}
             </span>
           </div>
 
-          <h1 className="font-heading text-display-lg md:text-display-xl lg:text-display-2xl text-white mb-6 leading-tight">
-            {hero.headline}
+          <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter mb-6 leading-[0.9]">
+            Gestiona <span className="text-yellow-400">Tu Súper Tienda</span> <br />
+            como un Profesional
           </h1>
           <p className="text-body-lg md:text-body-xl text-teal-100 mb-10 max-w-2xl leading-relaxed">
             {hero.subheadline}

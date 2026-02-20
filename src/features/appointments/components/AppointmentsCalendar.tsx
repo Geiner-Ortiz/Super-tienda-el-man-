@@ -4,13 +4,13 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { AppointmentWithRelations } from '@/types/database'
+import type { BookingWithRelations } from '@/types/database'
 
 type ViewType = 'week' | 'month'
 
-interface AppointmentsCalendarProps {
-  appointments: AppointmentWithRelations[]
-  userRole: 'client' | 'lawyer' | 'admin'
+interface BookingsCalendarProps {
+  Bookings: BookingWithRelations[]
+  userRole: 'client' | 'Staff' | 'admin'
 }
 
 const DAYS_SHORT = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
@@ -38,31 +38,31 @@ const statusLabels: Record<string, string> = {
 }
 
 // Helper to get client name from profile or direct field (for guest clients)
-const getClientName = (client: AppointmentWithRelations['client'] | undefined): string => {
+const getClientName = (client: BookingWithRelations['client'] | undefined): string => {
   if (!client) return 'Cliente'
   return client.profile?.full_name || client.full_name || 'Cliente'
 }
 
-export function AppointmentsCalendar({ appointments, userRole }: AppointmentsCalendarProps) {
+export function BookingsCalendar({ Bookings, userRole }: BookingsCalendarProps) {
   const [view, setView] = useState<ViewType>('week')
   const [currentDate, setCurrentDate] = useState(new Date())
 
-  // Get appointments map by date
-  const appointmentsByDate = useMemo(() => {
-    const map = new Map<string, AppointmentWithRelations[]>()
-    appointments.forEach(apt => {
+  // Get Bookings map by date
+  const BookingsByDate = useMemo(() => {
+    const map = new Map<string, BookingWithRelations[]>()
+    Bookings.forEach(apt => {
       const dateKey = new Date(apt.scheduled_at).toDateString()
       if (!map.has(dateKey)) {
         map.set(dateKey, [])
       }
       map.get(dateKey)!.push(apt)
     })
-    // Sort appointments by time within each day
+    // Sort Bookings by time within each day
     map.forEach((apts) => {
       apts.sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
     })
     return map
-  }, [appointments])
+  }, [Bookings])
 
   // Get week dates
   const getWeekDates = (date: Date) => {
@@ -150,16 +150,16 @@ export function AppointmentsCalendar({ appointments, userRole }: AppointmentsCal
     return `${MONTHS[currentDate.getMonth()]} ${currentDate.getFullYear()}`
   }
 
-  const renderAppointment = (apt: AppointmentWithRelations, compact = false) => {
-    const personName = userRole === 'lawyer'
+  const renderBooking = (apt: BookingWithRelations, compact = false) => {
+    const personName = userRole === 'Staff'
       ? getClientName(apt.client)
-      : apt.lawyer?.profile?.full_name || 'Abogado'
+      : apt.Staff?.profile?.full_name || 'Personal'
 
     if (compact) {
       return (
         <Link
           key={apt.id}
-          href={`/appointments/${apt.id}`}
+          href={`/Bookings/${apt.id}`}
           className={`block text-xs p-1.5 rounded-lg text-white truncate hover:opacity-90 transition-opacity ${statusColors[apt.status]}`}
         >
           {formatTime(apt.scheduled_at)} {personName.split(' ')[0]}
@@ -170,7 +170,7 @@ export function AppointmentsCalendar({ appointments, userRole }: AppointmentsCal
     return (
       <Link
         key={apt.id}
-        href={`/appointments/${apt.id}`}
+        href={`/Bookings/${apt.id}`}
         className={`block p-3 rounded-xl border-l-4 bg-white shadow-sm hover:shadow-md transition-all ${statusColors[apt.status]}`}
       >
         <div className="flex items-start justify-between gap-2">
@@ -179,9 +179,9 @@ export function AppointmentsCalendar({ appointments, userRole }: AppointmentsCal
             <p className="text-sm text-foreground-secondary">
               {formatTime(apt.scheduled_at)} - {apt.duration_minutes} min
             </p>
-            {apt.appointment_type && (
+            {apt.Booking_type && (
               <p className="text-xs text-foreground-muted mt-1 truncate">
-                {apt.appointment_type.name}
+                {apt.Booking_type.name}
               </p>
             )}
           </div>
@@ -227,21 +227,19 @@ export function AppointmentsCalendar({ appointments, userRole }: AppointmentsCal
           <div className="flex bg-white rounded-xl p-1 shadow-sm">
             <button
               onClick={() => setView('week')}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
-                view === 'week'
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${view === 'week'
                   ? 'bg-primary-500 text-white shadow-sm'
                   : 'text-foreground-secondary hover:text-foreground'
-              }`}
+                }`}
             >
               Semana
             </button>
             <button
               onClick={() => setView('month')}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
-                view === 'month'
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${view === 'month'
                   ? 'bg-primary-500 text-white shadow-sm'
                   : 'text-foreground-secondary hover:text-foreground'
-              }`}
+                }`}
             >
               Mes
             </button>
@@ -254,7 +252,7 @@ export function AppointmentsCalendar({ appointments, userRole }: AppointmentsCal
         // Week View
         <div className="divide-y divide-border">
           {weekDates.map((date, idx) => {
-            const dayAppointments = appointmentsByDate.get(date.toDateString()) || []
+            const dayBookings = BookingsByDate.get(date.toDateString()) || []
             const today = isToday(date)
 
             return (
@@ -275,11 +273,11 @@ export function AppointmentsCalendar({ appointments, userRole }: AppointmentsCal
                   )}
                 </div>
 
-                {/* Appointments */}
+                {/* Bookings */}
                 <div className="flex-1 p-3 min-h-[100px]">
-                  {dayAppointments.length > 0 ? (
+                  {dayBookings.length > 0 ? (
                     <div className="space-y-2">
-                      {dayAppointments.map(apt => renderAppointment(apt))}
+                      {dayBookings.map(apt => renderBooking(apt))}
                     </div>
                   ) : (
                     <div className="h-full flex items-center justify-center text-sm text-foreground-muted">
@@ -306,29 +304,27 @@ export function AppointmentsCalendar({ appointments, userRole }: AppointmentsCal
           {/* Calendar Grid */}
           <div className="grid grid-cols-7">
             {monthDates.map(({ date, isCurrentMonth }, idx) => {
-              const dayAppointments = appointmentsByDate.get(date.toDateString()) || []
+              const dayBookings = BookingsByDate.get(date.toDateString()) || []
               const today = isToday(date)
 
               return (
                 <div
                   key={idx}
-                  className={`min-h-[120px] p-2 border-b border-r border-border ${
-                    !isCurrentMonth ? 'bg-gray-50/50' : ''
-                  } ${today ? 'bg-accent-50' : ''}`}
+                  className={`min-h-[120px] p-2 border-b border-r border-border ${!isCurrentMonth ? 'bg-gray-50/50' : ''
+                    } ${today ? 'bg-accent-50' : ''}`}
                 >
-                  <div className={`text-sm font-medium mb-1 ${
-                    today
+                  <div className={`text-sm font-medium mb-1 ${today
                       ? 'w-7 h-7 rounded-full bg-accent-500 text-white flex items-center justify-center'
                       : isCurrentMonth ? 'text-foreground' : 'text-foreground-muted'
-                  }`}>
+                    }`}>
                     {date.getDate()}
                   </div>
 
                   <div className="space-y-1">
-                    {dayAppointments.slice(0, 3).map(apt => renderAppointment(apt, true))}
-                    {dayAppointments.length > 3 && (
+                    {dayBookings.slice(0, 3).map(apt => renderBooking(apt, true))}
+                    {dayBookings.length > 3 && (
                       <p className="text-xs text-foreground-secondary text-center">
-                        +{dayAppointments.length - 3} más
+                        +{dayBookings.length - 3} más
                       </p>
                     )}
                   </div>
@@ -340,18 +336,18 @@ export function AppointmentsCalendar({ appointments, userRole }: AppointmentsCal
       )}
 
       {/* Empty State */}
-      {appointments.length === 0 && (
+      {Bookings.length === 0 && (
         <div className="p-12 text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
             <CalendarIcon className="w-8 h-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-foreground mb-2">No tienes citas programadas</h3>
-          <p className="text-foreground-secondary mb-6">
-            Las citas aparecerán aquí cuando las programes
+          <h1 className="text-2xl font-bold text-foreground">Calendario de Turnos</h1>
+          <p className="text-foreground-secondary mt-1">
+            Visualiza los turnos del personal
           </p>
           {userRole === 'client' && (
             <Link
-              href="/appointments/new"
+              href="/Bookings/new"
               className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors"
             >
               <PlusIcon className="w-4 h-4" />
@@ -362,7 +358,7 @@ export function AppointmentsCalendar({ appointments, userRole }: AppointmentsCal
       )}
 
       {/* Legend */}
-      {appointments.length > 0 && (
+      {Bookings.length > 0 && (
         <div className="p-4 border-t border-border bg-gray-50">
           <div className="flex flex-wrap items-center gap-4 text-xs">
             <span className="text-foreground-secondary font-medium">Estados:</span>

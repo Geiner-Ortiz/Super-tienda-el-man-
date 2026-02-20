@@ -1,13 +1,13 @@
 'use client'
 
-import { Calendar, TimeSlotPicker } from '@/components/appointments'
+import { Calendar, TimeSlotPicker } from '@/components/Bookings'
 import { Button } from '@/components/ui/button'
 import { useAvailableSlots } from '@/features/availability/hooks/useAvailability'
 import { useBookingStore } from '../store/bookingStore'
 
 export function StepSelectDateTime() {
   const {
-    lawyerId,
+    StaffId,
     selectedDate,
     selectedTime,
     setDate,
@@ -17,7 +17,7 @@ export function StepSelectDateTime() {
     canProceedToStep3
   } = useBookingStore()
 
-  const { slots, loading } = useAvailableSlots(lawyerId!, selectedDate)
+  const { slots, loading } = useAvailableSlots(StaffId!, selectedDate)
 
   // Generar fechas marcadas (próximos 30 días disponibles)
   const today = new Date()

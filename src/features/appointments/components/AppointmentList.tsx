@@ -1,21 +1,21 @@
 'use client'
 
-import { AppointmentCard } from '@/components/appointments'
-import type { AppointmentWithRelations } from '@/types/database'
+import { BookingCard } from '@/components/Bookings'
+import type { BookingWithRelations } from '@/types/database'
 
-interface AppointmentListProps {
-  appointments: AppointmentWithRelations[]
+interface BookingListProps {
+  Bookings: BookingWithRelations[]
   loading?: boolean
   emptyMessage?: string
-  userRole?: 'client' | 'lawyer'
+  userRole?: 'client' | 'staff'
 }
 
-export function AppointmentList({
-  appointments,
+export function BookingList({
+  Bookings,
   loading = false,
-  emptyMessage = 'No hay citas programadas',
+  emptyMessage = 'No hay turnos programados',
   userRole = 'client'
-}: AppointmentListProps) {
+}: BookingListProps) {
   if (loading) {
     return (
       <div className="space-y-4">
@@ -29,7 +29,7 @@ export function AppointmentList({
     )
   }
 
-  if (appointments.length === 0) {
+  if (Bookings.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
@@ -41,7 +41,7 @@ export function AppointmentList({
           {emptyMessage}
         </h3>
         <p className="text-foreground-secondary">
-          Las citas aparecerán aquí cuando las programes
+          Los turnos aparecerán aquí cuando los programes
         </p>
       </div>
     )
@@ -49,29 +49,29 @@ export function AppointmentList({
 
   return (
     <div className="space-y-4">
-      {appointments.map(appointment => (
-        <AppointmentCard
-          key={appointment.id}
-          appointment={{
-            id: appointment.id,
-            lawyerName: appointment.lawyer?.profile?.full_name || 'Abogado',
-            lawyerSpecialty: appointment.lawyer?.specialty || '',
-            clientName: appointment.client?.profile?.full_name || 'Cliente',
-            date: new Date(appointment.scheduled_at).toLocaleDateString('es-ES', {
+      {Bookings.map(Booking => (
+        <BookingCard
+          key={Booking.id}
+          Booking={{
+            id: Booking.id,
+            staffName: Booking.staff?.profile?.full_name || 'Personal',
+            staffRole: Booking.staff?.role_description || '',
+            clientName: Booking.client?.profile?.full_name || 'Cliente',
+            date: new Date(Booking.scheduled_at).toLocaleDateString('es-ES', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
               day: 'numeric'
             }),
-            time: new Date(appointment.scheduled_at).toLocaleTimeString('es-ES', {
+            time: new Date(Booking.scheduled_at).toLocaleTimeString('es-ES', {
               hour: '2-digit',
               minute: '2-digit'
             }),
-            status: appointment.status,
-            type: appointment.appointment_type?.name || 'Consulta',
+            status: Booking.status,
+            type: Booking.Booking_type?.name || 'Consulta',
             avatarUrl: userRole === 'client'
-              ? appointment.lawyer?.profile?.avatar_url
-              : appointment.client?.profile?.avatar_url
+              ? Booking.Staff?.profile?.avatar_url
+              : Booking.client?.profile?.avatar_url
           }}
         />
       ))}

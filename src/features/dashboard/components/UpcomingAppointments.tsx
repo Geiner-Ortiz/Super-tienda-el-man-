@@ -4,15 +4,15 @@ import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import type { AppointmentWithRelations } from '@/types/database'
+import type { BookingWithRelations } from '@/types/database'
 
-interface UpcomingAppointmentsProps {
-  appointments: AppointmentWithRelations[]
-  userRole: 'client' | 'lawyer'
+interface UpcomingBookingsProps {
+  Bookings: BookingWithRelations[]
+  userRole: 'client' | 'Staff'
 }
 
-export function UpcomingAppointments({ appointments, userRole }: UpcomingAppointmentsProps) {
-  if (appointments.length === 0) {
+export function UpcomingBookings({ Bookings, userRole }: UpcomingBookingsProps) {
+  if (Bookings.length === 0) {
     return (
       <Card className="p-6">
         <h3 className="font-semibold text-foreground mb-4">Próximas Citas</h3>
@@ -24,7 +24,7 @@ export function UpcomingAppointments({ appointments, userRole }: UpcomingAppoint
           </div>
           <p className="text-foreground-secondary">No tienes citas próximas</p>
           {userRole === 'client' && (
-            <Link href="/appointments/new">
+            <Link href="/Bookings/new">
               <Button size="sm" className="mt-4">
                 Agendar Cita
               </Button>
@@ -39,7 +39,7 @@ export function UpcomingAppointments({ appointments, userRole }: UpcomingAppoint
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-foreground">Próximas Citas</h3>
-        <Link href="/appointments">
+        <Link href="/Bookings">
           <Button variant="ghost" size="sm">
             Ver todas
           </Button>
@@ -47,16 +47,16 @@ export function UpcomingAppointments({ appointments, userRole }: UpcomingAppoint
       </div>
 
       <div className="space-y-4">
-        {appointments.map((appointment) => {
-          const date = new Date(appointment.scheduled_at)
-          const person = userRole === 'client' ? appointment.lawyer : appointment.client
+        {Bookings.map((Booking) => {
+          const date = new Date(Booking.scheduled_at)
+          const person = userRole === 'client' ? Booking.Staff : Booking.client
           const personName = person?.profile?.full_name || 'Sin nombre'
           const personInitial = personName.charAt(0).toUpperCase()
 
           return (
             <Link
-              key={appointment.id}
-              href={`/appointments/${appointment.id}`}
+              key={Booking.id}
+              href={`/Bookings/${Booking.id}`}
               className="block"
             >
               <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
@@ -70,14 +70,14 @@ export function UpcomingAppointments({ appointments, userRole }: UpcomingAppoint
                       {personName}
                     </p>
                     <Badge
-                      variant={appointment.status === 'confirmed' ? 'confirmed' : 'pending'}
+                      variant={Booking.status === 'confirmed' ? 'confirmed' : 'pending'}
                       className="flex-shrink-0"
                     >
-                      {appointment.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
+                      {Booking.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
                     </Badge>
                   </div>
                   <p className="text-sm text-foreground-secondary">
-                    {appointment.appointment_type?.name}
+                    {Booking.Booking_type?.name}
                   </p>
                 </div>
 

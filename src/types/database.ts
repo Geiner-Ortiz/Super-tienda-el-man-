@@ -1,25 +1,26 @@
 // ============================================
-// TIPOS DEL DOMINIO - LexAgenda
+// TIPOS DEL DOMINIO - Tu Súper Tienda
 // ============================================
 
-export type UserRole = 'client' | 'lawyer' | 'admin' | 'super_admin'
+export type UserRole = 'client' | 'staff' | 'admin' | 'super_admin'
 
 export interface Profile {
   id: string
   email: string
   full_name: string | null
   avatar_url: string | null
-  role: UserRole
   store_name?: string
   profit_margin?: number
+  subscription_id?: string | null
+  subscription_status?: 'active' | 'inactive' | 'past_due' | 'cancelled'
   created_at: string
   updated_at: string
 }
 
-export interface Lawyer {
+export interface Staff {
   id: string
   user_id: string
-  specialty: string
+  role_description: string | null
   bio: string | null
   experience_years: number
   hourly_rate: number
@@ -45,11 +46,10 @@ export interface Client {
   profile?: Profile | null
 }
 
-export interface AppointmentType {
+export interface BookingType {
   id: string
   name: string
   description: string | null
-  duration_minutes: number
   price: number
   is_active: boolean
   created_at: string
@@ -57,7 +57,7 @@ export interface AppointmentType {
 
 export interface Availability {
   id: string
-  lawyer_id: string
+  Staff_id: string
   day_of_week: number // 0=Domingo, 6=Sabado
   start_time: string // "09:00"
   end_time: string // "17:00"
@@ -65,7 +65,7 @@ export interface Availability {
   created_at: string
 }
 
-export type AppointmentStatus =
+export type BookingStatus =
   | 'pending'
   | 'confirmed'
   | 'cancelled'
@@ -73,14 +73,14 @@ export type AppointmentStatus =
   | 'paid'
   | 'no_show'
 
-export interface Appointment {
+export interface Booking {
   id: string
   client_id: string
-  lawyer_id: string
-  appointment_type_id: string | null
+  Staff_id: string
+  Booking_type_id: string | null
   scheduled_at: string
   duration_minutes: number
-  status: AppointmentStatus
+  status: BookingStatus
   notes: string | null
   client_notes: string | null
   cancellation_reason: string | null
@@ -88,29 +88,29 @@ export interface Appointment {
   updated_at: string
   // Relaciones expandidas
   client?: Client & { profile: Profile }
-  lawyer?: Lawyer & { profile: Profile }
-  appointment_type?: AppointmentType
+  Staff?: Staff & { profile: Profile }
+  Booking_type?: BookingType
 }
 
 // ============================================
 // DTOs para operaciones
 // ============================================
 
-export interface CreateAppointmentDTO {
-  lawyer_id: string
-  appointment_type_id: string
+export interface CreateBookingDTO {
+  Staff_id: string
+  Booking_type_id: string
   scheduled_at: string
   client_notes?: string
 }
 
-export interface UpdateAppointmentDTO {
-  status?: AppointmentStatus
+export interface UpdateBookingDTO {
+  status?: BookingStatus
   notes?: string
   scheduled_at?: string
   cancellation_reason?: string
 }
 
-export interface CreateLawyerDTO {
+export interface CreateStaffDTO {
   user_id: string
   specialty: string
   bio?: string
@@ -118,7 +118,7 @@ export interface CreateLawyerDTO {
   hourly_rate?: number
 }
 
-export interface UpdateLawyerDTO {
+export interface UpdateStaffDTO {
   specialty?: string
   bio?: string
   experience_years?: number
@@ -134,18 +134,18 @@ export interface AvailabilitySlot {
 }
 
 // ============================================
-// Tipo expandido de Lawyer con perfil
+// Tipo expandido de Staff con perfil
 // ============================================
 
-export interface LawyerWithProfile extends Lawyer {
+export interface StaffWithProfile extends Staff {
   profile: Profile
   availability?: Availability[]
 }
 
-export interface AppointmentWithRelations extends Omit<Appointment, 'client' | 'lawyer' | 'appointment_type'> {
+export interface BookingWithRelations extends Omit<Booking, 'client' | 'staff' | 'Booking_type'> {
   client: Client & { profile?: Profile | null }
-  lawyer: Lawyer & { profile: Profile }
-  appointment_type: AppointmentType | null
+  staff: Staff & { profile: Profile }
+  Booking_type: BookingType | null
 }
 
 // ============================================
@@ -156,7 +156,7 @@ export type PricingType = 'hourly' | 'fixed'
 
 export interface ServicePricing {
   id: string
-  lawyer_id: string
+  Staff_id: string
   service_name: string
   pricing_type: PricingType
   hourly_rate: number | null
@@ -169,7 +169,7 @@ export interface ServicePricing {
 }
 
 export interface CreateServicePricingDTO {
-  lawyer_id: string
+  Staff_id: string
   service_name: string
   pricing_type: PricingType
   hourly_rate?: number
@@ -187,7 +187,7 @@ export type PaymentMethod = 'card' | 'transfer' | 'cash'
 
 export interface Payment {
   id: string
-  appointment_id: string
+  Booking_id: string
   amount: number
   status: PaymentStatus
   payment_method: PaymentMethod | null
@@ -195,7 +195,7 @@ export interface Payment {
   paid_at: string | null
   created_at: string
   // Relaciones
-  appointment?: Appointment
+  Booking?: Booking
 }
 
 // ============================================
@@ -203,10 +203,10 @@ export interface Payment {
 // ============================================
 
 export type NotificationType =
-  | 'appointment_created'
-  | 'appointment_confirmed'
-  | 'appointment_cancelled'
-  | 'appointment_reminder'
+  | 'Booking_created'
+  | 'Booking_confirmed'
+  | 'Booking_cancelled'
+  | 'Booking_reminder'
   | 'payment_received'
   | 'case_update'
   | 'document_request'
@@ -234,7 +234,7 @@ export type ProjectPriority = 'low' | 'medium' | 'high' | 'urgent'
 
 export interface Project {
   id: string
-  lawyer_id: string
+  Staff_id: string
   client_id: string | null
   title: string
   description: string | null
@@ -249,12 +249,12 @@ export interface Project {
   created_at: string
   updated_at: string
   // Relaciones
-  lawyer?: Lawyer & { profile: Profile }
+  Staff?: Staff & { profile: Profile }
   client?: (Client & { profile?: Profile | null }) | null
 }
 
-export interface ProjectWithRelations extends Omit<Project, 'lawyer' | 'client'> {
-  lawyer: Lawyer & { profile: Profile }
+export interface ProjectWithRelations extends Omit<Project, 'staff' | 'client'> {
+  staff: Staff & { profile: Profile }
   client: (Client & { profile?: Profile | null }) | null
 }
 
@@ -264,38 +264,38 @@ export interface ProjectWithRelations extends Omit<Project, 'lawyer' | 'client'>
 
 export const ROLE_PERMISSIONS = {
   admin: {
-    canViewAllAppointments: true,
+    canViewAllBookings: true,
     canViewFinancials: true,
     canManageUsers: true,
-    canManageLawyers: true,
+    canManageStaff: true,
     canViewAnalytics: true,
     canConfigurePricing: true,
     canViewAllCases: true,
   },
   super_admin: {
-    canViewAllAppointments: true,
+    canViewAllBookings: true,
     canViewFinancials: true,
     canManageUsers: true,
-    canManageLawyers: true,
+    canManageStaff: true,
     canViewAnalytics: true,
     canConfigurePricing: true,
     canViewAllCases: true,
     canManagePlatform: true,
   },
-  lawyer: {
-    canViewAllAppointments: false,
+  staff: {
+    canViewAllBookings: false,
     canViewFinancials: false,
     canManageUsers: false,
-    canManageLawyers: false,
+    canManageStaff: false,
     canViewAnalytics: false,
     canConfigurePricing: false,
     canViewAllCases: false,
   },
   client: {
-    canViewAllAppointments: false,
+    canViewAllBookings: false,
     canViewFinancials: false,
     canManageUsers: false,
-    canManageLawyers: false,
+    canManageStaff: false,
     canViewAnalytics: false,
     canConfigurePricing: false,
     canViewAllCases: false,
@@ -320,30 +320,30 @@ export interface Database {
         Insert: Omit<Profile, 'created_at' | 'updated_at'>
         Update: Partial<Omit<Profile, 'id' | 'created_at'>>
       }
-      lawyers: {
-        Row: Lawyer
-        Insert: CreateLawyerDTO
-        Update: UpdateLawyerDTO
+      Staffs: {
+        Row: Staff
+        Insert: CreateStaffDTO
+        Update: UpdateStaffDTO
       }
       clients: {
         Row: Client
         Insert: Omit<Client, 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Omit<Client, 'id' | 'created_at'>>
       }
-      appointment_types: {
-        Row: AppointmentType
-        Insert: Omit<AppointmentType, 'id' | 'created_at'>
-        Update: Partial<Omit<AppointmentType, 'id' | 'created_at'>>
+      Booking_types: {
+        Row: BookingType
+        Insert: Omit<BookingType, 'id' | 'created_at'>
+        Update: Partial<Omit<BookingType, 'id' | 'created_at'>>
       }
       availability: {
         Row: Availability
         Insert: Omit<Availability, 'id' | 'created_at'>
         Update: Partial<Omit<Availability, 'id' | 'created_at'>>
       }
-      appointments: {
-        Row: Appointment
-        Insert: CreateAppointmentDTO & { client_id: string }
-        Update: UpdateAppointmentDTO
+      Bookings: {
+        Row: Booking
+        Insert: CreateBookingDTO & { client_id: string }
+        Update: UpdateBookingDTO
       }
     }
   }

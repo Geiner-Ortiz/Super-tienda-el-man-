@@ -105,7 +105,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
             className="block w-full text-center border-2 border-teal-600 text-teal-600 hover:bg-teal-50 font-semibold py-3 rounded-lg transition-colors"
             onClick={onClose}
           >
-            Portal Abogado
+            Portal Personal
           </Link>
         </div>
       </div>

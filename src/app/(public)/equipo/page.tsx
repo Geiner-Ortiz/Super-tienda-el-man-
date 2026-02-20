@@ -5,7 +5,7 @@ import { SectionHeading } from '@/components/public/SectionHeading'
 
 export const metadata: Metadata = {
   title: siteConfig.seo.titleTemplate.replace('%s', 'Equipo Legal'),
-  description: `Conozca al equipo legal de ${siteConfig.firmName}. Abogados experimentados en derecho de familia en ${siteConfig.contact.city}, ${siteConfig.contact.country}.`,
+  description: `Conozca al equipo legal de ${siteConfig.firmName}. Personals experimentados en derecho de familia en ${siteConfig.contact.city}, ${siteConfig.contact.country}.`,
 }
 
 export default function EquipoPage() {

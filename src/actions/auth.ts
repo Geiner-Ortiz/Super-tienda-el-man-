@@ -5,17 +5,21 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
 export async function login(formData: FormData) {
+  const email = formData.get('email') as string
+  console.log(`--- Intentando iniciar sesión para: ${email} ---`)
   const supabase = await createClient()
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: formData.get('email') as string,
+  const { error, data } = await supabase.auth.signInWithPassword({
+    email,
     password: formData.get('password') as string,
   })
 
   if (error) {
+    console.error('❌ Error de inicio de sesión:', error.message)
     return { error: error.message }
   }
 
+  console.log('✅ Inicio de sesión exitoso:', data.user?.email, 'ID:', data.user?.id)
   revalidatePath('/', 'layout')
   return { success: true }
 }

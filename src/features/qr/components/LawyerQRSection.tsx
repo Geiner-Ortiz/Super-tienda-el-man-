@@ -5,19 +5,19 @@ import QRCode from 'qrcode'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
-interface LawyerQRSectionProps {
-  lawyerId: string
-  lawyerSlug: string
-  lawyerName: string
+interface StaffQRSectionProps {
+  StaffId: string
+  StaffSlug: string
+  StaffName: string
 }
 
-export function LawyerQRSection({ lawyerId, lawyerSlug, lawyerName }: LawyerQRSectionProps) {
+export function StaffQRSection({ StaffId, StaffSlug, StaffName }: StaffQRSectionProps) {
   const [qrDataUrl, setQrDataUrl] = useState<string>('')
   const [copied, setCopied] = useState(false)
   const [stats, setStats] = useState({ clicks: 0, bookings: 0, conversionRate: 0 })
 
-  const bookingUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/book/${lawyerSlug}`
-  const shortCode = lawyerSlug.slice(0, 8).toUpperCase()
+  const bookingUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/book/${StaffSlug}`
+  const shortCode = StaffSlug.slice(0, 8).toUpperCase()
 
   useEffect(() => {
     generateQRCode()
@@ -27,7 +27,7 @@ export function LawyerQRSection({ lawyerId, lawyerSlug, lawyerName }: LawyerQRSe
       bookings: Math.floor(Math.random() * 30) + 5,
       conversionRate: 25.5
     })
-  }, [lawyerSlug, bookingUrl])
+  }, [StaffSlug, bookingUrl])
 
   const generateQRCode = async () => {
     try {
@@ -55,8 +55,8 @@ export function LawyerQRSection({ lawyerId, lawyerSlug, lawyerName }: LawyerQRSe
   const shareLink = async () => {
     if (navigator.share) {
       await navigator.share({
-        title: `Agendar cita con ${lawyerName}`,
-        text: `Agenda tu consulta legal con ${lawyerName}`,
+        title: `Agendar cita con ${StaffName}`,
+        text: `Agenda tu consulta legal con ${StaffName}`,
         url: bookingUrl
       })
     } else {
@@ -67,7 +67,7 @@ export function LawyerQRSection({ lawyerId, lawyerSlug, lawyerName }: LawyerQRSe
   const downloadQR = async (format: 'png' | 'svg') => {
     if (format === 'png' && qrDataUrl) {
       const link = document.createElement('a')
-      link.download = `qr-${lawyerSlug}.png`
+      link.download = `qr-${StaffSlug}.png`
       link.href = qrDataUrl
       link.click()
     } else if (format === 'svg') {
@@ -84,7 +84,7 @@ export function LawyerQRSection({ lawyerId, lawyerSlug, lawyerName }: LawyerQRSe
         const blob = new Blob([svgString], { type: 'image/svg+xml' })
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
-        link.download = `qr-${lawyerSlug}.svg`
+        link.download = `qr-${StaffSlug}.svg`
         link.href = url
         link.click()
         URL.revokeObjectURL(url)

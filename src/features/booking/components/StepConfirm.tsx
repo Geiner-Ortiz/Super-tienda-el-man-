@@ -4,22 +4,22 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { createAppointment } from '@/actions/appointments'
+import { createBooking } from '@/actions/Bookings'
 import { useBookingStore } from '../store/bookingStore'
-import { lawyerService } from '@/features/lawyers/services/lawyerService'
-import { appointmentService } from '@/features/appointments/services/appointmentService'
-import type { LawyerWithProfile, AppointmentType } from '@/types/database'
+import { StaffService } from '@/features/Staffs/services/StaffService'
+import { BookingService } from '@/features/Bookings/services/BookingService'
+import type { StaffWithProfile, BookingType } from '@/types/database'
 
 export function StepConfirm() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [lawyer, setLawyer] = useState<LawyerWithProfile | null>(null)
-  const [appointmentType, setAppointmentType] = useState<AppointmentType | null>(null)
+  const [Staff, setStaff] = useState<StaffWithProfile | null>(null)
+  const [BookingType, setBookingType] = useState<BookingType | null>(null)
 
   const {
-    lawyerId,
-    appointmentTypeId,
+    StaffId,
+    BookingTypeId,
     selectedDate,
     selectedTime,
     clientNotes,
@@ -28,24 +28,24 @@ export function StepConfirm() {
     reset
   } = useBookingStore()
 
-  // Cargar datos del abogado y tipo de cita
+  // Cargar datos del Personal y tipo de cita
   useEffect(() => {
     async function loadData() {
-      if (lawyerId) {
-        const l = await lawyerService.getById(lawyerId)
-        setLawyer(l)
+      if (StaffId) {
+        const l = await StaffService.getById(StaffId)
+        setStaff(l)
       }
-      if (appointmentTypeId) {
-        const types = await appointmentService.getAppointmentTypes()
-        const t = types.find(t => t.id === appointmentTypeId)
-        if (t) setAppointmentType(t)
+      if (BookingTypeId) {
+        const types = await BookingService.getBookingTypes()
+        const t = types.find(t => t.id === BookingTypeId)
+        if (t) setBookingType(t)
       }
     }
     loadData()
-  }, [lawyerId, appointmentTypeId])
+  }, [StaffId, BookingTypeId])
 
   const handleConfirm = async () => {
-    if (!lawyerId || !appointmentTypeId || !selectedDate || !selectedTime) {
+    if (!StaffId || !BookingTypeId || !selectedDate || !selectedTime) {
       return
     }
 
@@ -57,9 +57,9 @@ export function StepConfirm() {
     const scheduledAt = new Date(selectedDate)
     scheduledAt.setHours(hours, minutes, 0, 0)
 
-    const result = await createAppointment({
-      lawyer_id: lawyerId,
-      appointment_type_id: appointmentTypeId,
+    const result = await createBooking({
+      Staff_id: StaffId,
+      Booking_type_id: BookingTypeId,
       scheduled_at: scheduledAt.toISOString(),
       client_notes: clientNotes || undefined
     })
@@ -70,11 +70,11 @@ export function StepConfirm() {
       setError(result.error)
     } else {
       reset()
-      router.push('/appointments')
+      router.push('/Bookings')
     }
   }
 
-  if (!lawyer || !appointmentType || !selectedDate || !selectedTime) {
+  if (!Staff || !BookingType || !selectedDate || !selectedTime) {
     return (
       <div className="text-center py-12">
         <p className="text-foreground-secondary">Cargando resumen...</p>
@@ -82,7 +82,7 @@ export function StepConfirm() {
     )
   }
 
-  const initials = lawyer.profile?.full_name
+  const initials = Staff.profile?.full_name
     ?.split(' ')
     .map(n => n[0])
     .join('')
@@ -98,12 +98,12 @@ export function StepConfirm() {
       {/* Resumen de la cita */}
       <Card className="p-6">
         <div className="space-y-6">
-          {/* Abogado */}
+          {/* Personal */}
           <div className="flex items-center gap-4">
-            {lawyer.profile?.avatar_url ? (
+            {Staff.profile?.avatar_url ? (
               <img
-                src={lawyer.profile.avatar_url}
-                alt={lawyer.profile.full_name || 'Abogado'}
+                src={Staff.profile.avatar_url}
+                alt={Staff.profile.full_name || 'Personal'}
                 className="w-16 h-16 rounded-full object-cover"
               />
             ) : (
@@ -113,9 +113,9 @@ export function StepConfirm() {
             )}
             <div>
               <h4 className="font-semibold text-foreground">
-                {lawyer.profile?.full_name}
+                {Staff.profile?.full_name}
               </h4>
-              <p className="text-sm text-accent-500">{lawyer.specialty}</p>
+              <p className="text-sm text-accent-500">{Staff.specialty}</p>
             </div>
           </div>
 
@@ -125,11 +125,11 @@ export function StepConfirm() {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-foreground-muted mb-1">Tipo de consulta</p>
-              <p className="font-medium text-foreground">{appointmentType.name}</p>
+              <p className="font-medium text-foreground">{BookingType.name}</p>
             </div>
             <div>
               <p className="text-sm text-foreground-muted mb-1">Duración</p>
-              <p className="font-medium text-foreground">{appointmentType.duration_minutes} minutos</p>
+              <p className="font-medium text-foreground">{BookingType.duration_minutes} minutos</p>
             </div>
             <div>
               <p className="text-sm text-foreground-muted mb-1">Fecha</p>
@@ -154,7 +154,7 @@ export function StepConfirm() {
           <div className="flex items-center justify-between">
             <span className="text-foreground-secondary">Costo de la consulta</span>
             <span className="text-2xl font-bold text-secondary-600">
-              ${appointmentType.price}
+              ${BookingType.price}
             </span>
           </div>
         </div>

@@ -2,8 +2,8 @@ import { create } from 'zustand'
 
 interface BookingState {
   // Paso 1: Selección
-  lawyerId: string | null
-  appointmentTypeId: string | null
+  StaffId: string | null
+  BookingTypeId: string | null
 
   // Paso 2: Fecha y hora
   selectedDate: Date | null
@@ -16,8 +16,8 @@ interface BookingState {
   currentStep: 1 | 2 | 3
 
   // Acciones
-  setLawyer: (id: string) => void
-  setAppointmentType: (id: string) => void
+  setStaff: (id: string) => void
+  setBookingType: (id: string) => void
   setDate: (date: Date) => void
   setTime: (time: string) => void
   setNotes: (notes: string) => void
@@ -33,8 +33,8 @@ interface BookingState {
 }
 
 const initialState = {
-  lawyerId: null,
-  appointmentTypeId: null,
+  StaffId: null,
+  BookingTypeId: null,
   selectedDate: null,
   selectedTime: null,
   clientNotes: '',
@@ -44,8 +44,8 @@ const initialState = {
 export const useBookingStore = create<BookingState>((set, get) => ({
   ...initialState,
 
-  setLawyer: (id) => set({ lawyerId: id }),
-  setAppointmentType: (id) => set({ appointmentTypeId: id }),
+  setStaff: (id) => set({ StaffId: id }),
+  setBookingType: (id) => set({ BookingTypeId: id }),
   setDate: (date) => set({ selectedDate: date, selectedTime: null }),
   setTime: (time) => set({ selectedTime: time }),
   setNotes: (notes) => set({ clientNotes: notes }),
@@ -69,8 +69,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   reset: () => set(initialState),
 
   canProceedToStep2: () => {
-    const { lawyerId, appointmentTypeId } = get()
-    return lawyerId !== null && appointmentTypeId !== null
+    const { StaffId, BookingTypeId } = get()
+    return StaffId !== null && BookingTypeId !== null
   },
 
   canProceedToStep3: () => {
@@ -81,8 +81,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   canSubmit: () => {
     const state = get()
     return (
-      state.lawyerId !== null &&
-      state.appointmentTypeId !== null &&
+      state.StaffId !== null &&
+      state.BookingTypeId !== null &&
       state.selectedDate !== null &&
       state.selectedTime !== null
     )

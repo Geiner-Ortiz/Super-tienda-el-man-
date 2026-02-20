@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
-import type { AppointmentType } from '@/types/database'
+import type { BookingType } from '@/types/database'
 
-interface Lawyer {
+interface Staff {
   id: string
   name: string
   email: string
@@ -22,18 +22,18 @@ interface ExistingClient {
 }
 
 interface AdminBookingFormProps {
-  lawyers: Lawyer[]
-  appointmentTypes: AppointmentType[]
+  Staffs: Staff[]
+  BookingTypes: BookingType[]
   existingClients: ExistingClient[]
 }
 
-export function AdminBookingForm({ lawyers, appointmentTypes, existingClients }: AdminBookingFormProps) {
+export function AdminBookingForm({ Staffs, BookingTypes, existingClients }: AdminBookingFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Form state
-  const [selectedLawyer, setSelectedLawyer] = useState('')
+  const [selectedStaff, setSelectedStaff] = useState('')
   const [selectedType, setSelectedType] = useState('')
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('')
@@ -46,7 +46,7 @@ export function AdminBookingForm({ lawyers, appointmentTypes, existingClients }:
   const [clientEmail, setClientEmail] = useState('')
   const [clientPhone, setClientPhone] = useState('')
 
-  const selectedAppointmentType = appointmentTypes.find(t => t.id === selectedType)
+  const selectedBookingType = BookingTypes.find(t => t.id === selectedType)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -105,54 +105,54 @@ export function AdminBookingForm({ lawyers, appointmentTypes, existingClients }:
       // Build scheduled_at datetime
       const scheduledAt = `${selectedDate}T${selectedTime}:00`
 
-      // Create appointment
-      const { error: appointmentError } = await supabase
-        .from('appointments')
+      // Create Booking
+      const { error: BookingError } = await supabase
+        .from('Bookings')
         .insert({
-          lawyer_id: selectedLawyer,
+          Staff_id: selectedStaff,
           client_id: clientId,
-          appointment_type_id: selectedType,
+          Booking_type_id: selectedType,
           scheduled_at: scheduledAt,
-          duration_minutes: selectedAppointmentType?.duration_minutes || 30,
+          duration_minutes: selectedBookingType?.duration_minutes || 30,
           status: 'confirmed',
           notes: notes || null
         })
 
-      if (appointmentError) {
-        throw new Error('Error al crear cita: ' + appointmentError.message)
+      if (BookingError) {
+        throw new Error('Error al crear cita: ' + BookingError.message)
       }
 
       // Send email notification
-      const lawyer = lawyers.find(l => l.id === selectedLawyer)
+      const Staff = Staffs.find(l => l.id === selectedStaff)
       try {
         const baseUrl = window.location.origin
-        await fetch(`${baseUrl}/api/email/appointment`, {
+        await fetch(`${baseUrl}/api/email/Booking`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             type: 'created',
-            appointmentId: 'admin-created',
+            BookingId: 'admin-created',
             clientName: clientMode === 'existing'
               ? existingClients.find(c => c.id === selectedClientId)?.full_name
               : clientName,
             clientEmail: clientMode === 'existing'
               ? existingClients.find(c => c.id === selectedClientId)?.email
               : clientEmail,
-            lawyerName: lawyer?.name || 'Abogado',
-            lawyerEmail: lawyer?.email || '',
-            appointmentDate: new Date(selectedDate).toLocaleDateString('es-ES', {
+            StaffName: Staff?.name || 'Personal',
+            StaffEmail: Staff?.email || '',
+            BookingDate: new Date(selectedDate).toLocaleDateString('es-ES', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
               day: 'numeric'
             }),
-            appointmentTime: selectedTime,
-            appointmentType: selectedAppointmentType?.name || 'Consulta',
-            duration: selectedAppointmentType?.duration_minutes || 30,
+            BookingTime: selectedTime,
+            BookingType: selectedBookingType?.name || 'Consulta',
+            duration: selectedBookingType?.duration_minutes || 30,
           }),
         })
       } catch {
-        // Email failed but appointment was created
+        // Email failed but Booking was created
         console.error('Failed to send email notification')
       }
 
@@ -177,19 +177,19 @@ export function AdminBookingForm({ lawyers, appointmentTypes, existingClients }:
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Lawyer Selection */}
+      {/* Staff Selection */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">1. Seleccionar Abogado</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">1. Seleccionar Personal</h3>
         <select
-          value={selectedLawyer}
-          onChange={(e) => setSelectedLawyer(e.target.value)}
+          value={selectedStaff}
+          onChange={(e) => setSelectedStaff(e.target.value)}
           required
           className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500"
         >
-          <option value="">Seleccione un abogado</option>
-          {lawyers.map(lawyer => (
-            <option key={lawyer.id} value={lawyer.id}>
-              {lawyer.name} - {lawyer.specialty}
+          <option value="">Seleccione un Personal</option>
+          {Staffs.map(Staff => (
+            <option key={Staff.id} value={Staff.id}>
+              {Staff.name} - {Staff.specialty}
             </option>
           ))}
         </select>
@@ -269,7 +269,7 @@ export function AdminBookingForm({ lawyers, appointmentTypes, existingClients }:
         )}
       </Card>
 
-      {/* Appointment Type */}
+      {/* Booking Type */}
       <Card className="p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">3. Tipo de Cita</h3>
         <select
@@ -279,7 +279,7 @@ export function AdminBookingForm({ lawyers, appointmentTypes, existingClients }:
           className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500"
         >
           <option value="">Seleccione tipo de cita</option>
-          {appointmentTypes.map(type => (
+          {BookingTypes.map(type => (
             <option key={type.id} value={type.id}>
               {type.name} - {type.duration_minutes} min - ${type.price}
             </option>

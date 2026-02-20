@@ -49,14 +49,14 @@ export default function PrivacidadPage() {
             <div>
               <h2 className="font-heading text-display-xs text-gray-900 mb-3">3. Protección de Datos</h2>
               <p>
-                Implementamos medidas de seguridad técnicas y organizativas apropiadas para proteger su información personal contra el acceso no autorizado, la alteración, divulgación o destrucción. Toda la información proporcionada está protegida por el secreto profesional abogado-cliente conforme a las leyes de {siteConfig.contact.country}.
+                Implementamos medidas de seguridad técnicas y organizativas apropiadas para proteger su información personal contra el acceso no autorizado, la alteración, divulgación o destrucción. Toda la información proporcionada está protegida por el secreto profesional Personal-cliente conforme a las leyes de {siteConfig.contact.country}.
               </p>
             </div>
 
             <div>
               <h2 className="font-heading text-display-xs text-gray-900 mb-3">4. Confidencialidad</h2>
               <p>
-                Como bufete de abogados, estamos obligados por el deber de confidencialidad profesional. Toda la información que comparta con nosotros está protegida por el privilegio abogado-cliente y no será divulgada a terceros sin su consentimiento expreso, salvo cuando la ley lo requiera.
+                Como bufete de Personals, estamos obligados por el deber de confidencialidad profesional. Toda la información que comparta con nosotros está protegida por el privilegio Personal-cliente y no será divulgada a terceros sin su consentimiento expreso, salvo cuando la ley lo requiera.
               </p>
             </div>
 
