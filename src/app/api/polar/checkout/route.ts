@@ -1,41 +1,43 @@
 ﻿import { Checkout } from "@polar-sh/nextjs";
 import { type NextRequest } from "next/server";
 
-// Diagnóstico V7 - Reporte Exhaustivo de Entorno
-export const GET = async (request: NextRequest) => {
-    const allEnvKeys = Object.keys(process.env);
+// FORZAR COMPORTAMIENTO DINÁMICO (Esto obliga a Vercel a leer las variables en cada clic)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-    // Buscar el token
-    const token = process.env.POLAR_ACCESS_TOKEN || process.env.NEXT_PUBLIC_POLAR_ACCESS_TOKEN;
+export const GET = async (request: NextRequest) => {
+    // Escaneo total de llaves (Diagnóstico V8)
+    const allKeys = Object.keys(process.env);
+
+    // Intentar encontrar el token en CUALQUIER variante posible
+    const token =
+        process.env.POLAR_ACCESS_TOKEN ||
+        process.env.NEXT_PUBLIC_POLAR_ACCESS_TOKEN ||
+        process.env.polar_access_token ||
+        allKeys.find(k => k.toUpperCase().includes('POLAR') && k.toUpperCase().includes('TOKEN')) && process.env[allKeys.find(k => k.toUpperCase().includes('POLAR') && k.toUpperCase().includes('TOKEN'))!];
 
     if (!token) {
-        // Filtrar llaves que contengan 'polar' sin importar mayúsculas/minúsculas
-        const polarRelatedKeys = allEnvKeys.filter(k => k.toUpperCase().includes('POLAR'));
-
-        // Información de depuración
-        const debugInfo = {
-            error: "Polar Token missing in runtime",
-            env_stats: {
-                total_keys: allEnvKeys.length,
-                polar_keys_found: polarRelatedKeys,
-                has_supabase_keys: allEnvKeys.some(k => k.includes('SUPABASE')),
+        return new Response(JSON.stringify({
+            error: "Token no hallado en tiempo de ejecución dinámica",
+            diagnostics: {
+                total_env_keys: allKeys.length,
+                all_polar_related_keys: allKeys.filter(k => k.toUpperCase().includes('POLAR')),
+                supabase_visible: allKeys.some(k => k.includes('SUPABASE')),
+                timestamp: new Date().toISOString()
             },
-            current_host: request.headers.get("host"),
-            advice: "Si 'polar_keys_found' está vacío [], Vercel no está inyectando las variables. REVISA: 1. El nombre exacto en Vercel. 2. Que estén en el entorno 'Production'. 3. Realiza un 'Redeploy' con 'Build Cache' DESACTIVADO."
-        };
-
-        return new Response(JSON.stringify(debugInfo, null, 2), {
+            hint: "Si sigue vacío, intenta borrar las variables en Vercel y créalas de nuevo con NOMBRES SIMPLES (ej: POLAR_TOKEN) y avísame."
+        }, null, 2), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
         });
     }
 
-    const host = request.headers.get("host") || "localhost:3000";
+    const host = request.headers.get("host") || "tu-super-tienda.vercel.app";
     const protocol = host.includes("localhost") ? "http" : "https";
     const successUrl = process.env.SUCCESS_URL || `${protocol}://${host}/admin/pricing?success=true`;
 
     return Checkout({
-        accessToken: token,
+        accessToken: token as string,
         successUrl: successUrl,
     })(request);
 };
