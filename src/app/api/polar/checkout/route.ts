@@ -1,31 +1,36 @@
 ﻿import { Checkout } from "@polar-sh/nextjs";
 import { type NextRequest } from "next/server";
 
-// FORZAR COMPORTAMIENTO DINÁMICO (Esto obliga a Vercel a leer las variables en cada clic)
+// Diagnóstico V9 - Acceso Directo y Test de Inyección
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Forzar Node.js para descartar problemas de Edge Runtime
 export const revalidate = 0;
 
 export const GET = async (request: NextRequest) => {
-    // Escaneo total de llaves (Diagnóstico V8)
+    // 1. Acceso Directo (intentar leer sin enumerar)
+    const tokenDirect = process.env.POLAR_ACCESS_TOKEN;
+    const publicTokenDirect = process.env.NEXT_PUBLIC_POLAR_ACCESS_TOKEN;
+    const testVarDirect = (process.env as any).TEST_V; // Variable de prueba que pediremos al usuario
+
+    // 2. Enumeración (solo para el reporte)
     const allKeys = Object.keys(process.env);
+    const polarKeys = allKeys.filter(k => k.toUpperCase().includes('POLAR'));
 
-    // Intentar encontrar el token en CUALQUIER variante posible
-    const token =
-        process.env.POLAR_ACCESS_TOKEN ||
-        process.env.NEXT_PUBLIC_POLAR_ACCESS_TOKEN ||
-        process.env.polar_access_token ||
-        allKeys.find(k => k.toUpperCase().includes('POLAR') && k.toUpperCase().includes('TOKEN')) && process.env[allKeys.find(k => k.toUpperCase().includes('POLAR') && k.toUpperCase().includes('TOKEN'))!];
+    const finalToken = tokenDirect || publicTokenDirect || (polarKeys.length > 0 ? process.env[polarKeys[0]] : null);
 
-    if (!token) {
+    if (!finalToken) {
         return new Response(JSON.stringify({
-            error: "Token no hallado en tiempo de ejecución dinámica",
+            error: "Token no detectado en V9 - Acceso Directo",
             diagnostics: {
-                total_env_keys: allKeys.length,
-                all_polar_related_keys: allKeys.filter(k => k.toUpperCase().includes('POLAR')),
-                supabase_visible: allKeys.some(k => k.includes('SUPABASE')),
-                timestamp: new Date().toISOString()
+                direct_access_ok: !!tokenDirect,
+                public_direct_access_ok: !!publicTokenDirect,
+                test_var_visible: !!testVarDirect,
+                test_var_value: testVarDirect || "No configurada",
+                all_keys_count: allKeys.length,
+                polar_keys_found: polarKeys,
+                vercel_detected: process.env.VERCEL === '1'
             },
-            hint: "Si sigue vacío, intenta borrar las variables en Vercel y créalas de nuevo con NOMBRES SIMPLES (ej: POLAR_TOKEN) y avísame."
+            instruction: "PASO FINAL: 1. Crea en Vercel una variable llamada 'TEST_V' con el valor 'LISTO'. 2. Haz un 'Redeploy' manual. 3. Dime si ves 'LISTO' en este mensaje de error."
         }, null, 2), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
@@ -37,7 +42,7 @@ export const GET = async (request: NextRequest) => {
     const successUrl = process.env.SUCCESS_URL || `${protocol}://${host}/admin/pricing?success=true`;
 
     return Checkout({
-        accessToken: token as string,
+        accessToken: finalToken as string,
         successUrl: successUrl,
     })(request);
 };
