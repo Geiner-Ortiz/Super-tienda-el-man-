@@ -25,9 +25,9 @@ export function SubscriptionBanner() {
     }, [])
 
     const handleCheckout = () => {
-        // Redirigir al checkout de Polar con el ID del producto
         const productId = 'c61cd2d8-bdf6-4e8a-bf80-a1674570b86c'
-        window.location.href = `/api/polar/checkout?products=${productId}&metadata={"user_id":"${user?.id}"}`
+        const metadata = JSON.stringify({ user_id: user?.id })
+        window.location.href = `/api/polar/checkout?products=${productId}&metadata=${encodeURIComponent(metadata)}`
     }
 
     if (user?.subscription_status === 'active') {
