@@ -25,5 +25,5 @@ export const GET = async (request: NextRequest) => {
     return Checkout({
         accessToken: process.env.POLAR_ACCESS_TOKEN,
         successUrl: successUrl,
-    })(request, { params: {} });
+    })(request);
 };
