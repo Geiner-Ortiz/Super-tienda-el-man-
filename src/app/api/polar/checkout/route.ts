@@ -1,6 +1,7 @@
 ﻿import { Checkout } from "@polar-sh/nextjs";
 import { type NextRequest } from "next/server";
 
+// Fuerza el redespliegue para cargar las nuevas variables de entorno
 export const GET = async (request: NextRequest) => {
     // Verificar token para evitar crash 500
     if (!process.env.POLAR_ACCESS_TOKEN) {
