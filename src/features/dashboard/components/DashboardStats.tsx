@@ -48,8 +48,9 @@ export function DashboardStats() {
         <MetricCard
           label="Ganancia Bruta"
           value={formatCurrency(financialStats.grossProfit)}
-          color="text-secondary-600"
+          color={financialStats.grossProfit >= 0 ? 'text-secondary-600' : 'text-red-600'}
           trend="Antes de gastos"
+          isNegative={financialStats.grossProfit < 0}
         />
         <MetricCard
           label="Total Gastos"
@@ -63,6 +64,7 @@ export function DashboardStats() {
           color={financialStats.netIncome >= 0 ? 'text-success-600' : 'text-red-600'}
           trend="Resultado Real"
           isHighlight
+          isNegative={financialStats.netIncome < 0}
         />
       </div>
 
@@ -198,18 +200,22 @@ function MetricCard({
   value,
   color,
   trend,
-  isHighlight = false
+  isHighlight = false,
+  isNegative = false
 }: {
   label: string;
   value: string;
   color: string;
   trend: string;
   isHighlight?: boolean;
+  isNegative?: boolean;
 }) {
   return (
-    <Card className={`p-6 border-none shadow-sm dark:bg-gray-900 ${isHighlight ? 'ring-2 ring-primary-500/20' : ''}`}>
+    <Card className={`p-6 border-none shadow-sm dark:bg-gray-900 ${isHighlight && !isNegative ? 'ring-2 ring-primary-500/20' : ''} ${isNegative ? 'ring-2 ring-red-500/30 bg-red-50/50 dark:bg-red-950/20' : ''}`}>
       <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2">{label}</p>
-      <p className={`text-2xl font-black tracking-tight ${color}`}>{value}</p>
+      <p className={`text-2xl font-black tracking-tight ${color}`}>
+        {isNegative && '🔴 '}{value}
+      </p>
       <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 font-medium">{trend}</p>
     </Card>
   );

@@ -109,7 +109,20 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          setNotifications(prev => [payload.new as Notification, ...prev])
+          const newNotif = payload.new as Notification
+          setNotifications(prev => [newNotif, ...prev])
+
+          // Mostrar toast en pantalla
+          const toastMethod = newNotif.type === 'warning' ? toast.warning
+            : newNotif.type === 'success' ? toast.success
+              : newNotif.type === 'info' ? toast.info
+                : toast.message
+
+          toastMethod(newNotif.title, {
+            description: newNotif.message,
+            duration: 6000,
+          })
+
           // Play sound if not muted
           if (!isMuted) {
             const audio = new Audio('/sounds/notification.mp3')
