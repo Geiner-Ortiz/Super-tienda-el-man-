@@ -128,18 +128,29 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
             duration: 6000,
           })
 
-          // Notificación push nativa del navegador (funciona con tab en background o PWA minimizada)
+          // Notificación push nativa (compatible con móvil y escritorio)
           if ('Notification' in window && Notification.permission === 'granted' && !isMuted) {
-            const browserNotif = new window.Notification(newNotif.title, {
+            const notifOptions = {
               body: newNotif.message,
               icon: '/favicon.svg',
               badge: '/favicon.svg',
-              tag: newNotif.id, // Evita duplicados
-            })
-            // Al hacer clic en la notificación, enfocar la app
-            browserNotif.onclick = () => {
-              window.focus()
-              browserNotif.close()
+              tag: newNotif.id,
+              vibrate: [200, 100, 200], // Vibrar en móvil
+              requireInteraction: false,
+            }
+
+            // Usar Service Worker para móvil (PWA)
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+              navigator.serviceWorker.ready.then(reg => {
+                reg.showNotification(newNotif.title, notifOptions)
+              })
+            } else {
+              // Fallback para escritorio sin SW
+              const browserNotif = new window.Notification(newNotif.title, notifOptions)
+              browserNotif.onclick = () => {
+                window.focus()
+                browserNotif.close()
+              }
             }
           }
 

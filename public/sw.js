@@ -71,3 +71,22 @@ self.addEventListener('message', (event) => {
         self.skipWaiting();
     }
 });
+
+// Al tocar una notificación push, abrir/enfocar la app
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    event.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+            // Si ya hay una ventana abierta, enfocarla
+            for (const client of clientList) {
+                if (client.url && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            // Si no hay ventana abierta, abrir una nueva
+            if (self.clients.openWindow) {
+                return self.clients.openWindow('/dashboard');
+            }
+        })
+    );
+});

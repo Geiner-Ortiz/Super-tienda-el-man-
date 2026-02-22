@@ -136,7 +136,8 @@ export default function AdminDashboard() {
                         e.preventDefault()
                         if (!confirm('¿Estás seguro de enviar esta notificación a TODOS los usuarios?')) return
 
-                        const formData = new FormData(e.currentTarget)
+                        const form = e.currentTarget
+                        const formData = new FormData(form)
                         const title = formData.get('title') as string
                         const message = formData.get('message') as string
 
@@ -149,7 +150,7 @@ export default function AdminDashboard() {
 
                             if (error) throw error
                             alert('📢 Notificación enviada con éxito')
-                            e.currentTarget.reset()
+                            form.reset()
                         } catch (err: any) {
                             console.error(err)
                             alert(`Error al enviar notificación: ${err.message || 'Error desconocido'}`)
