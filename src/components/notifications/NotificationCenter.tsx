@@ -96,10 +96,7 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
 
     fetchNotifications()
 
-    // Pedir permiso de notificaciones push del navegador
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission()
-    }
+    // Permiso de push se pide al tocar la campanita (user gesture requerido en móvil)
 
     // Subscribe to new notifications
     const supabase = createClient()
@@ -225,7 +222,13 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
       {/* Bell Button */}
       <button
         ref={buttonRef}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen(!isOpen)
+          // Pedir permiso de push con gesto del usuario (requerido en móvil)
+          if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission()
+          }
+        }}
         className="relative p-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200 active:scale-95 z-[60]"
       >
         {isMuted ? (

@@ -48,7 +48,7 @@ export default function RootLayout({
       <body className="overflow-x-hidden w-full relative">
         <ThemeProvider>
           {children}
-          <Toaster position="bottom-center" richColors />
+          <Toaster position="top-center" richColors toastOptions={{ style: { zIndex: 99999 } }} />
         </ThemeProvider>
       </body>
     </html>
