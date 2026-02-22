@@ -96,54 +96,11 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
       setIsLoading(false)
     }
 
-    // Mostrar toast y sonido cuando llega una notificación nueva
-    const showNewNotifAlert = (newNotif: Notification) => {
-      const toastMethod = newNotif.type === 'warning' ? toast.warning
-        : newNotif.type === 'success' ? toast.success
-          : newNotif.type === 'info' ? toast.info
-            : toast.message
-
-      toastMethod(newNotif.title, {
-        description: newNotif.message,
-        duration: 6000,
-      })
-
-      // Push nativa (Android / escritorio)
-      if ('Notification' in window && Notification.permission === 'granted' && !isMuted) {
-        const notifOptions = {
-          body: newNotif.message,
-          icon: '/favicon.svg',
-          badge: '/favicon.svg',
-          tag: newNotif.id,
-          vibrate: [200, 100, 200],
-          requireInteraction: false,
-        }
-
-        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-          navigator.serviceWorker.ready.then(reg => {
-            reg.showNotification(newNotif.title, notifOptions)
-          })
-        } else {
-          const browserNotif = new window.Notification(newNotif.title, notifOptions)
-          browserNotif.onclick = () => {
-            window.focus()
-            browserNotif.close()
-          }
-        }
-      }
-
-      // Sonido
-      if (!isMuted) {
-        const audio = new Audio('/sounds/notification.mp3')
-        audio.play().catch(() => { })
-      }
-    }
-
     fetchNotifications()
 
-    // Real-time (funciona en escritorio y Android)
+    // Real-time (actualiza solo la lista/campanita)
     const channel = supabase
-      .channel('notifications')
+      .channel('notifications-poll')
       .on(
         'postgres_changes',
         {
@@ -152,36 +109,13 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
           table: 'notifications',
           filter: `user_id=eq.${userId}`,
         },
-        (payload) => {
-          const newNotif = payload.new as Notification
-          setNotifications(prev => [newNotif, ...prev])
-          showNewNotifAlert(newNotif)
-          lastCheckedAt = new Date().toISOString()
+        () => {
+          fetchNotifications()
         }
       )
       .subscribe()
 
-    // Polling fallback cada 30s (para iOS donde WebSocket no es confiable)
-    const pollInterval = setInterval(async () => {
-      const { data: newOnes } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', userId)
-        .gt('created_at', lastCheckedAt)
-        .order('created_at', { ascending: false })
-
-      if (newOnes && newOnes.length > 0) {
-        setNotifications(prev => {
-          const existingIds = new Set(prev.map(n => n.id))
-          const reallyNew = newOnes.filter(n => !existingIds.has(n.id))
-          if (reallyNew.length === 0) return prev
-          // Mostrar alerta por cada notificación nueva
-          reallyNew.forEach(n => showNewNotifAlert(n))
-          return [...reallyNew, ...prev]
-        })
-        lastCheckedAt = new Date().toISOString()
-      }
-    }, 30000)
+    // El polling lo maneja el NotificationListener global
 
     return () => {
       supabase.removeChannel(channel)

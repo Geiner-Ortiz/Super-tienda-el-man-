@@ -24,7 +24,8 @@ export function NotificationListener() {
         if (!userId) return
 
         const supabase = createClient()
-        let lastCheckedAt = new Date().toISOString()
+        const seenIds = new Set<string>()
+        let lastCheckedAt = new Date(Date.now() - 60000).toISOString() // Empezar 1 minuto antes del montaje
 
         const showAlert = (title: string, message: string, type: string) => {
             const toastMethod = type === 'warning' ? toast.warning
@@ -34,7 +35,7 @@ export function NotificationListener() {
 
             toastMethod(title, {
                 description: message,
-                duration: 6000,
+                duration: 8000, // Un poco más largo para iPhone
             })
 
             // Push nativa (Android / escritorio)
@@ -48,7 +49,7 @@ export function NotificationListener() {
 
                 if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
                     navigator.serviceWorker.ready.then(reg => {
-                        reg.showNotification(title, notifOptions)
+                        reg.showNotification(title, notifOptions).catch(() => { })
                     })
                 } else {
                     try {
@@ -57,9 +58,7 @@ export function NotificationListener() {
                             window.focus()
                             browserNotif.close()
                         }
-                    } catch {
-                        // iOS no soporta new Notification() en PWA
-                    }
+                    } catch { }
                 }
             }
 
@@ -68,9 +67,20 @@ export function NotificationListener() {
             audio.play().catch(() => { })
         }
 
-        // Real-time (funciona en escritorio y Android)
+        // Inicializar: Ver qué notificaciones ya existen para no duplicarlas
+        supabase
+            .from('notifications')
+            .select('id')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(50)
+            .then(({ data }) => {
+                if (data) data.forEach(n => seenIds.add(n.id))
+            })
+
+        // Real-time
         const channel = supabase
-            .channel('global-notifications')
+            .channel('global-alerts')
             .on(
                 'postgres_changes',
                 {
@@ -80,14 +90,16 @@ export function NotificationListener() {
                     filter: `user_id=eq.${userId}`,
                 },
                 (payload) => {
-                    const n = payload.new as { title: string; message: string; type: string }
+                    const n = payload.new as { id: string; title: string; message: string; type: string }
+                    if (seenIds.has(n.id)) return
+                    seenIds.add(n.id)
                     showAlert(n.title, n.message, n.type)
                     lastCheckedAt = new Date().toISOString()
                 }
             )
             .subscribe()
 
-        // Polling cada 15s (respaldo para iOS)
+        // Polling cada 10s (Fuerte respaldo para iOS)
         const pollInterval = setInterval(async () => {
             try {
                 const { data } = await supabase
@@ -98,13 +110,16 @@ export function NotificationListener() {
                     .order('created_at', { ascending: false })
 
                 if (data && data.length > 0) {
-                    data.forEach(n => showAlert(n.title, n.message, n.type))
+                    data.forEach(n => {
+                        if (!seenIds.has(n.id)) {
+                            seenIds.add(n.id)
+                            showAlert(n.title, n.message, n.type)
+                        }
+                    })
                     lastCheckedAt = new Date().toISOString()
                 }
-            } catch {
-                // Silenciar errores de red
-            }
-        }, 15000) // Cada 15 segundos
+            } catch { }
+        }, 10000) // 10 segundos para máxima respuesta
 
         return () => {
             supabase.removeChannel(channel)
