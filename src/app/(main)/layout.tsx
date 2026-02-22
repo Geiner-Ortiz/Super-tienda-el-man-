@@ -13,9 +13,6 @@ import { PWAHelpModal } from '@/components/pwa/PWAHelpModal'
 import { useUIStore } from '@/shared/store/uiStore'
 import { SupportModeBanner } from '@/features/admin/components'
 import { useAdminStore } from '@/features/admin/store/adminStore'
-import { NotificationListener } from '@/components/notifications/NotificationListener'
-import { TrialCountdownBanner } from '@/components/subscription/TrialCountdownBanner'
-import { TrialLockOverlay } from '@/components/subscription/TrialLockOverlay'
 
 export default function MainLayout({
   children,
@@ -52,10 +49,7 @@ export default function MainLayout({
   return (
     <TourProvider>
       <div className={`min-h-screen bg-background transition-all duration-300 ${isSupportMode ? 'pt-12' : ''}`}>
-        <TrialCountdownBanner />
         <SupportModeBanner />
-        <TrialLockOverlay />
-        <NotificationListener />
         <MobileHeader
           onMenuClick={() => setIsMenuOpen(true)}
           storeName={displayStoreName}

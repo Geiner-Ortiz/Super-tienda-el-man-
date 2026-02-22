@@ -79,10 +79,8 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
   }, [isOpen])
 
   useEffect(() => {
-    const supabase = createClient()
-    let lastCheckedAt = new Date().toISOString()
-
     const fetchNotifications = async () => {
+      const supabase = createClient()
       const { data } = await supabase
         .from('notifications')
         .select('*')
@@ -98,9 +96,10 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
 
     fetchNotifications()
 
-    // Real-time (actualiza solo la lista/campanita)
+    // Subscribe to new notifications
+    const supabase = createClient()
     const channel = supabase
-      .channel('notifications-poll')
+      .channel('notifications')
       .on(
         'postgres_changes',
         {
@@ -109,13 +108,16 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
           table: 'notifications',
           filter: `user_id=eq.${userId}`,
         },
-        () => {
-          fetchNotifications()
+        (payload) => {
+          setNotifications(prev => [payload.new as Notification, ...prev])
+          // Play sound if not muted
+          if (!isMuted) {
+            const audio = new Audio('/sounds/notification.mp3')
+            audio.play().catch(() => { })
+          }
         }
       )
       .subscribe()
-
-    // El polling lo maneja el NotificationListener global
 
     return () => {
       supabase.removeChannel(channel)
@@ -179,13 +181,7 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
       {/* Bell Button */}
       <button
         ref={buttonRef}
-        onClick={() => {
-          setIsOpen(!isOpen)
-          // Pedir permiso de push con gesto del usuario (requerido en móvil)
-          if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission()
-          }
-        }}
+        onClick={() => setIsOpen(!isOpen)}
         className="relative p-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200 active:scale-95 z-[60]"
       >
         {isMuted ? (
