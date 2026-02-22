@@ -13,6 +13,7 @@ export interface Profile {
   store_name?: string
   profit_margin?: number
   subscription_status?: string | null
+  trial_ends_at?: string | null
   created_at: string
   updated_at: string
 }
@@ -354,8 +355,8 @@ export interface Database {
     Tables: {
       profiles: {
         Row: Profile
-        Insert: Omit<Profile, 'created_at' | 'updated_at'>
-        Update: Partial<Omit<Profile, 'id' | 'created_at'>>
+        Insert: Omit<Profile, 'created_at' | 'updated_at'> & { trial_ends_at?: string | null }
+        Update: Partial<Omit<Profile, 'id' | 'created_at'>> & { trial_ends_at?: string | null }
       }
       personals: {
         Row: Personal
