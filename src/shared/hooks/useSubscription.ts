@@ -40,10 +40,10 @@ export function useSubscription() {
             if (profile) {
                 const isActive = profile.subscription_status === 'active'
 
-                // Si no hay trial_ends_at (usuario viejo), calculamos 7 días desde created_at
+                // Si no hay trial_ends_at (usuario viejo), calculamos 30 días desde created_at
                 const trialEndDate = profile.trial_ends_at
                     ? new Date(profile.trial_ends_at)
-                    : new Date(new Date(profile.created_at).getTime() + 7 * 24 * 60 * 60 * 1000)
+                    : new Date(new Date(profile.created_at).getTime() + 30 * 24 * 60 * 60 * 1000)
 
                 const now = new Date()
                 const isExpired = !isActive && now > trialEndDate
