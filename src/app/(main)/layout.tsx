@@ -8,6 +8,7 @@ import { WhatsAppHelp } from '@/features/support/components/WhatsAppHelp'
 import { TourProvider } from '@/components/onboarding'
 import { createClient } from '@/lib/supabase/client'
 import { PWAInstallPrompt } from '@/components/pwa/PWAInstallPrompt'
+import { PWAUpdateBanner } from '@/components/pwa/PWAUpdateBanner'
 import { PWAHelpModal } from '@/components/pwa/PWAHelpModal'
 import { useUIStore } from '@/shared/store/uiStore'
 import { SupportModeBanner } from '@/features/admin/components'
@@ -74,6 +75,7 @@ export default function MainLayout({
         <WhatsAppHelp />
         <ChatWidget />
         <PWAInstallPrompt />
+        <PWAUpdateBanner />
       </div>
     </TourProvider>
   )

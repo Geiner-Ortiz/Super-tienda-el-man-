@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { createClient } from '@/lib/supabase/client'
 
 interface Message {
   id: string
@@ -12,33 +13,68 @@ interface Message {
   quickReplies?: string[]
 }
 
-// No longer need LeadData for grocery store
+// Quick replies estratégicos por rol
+const ADMIN_QUICK_REPLIES = ['¿Cuántos usuarios tengo?', 'Resumen de ventas globales', '¿Cuál es el rendimiento global?'];
+const USER_QUICK_REPLIES = ['¿Cuánto vendí hoy?', '¿Quién me debe más?', 'Resumen del mes'];
 
-// No longer need legacy case types.
-
-const INITIAL_MESSAGE: Message = {
-  id: '1',
-  type: 'bot',
-  content: '¡Hola! 🙌 Bienvenido a tu plataforma inteligente. Soy tu asistente virtual. \n\n¿En qué puedo ayudarte hoy? Puedo darte información de tu negocio o ayudarte a usar el sistema.',
-  timestamp: new Date(),
-  quickReplies: ['¿Cómo registro una venta?', 'Ver mis ganancias', 'Horarios']
+function buildInitialMessage(isAdmin: boolean): Message {
+  return {
+    id: '1',
+    type: 'bot',
+    content: isAdmin
+      ? '¡Hola, Maestro! 🧠 Soy tu asistente de plataforma. \n\nPuedo darte estadísticas globales, info de usuarios, ventas y deudas de toda la red.'
+      : '¡Hola! 🙌 Bienvenido a tu plataforma inteligente. Soy tu asistente virtual. \n\n¿En qué puedo ayudarte hoy? Puedo darte información de tu negocio o ayudarte a usar el sistema.',
+    timestamp: new Date(),
+    quickReplies: isAdmin ? ADMIN_QUICK_REPLIES : USER_QUICK_REPLIES
+  };
 }
-
-// FAQ logic is now handled by AI, but we keep a few quick keywords if needed
-const DEFAULT_QUICK_REPLIES = ['¿Cómo funciona?', 'Horarios', 'Ubicación'];
 
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
+  const [roleLoaded, setRoleLoaded] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  // Fetch role eagerly on mount
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      setMessages([INITIAL_MESSAGE])
+    const fetchRole = async () => {
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+          if (profile?.role === 'super_admin') {
+            setIsSuperAdmin(true)
+          }
+        }
+      } finally {
+        setRoleLoaded(true)
+      }
     }
-  }, [isOpen, messages.length])
+    fetchRole()
+  }, [])
+
+  // Show initial message once role is loaded; also reset if role changes
+  useEffect(() => {
+    if (roleLoaded) {
+      setMessages([buildInitialMessage(isSuperAdmin)])
+    }
+  }, [roleLoaded, isSuperAdmin])
+
+  useEffect(() => {
+    if (isOpen && messages.length === 0 && roleLoaded) {
+      setMessages([buildInitialMessage(isSuperAdmin)])
+    }
+  }, [isOpen, messages.length, roleLoaded, isSuperAdmin])
+
+
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
