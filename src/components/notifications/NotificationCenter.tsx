@@ -119,7 +119,6 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
 
     return () => {
       supabase.removeChannel(channel)
-      clearInterval(pollInterval)
     }
   }, [userId, isMuted])
 
