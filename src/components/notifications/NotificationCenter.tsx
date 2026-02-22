@@ -96,6 +96,11 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
 
     fetchNotifications()
 
+    // Pedir permiso de notificaciones push del navegador
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+
     // Subscribe to new notifications
     const supabase = createClient()
     const channel = supabase
@@ -112,7 +117,7 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
           const newNotif = payload.new as Notification
           setNotifications(prev => [newNotif, ...prev])
 
-          // Mostrar toast en pantalla
+          // Mostrar toast en pantalla (in-app)
           const toastMethod = newNotif.type === 'warning' ? toast.warning
             : newNotif.type === 'success' ? toast.success
               : newNotif.type === 'info' ? toast.info
@@ -122,6 +127,21 @@ export function NotificationCenter({ userId }: NotificationCenterProps) {
             description: newNotif.message,
             duration: 6000,
           })
+
+          // Notificación push nativa del navegador (funciona con tab en background o PWA minimizada)
+          if ('Notification' in window && Notification.permission === 'granted' && !isMuted) {
+            const browserNotif = new window.Notification(newNotif.title, {
+              body: newNotif.message,
+              icon: '/favicon.svg',
+              badge: '/favicon.svg',
+              tag: newNotif.id, // Evita duplicados
+            })
+            // Al hacer clic en la notificación, enfocar la app
+            browserNotif.onclick = () => {
+              window.focus()
+              browserNotif.close()
+            }
+          }
 
           // Play sound if not muted
           if (!isMuted) {
