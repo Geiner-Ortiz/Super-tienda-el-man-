@@ -13,6 +13,7 @@ import { PWAHelpModal } from '@/components/pwa/PWAHelpModal'
 import { useUIStore } from '@/shared/store/uiStore'
 import { SupportModeBanner } from '@/features/admin/components'
 import { useAdminStore } from '@/features/admin/store/adminStore'
+import { NotificationListener } from '@/components/notifications/NotificationListener'
 
 export default function MainLayout({
   children,
@@ -50,6 +51,7 @@ export default function MainLayout({
     <TourProvider>
       <div className={`min-h-screen bg-background transition-all duration-300 ${isSupportMode ? 'pt-12' : ''}`}>
         <SupportModeBanner />
+        <NotificationListener />
         <MobileHeader
           onMenuClick={() => setIsMenuOpen(true)}
           storeName={displayStoreName}
