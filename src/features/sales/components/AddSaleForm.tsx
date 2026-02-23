@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { salesService } from '../services/salesService';
 import { dashboardService } from '../../dashboard/services/dashboardService';
@@ -20,6 +20,30 @@ export function AddSaleForm() {
     const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
     const { setFinancialData } = useDashboardStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // PERSISTENCIA: Cargar del día
+    useEffect(() => {
+        const storedDate = localStorage.getItem('nequi_sales_date');
+        const today = new Date().toISOString().split('T')[0];
+
+        if (storedDate === today) {
+            const savedAmount = localStorage.getItem('nequi_sales_amount');
+            const savedRef = localStorage.getItem('nequi_sales_refs');
+            if (savedAmount) setNequiAmount(savedAmount);
+            if (savedRef) setReference(savedRef);
+        } else {
+            // Es un nuevo día, limpiar memoria
+            localStorage.setItem('nequi_sales_date', today);
+            localStorage.removeItem('nequi_sales_amount');
+            localStorage.removeItem('nequi_sales_refs');
+        }
+    }, []);
+
+    // PERSISTENCIA: Guardar cambios
+    useEffect(() => {
+        if (nequiAmount) localStorage.setItem('nequi_sales_amount', nequiAmount);
+        if (reference) localStorage.setItem('nequi_sales_refs', reference);
+    }, [nequiAmount, reference]);
 
     // Auto-cálculo del TOTAL
     const totalAmount = (Number(nequiAmount) || 0) + (Number(cashAmount) || 0);
@@ -175,12 +199,15 @@ export function AddSaleForm() {
             await Promise.all(promises);
             await refreshDashboard();
 
-            // Reset
+            // Reset UI y persistencia
             setNequiAmount('');
             setCashAmount('');
             setReference('');
             setReceiptUrl(null);
-            toast.success('¡Venta híbrida registrada con éxito! 💰');
+            localStorage.removeItem('nequi_sales_amount');
+            localStorage.removeItem('nequi_sales_refs');
+
+            toast.success('¡Venta acumulada registrada con éxito! 💰');
         } catch (error) {
             toast.error('Error al registrar la venta. Por favor intenta de nuevo.');
         } finally {
