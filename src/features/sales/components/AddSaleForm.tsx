@@ -35,10 +35,11 @@ export function AddSaleForm() {
             if (savedAmount) setNequiAmount(savedAmount);
             if (savedRef) setReference(savedRef);
         } else {
-            // Nuevo día: borrar
+            // Nuevo día: borrar y ACTUALIZAR FECHA
             localStorage.setItem('nequi_sales_date', today);
             localStorage.removeItem('nequi_sales_amount');
             localStorage.removeItem('nequi_sales_refs');
+            setDate(today); // <-- IMPORTANTE: Sincronizar UI con el tiempo real
         }
         setIsLoaded(true);
     }, []);
