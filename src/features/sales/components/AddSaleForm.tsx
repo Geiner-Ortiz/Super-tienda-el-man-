@@ -160,28 +160,8 @@ export function AddSaleForm() {
 
     return (
         <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl overflow-hidden transition-all duration-500">
-            {/* 1. SECCIÓN SUPERIOR EXTREMA: SELECTOR Y SCANNER */}
+            {/* 1. SECCIÓN SUPERIOR EXTREMA: SELECTOR Y SCANNER (HEADER DEL COMPONENTE) */}
             <div className="bg-gradient-to-br from-primary-600 to-primary-800 p-8 text-white relative">
-                <div className="flex justify-between items-center mb-8">
-                    <h3 className="text-2xl font-black tracking-tight">Nueva Venta</h3>
-                    <div className="flex bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20">
-                        <button
-                            type="button"
-                            onClick={() => setPaymentMethod('cash')}
-                            className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 flex items-center gap-2 ${paymentMethod === 'cash' ? 'bg-white text-primary-700 shadow-lg' : 'text-primary-100 hover:bg-white/5'}`}
-                        >
-                            <DollarSign size={16} /> CASH
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setPaymentMethod('nequi')}
-                            className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 flex items-center gap-2 ${paymentMethod === 'nequi' ? 'bg-white text-primary-700 shadow-lg' : 'text-primary-100 hover:bg-white/5'}`}
-                        >
-                            <Smartphone size={16} /> NEQUI
-                        </button>
-                    </div>
-                </div>
-
                 <AnimatePresence mode="wait">
                     {paymentMethod === 'nequi' ? (
                         <motion.div
@@ -189,7 +169,7 @@ export function AddSaleForm() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
-                            className="relative"
+                            className="relative mb-8"
                         >
                             {!receiptUrl ? (
                                 <div className="relative overflow-hidden group">
@@ -262,7 +242,7 @@ export function AddSaleForm() {
                             key="cash-info"
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="py-12 text-center"
+                            className="py-12 text-center mb-8"
                         >
                             <div className="inline-flex p-6 bg-white/10 rounded-[2.5rem] border border-white/10 mb-4">
                                 <DollarSign size={48} className="text-primary-100" />
@@ -271,6 +251,29 @@ export function AddSaleForm() {
                         </motion.div>
                     )}
                 </AnimatePresence>
+
+                <div className="flex justify-between items-center">
+                    <div className="flex flex-col">
+                        <h3 className="text-2xl font-black tracking-tight leading-none">Nueva Venta</h3>
+                        <p className="text-[10px] text-primary-100 font-bold uppercase tracking-widest mt-1 opacity-70">Súper Tienda El Maná</p>
+                    </div>
+                    <div className="flex bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20">
+                        <button
+                            type="button"
+                            onClick={() => setPaymentMethod('cash')}
+                            className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 flex items-center gap-2 ${paymentMethod === 'cash' ? 'bg-white text-primary-700 shadow-lg' : 'text-primary-100 hover:bg-white/5'}`}
+                        >
+                            <DollarSign size={16} /> CASH
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setPaymentMethod('nequi')}
+                            className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 flex items-center gap-2 ${paymentMethod === 'nequi' ? 'bg-white text-primary-700 shadow-lg' : 'text-primary-100 hover:bg-white/5'}`}
+                        >
+                            <Smartphone size={16} /> NEQUI
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* 2. FORMULARIO DE DATOS */}
@@ -314,8 +317,8 @@ export function AddSaleForm() {
                         type="submit"
                         disabled={isSubmitting || isScanning || !amount}
                         className={`w-full font-black py-6 px-8 rounded-[2rem] transition-all duration-500 transform active:scale-[0.98] text-xl shadow-2xl flex items-center justify-center gap-4 ${isSubmitting || isScanning || !amount
-                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                : 'bg-primary-600 hover:bg-primary-700 text-white shadow-primary-500/30'
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'bg-primary-600 hover:bg-primary-700 text-white shadow-primary-500/30'
                             }`}
                     >
                         {isSubmitting ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}
