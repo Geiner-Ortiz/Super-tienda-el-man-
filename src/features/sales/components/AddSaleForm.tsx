@@ -235,7 +235,7 @@ export function AddSaleForm() {
                                             {isScanning ? 'LEYENDO...' : 'ESCANEAR'}
                                         </span>
                                         <p className="text-primary-200 text-[10px] font-black uppercase tracking-[0.4em] mt-3 opacity-60">
-                                            Cualquier Banco • Galería • Cámara
+                                            Todos los Bancos • Nequi • Daviplata • Galería
                                         </p>
                                     </div>
                                 </div>

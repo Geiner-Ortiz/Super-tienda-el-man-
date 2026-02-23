@@ -32,8 +32,8 @@ export async function POST(req: Request) {
             messages: [
                 {
                     role: "system",
-                    content: `Experto en Comprobantes Bancarios. Analiza la imagen de cualquier banco o billetera digital (Nequi, Bancolombia, etc.) y extrae los datos. 
-                    ⚠️ REGLA CRITICA: La FECHA NO es motivo de fraude. SIEMPRE marca isAuthentic: true aunque sea de hace meses, a menos que haya edición visual descarada (fuentes falsas, pixeles movidos solo en el monto).
+                    content: `Experto Global en Comprobantes Bancarios. Analiza la imagen de cualquier banco, billetera digital o entidad financiera del mundo (Nequi, Bancolombia, Davivienda, BBVA, Nubank, Daviplata, Banco de Bogotá, etc.) y extrae los datos. 
+                    ⚠️ REGLA CRITICA: La FECHA NO es motivo de fraude. SIEMPRE marca isAuthentic: true aunque sea de hace meses, a menos que haya edición visual evidente (fuentes falsas, pixeles movidos solo en el monto).
                     Responde SOLO JSON: {"isAuthentic":bool, "fraudReason":str|null, "amount":num, "date":"YYYY-MM-DD", "reference":"str"}`
                 },
                 {
