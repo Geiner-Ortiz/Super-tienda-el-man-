@@ -49,25 +49,36 @@ export function AddSaleForm() {
                     body: JSON.stringify({ imageBase64: base64 })
                 });
 
-                const data = await response.json();
-                if (data.error) throw new Error(data.error);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMessage = `Error del servidor (${response.status})`;
+                    try {
+                        const errorJson = JSON.parse(errorText);
+                        errorMessage = errorJson.error || errorMessage;
+                    } catch (e) {
+                        errorMessage = errorText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
 
-                if (!data.isAuthentic) {
-                    toast.error(`⚠️ POSIBLE FRAUDE DETECTADO: ${data.fraudReason}`);
-                    // Opcional: Eliminar la imagen si es fraude
+                const data = await response.json();
+
+                if (data.isAuthentic === false) {
+                    toast.error(`Posible Fraude: ${data.fraudReason}`, { duration: 10000 });
+                    setIsScanning(false);
                     return;
                 }
 
                 if (data.amount) setAmount(data.amount.toString());
-                if (data.reference) setReference(data.reference);
                 if (data.date) setDate(data.date);
-                setPaymentMethod('nequi');
-                toast.success('¡Comprobante verificado! ✅');
+                if (data.reference) setReference(data.reference);
+
+                toast.success('Comprobante validado con éxito');
             };
             reader.readAsDataURL(file);
         } catch (error: any) {
-            console.error('Error scanning:', error);
-            toast.error(`Error: ${error.message || 'No se pudo procesar'}`);
+            console.error('Error scanning receipt:', error);
+            toast.error(`Error de Scanner: ${error.message || 'No se pudo procesar'}`);
         } finally {
             setIsScanning(false);
         }
