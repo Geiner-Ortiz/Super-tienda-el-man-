@@ -10,15 +10,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Image as ImageIcon, CheckCircle2, AlertCircle, X, Loader2, DollarSign, Smartphone } from 'lucide-react';
 
 export function AddSaleForm() {
-    const [amount, setAmount] = useState('');
+    const [nequiAmount, setNequiAmount] = useState('');
+    const [cashAmount, setCashAmount] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-    const [paymentMethod, setPaymentMethod] = useState<'cash' | 'nequi'>('cash');
+    const [paymentMethod, setPaymentMethod] = useState<'cash' | 'nequi'>('nequi');
     const [reference, setReference] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
     const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
     const { setFinancialData } = useDashboardStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Auto-cálculo del TOTAL
+    const totalAmount = (Number(nequiAmount) || 0) + (Number(cashAmount) || 0);
 
     // Helper: Comprimir imagen usando Canvas
     const compressImage = (file: File): Promise<string> => {
@@ -102,8 +106,8 @@ export function AddSaleForm() {
                 return;
             }
 
-            // Auto-llenado instantáneo
-            if (data.amount) setAmount(data.amount.toString());
+            // Auto-llenado instantáneo (Solo Nequi)
+            if (data.amount) setNequiAmount(data.amount.toString());
             if (data.date) setDate(data.date);
             if (data.reference) setReference(data.reference);
 
@@ -131,26 +135,45 @@ export function AddSaleForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+
+        if (totalAmount <= 0) {
             toast.error('Por favor ingresa un monto válido mayor a 0');
             return;
         }
 
         try {
             setIsSubmitting(true);
-            await salesService.createSale({
-                amount: Number(amount),
-                sale_date: date,
-                payment_method: paymentMethod,
-                payment_reference: reference,
-                receipt_url: receiptUrl || undefined
-            });
+            const promises = [];
+
+            // 1. Registro de Nequi si existe
+            if (Number(nequiAmount) > 0) {
+                promises.push(salesService.createSale({
+                    amount: Number(nequiAmount),
+                    sale_date: date,
+                    payment_method: 'nequi',
+                    payment_reference: reference,
+                    receipt_url: receiptUrl || undefined
+                }));
+            }
+
+            // 2. Registro de Efectivo si existe
+            if (Number(cashAmount) > 0) {
+                promises.push(salesService.createSale({
+                    amount: Number(cashAmount),
+                    sale_date: date,
+                    payment_method: 'cash'
+                }));
+            }
+
+            await Promise.all(promises);
             await refreshDashboard();
-            setAmount('');
+
+            // Reset
+            setNequiAmount('');
+            setCashAmount('');
             setReference('');
             setReceiptUrl(null);
-            setPaymentMethod('cash');
-            toast.success('¡Venta registrada con éxito! 💰');
+            toast.success('¡Venta híbrida registrada con éxito! 💰');
         } catch (error) {
             toast.error('Error al registrar la venta. Por favor intenta de nuevo.');
         } finally {
@@ -231,7 +254,7 @@ export function AddSaleForm() {
                             </div>
                             <button
                                 type="button"
-                                onClick={() => { setReceiptUrl(null); setReference(''); }}
+                                onClick={() => { setReceiptUrl(null); setReference(''); setNequiAmount(''); }}
                                 className="w-14 h-14 flex items-center justify-center bg-white/10 text-white rounded-full font-bold hover:bg-white hover:text-primary-700 transition-all duration-300 shadow-lg"
                             >
                                 <X size={28} />
@@ -246,42 +269,58 @@ export function AddSaleForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
                         <label className="flex items-center gap-2 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                            <span className="w-2 h-2 rounded-full bg-primary-500" /> Fecha de Venta
+                            <span className="w-2 h-2 rounded-full bg-primary-500" /> Monto Nequi (Scanner)
                         </label>
-                        <input
-                            type="date"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
-                            className="block w-full px-6 py-4 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-bold text-lg"
-                            disabled={isSubmitting || isScanning}
-                            required
-                        />
+                        <div className="relative">
+                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-primary-500 font-black text-2xl">$</span>
+                            <input
+                                type="number"
+                                step="any"
+                                value={nequiAmount}
+                                onChange={(e) => setNequiAmount(e.target.value)}
+                                placeholder="0.00"
+                                className="block w-full pl-12 pr-6 py-4 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 text-primary-600 dark:text-primary-400 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-2xl font-black"
+                                disabled={isScanning}
+                            />
+                        </div>
                     </div>
 
                     <div className="space-y-4">
                         <label className="flex items-center gap-2 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500" /> Monto de la Venta
+                            <span className="w-2 h-2 rounded-full bg-emerald-500" /> Monto Efectivo (Manual)
                         </label>
                         <div className="relative">
-                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-emerald-500 font-black text-3xl">$</span>
+                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-emerald-500 font-black text-2xl">$</span>
                             <input
                                 type="number"
-                                step="0.01"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
+                                step="any"
+                                value={cashAmount}
+                                onChange={(e) => setCashAmount(e.target.value)}
                                 placeholder="0.00"
-                                className="block w-full pl-14 pr-8 py-5 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 text-emerald-600 dark:text-emerald-400 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-4xl font-black tracking-tighter"
-                                disabled={isSubmitting || isScanning}
+                                className="block w-full pl-12 pr-6 py-4 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 text-emerald-600 dark:text-emerald-400 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-2xl font-black"
+                                disabled={isScanning}
                             />
                         </div>
+                    </div>
+                </div>
+
+                <div className="bg-white dark:bg-gray-900/50 p-6 rounded-[2rem] border-2 border-primary-500/20 shadow-inner flex justify-between items-center group hover:border-primary-500/40 transition-all">
+                    <div>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Total de Venta</p>
+                        <p className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">
+                            ${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 0 })}
+                        </p>
+                    </div>
+                    <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600">
+                        <DollarSign size={32} />
                     </div>
                 </div>
 
                 <div className="flex flex-col gap-4">
                     <button
                         type="submit"
-                        disabled={isSubmitting || isScanning || !amount}
-                        className={`w-full font-black py-6 px-8 rounded-[2rem] transition-all duration-500 transform active:scale-[0.98] text-xl shadow-2xl flex items-center justify-center gap-4 ${isSubmitting || isScanning || !amount
+                        disabled={isSubmitting || isScanning || totalAmount <= 0}
+                        className={`w-full font-black py-6 px-8 rounded-[2rem] transition-all duration-500 transform active:scale-[0.98] text-xl shadow-2xl flex items-center justify-center gap-4 ${isSubmitting || isScanning || totalAmount <= 0
                             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                             : 'bg-primary-600 hover:bg-primary-700 text-white shadow-primary-500/30'
                             }`}
@@ -290,9 +329,14 @@ export function AddSaleForm() {
                         {isSubmitting ? 'GUARDANDO...' : 'FINALIZAR VENTA'}
                     </button>
 
-                    <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">
-                        Comprobado por Súper Inteligencia Artificial
-                    </p>
+                    <div className="flex justify-center gap-4">
+                        <input
+                            type="date"
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
+                            className="bg-transparent border-0 text-[10px] font-black text-gray-400 uppercase tracking-widest focus:ring-0 cursor-pointer"
+                        />
+                    </div>
                 </div>
             </form>
         </div>
