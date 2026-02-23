@@ -139,25 +139,32 @@ export function AddSaleForm() {
 
             if (data.isAuthentic === false) {
                 toast.error(`Posible Fraude: ${data.fraudReason}`, { duration: 10000 });
-                // Limpiar si es fraude evidente
                 setReceiptUrl(null);
                 setIsScanning(false);
                 return;
             }
 
-            // Acumular el monto (Suma automática)
-            if (data.amount) {
+            // Acumular el monto (Suma numérica forzada V11)
+            const scannedAmount = Number(data.amount) || 0;
+            if (scannedAmount > 0) {
                 setNequiAmount(prev => {
                     const current = Number(prev) || 0;
-                    return (current + data.amount).toString();
+                    const total = current + scannedAmount;
+                    return total.toString();
                 });
             }
+
             if (data.date) setDate(data.date);
             if (data.reference) {
-                setReference(prev => prev ? `${prev}, ${data.reference}` : data.reference);
+                setReference(prev => {
+                    const newRef = data.reference;
+                    if (!prev) return newRef;
+                    if (prev.includes(newRef)) return prev; // Evitar duplicados
+                    return `${prev}, ${newRef}`;
+                });
             }
 
-            toast.success(`+ $${data.amount.toLocaleString()} sumado con éxito! ⚡`);
+            toast.success(`+ $${scannedAmount.toLocaleString()} sumado al día! ⚡`);
         } catch (error: any) {
             console.error('Error scanning receipt:', error);
             toast.error(`Error de Scanner: ${error.message || 'No se pudo procesar'}`);
