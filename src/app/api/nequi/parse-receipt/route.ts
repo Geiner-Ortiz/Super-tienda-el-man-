@@ -32,13 +32,14 @@ export async function POST(req: Request) {
             messages: [
                 {
                     role: "system",
-                    content: `Expert anti-fraud Nequi. Analyze image, extract data, detect fake receipts (check fonts, alignment, UI inconsistencies). 
-                    Respond ONLY valid JSON: {"isAuthentic":bool, "fraudReason":str|null, "amount":num, "date":"YYYY-MM-DD", "reference":"str"}`
+                    content: `Experto Anti-Fraude Nequi. Analiza imagen y extrae datos. 
+                    ⚠️ REGLA CRITICA: La FECHA NO es motivo de fraude. SIEMPRE marca isAuthentic: true aunque sea de hace meses, a menos que haya edición visual (fuentes falsas, pixeles movidos).
+                    Responde SOLO JSON: {"isAuthentic":bool, "fraudReason":str|null, "amount":num, "date":"YYYY-MM-DD", "reference":"str"}`
                 },
                 {
                     role: "user",
                     content: [
-                        { type: "text", text: "Parse Nequi receipt. Be ultra-strict with fraud." },
+                        { type: "text", text: "Parse receipt. Focus on visual authenticity. Ignore old dates for fraud." },
                         {
                             type: "image_url",
                             image_url: {
