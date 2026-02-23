@@ -12,7 +12,7 @@ import { Camera, Image as ImageIcon, CheckCircle2, AlertCircle, X, Loader2, Doll
 export function AddSaleForm() {
     const [nequiAmount, setNequiAmount] = useState('');
     const [cashAmount, setCashAmount] = useState('');
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [date, setDate] = useState(new Date().toLocaleDateString('en-CA'));
     const [paymentMethod, setPaymentMethod] = useState<'cash' | 'nequi'>('nequi');
     const [reference, setReference] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -161,7 +161,6 @@ export function AddSaleForm() {
                 });
             }
 
-            if (data.date) setDate(data.date);
             if (data.reference) {
                 setReference(prev => {
                     const newRef = data.reference;
