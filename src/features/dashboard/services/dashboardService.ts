@@ -40,6 +40,15 @@ export const dashboardService = {
     const variableExpenses = expenses?.filter(e => e.category === 'variable').reduce((acc, e) => acc + Number(e.amount), 0) || 0
     const totalExpenses = fixedExpenses + variableExpenses
 
+    // 3. Obtener listado para el feed de Nequi
+    const { data: recentNequiSales } = await supabase
+      .from('sales')
+      .select('id, amount, payment_reference, receipt_url, created_at, sale_date')
+      .eq('user_id', userId)
+      .eq('payment_method', 'nequi')
+      .order('created_at', { ascending: false })
+      .limit(5)
+
     return {
       totalSales,
       nequiSales,
@@ -48,7 +57,8 @@ export const dashboardService = {
       totalExpenses,
       netIncome: grossProfit - totalExpenses,
       fixedExpenses,
-      variableExpenses
+      variableExpenses,
+      recentNequiSales: recentNequiSales || []
     }
   },
 

@@ -22,21 +22,25 @@ export async function POST(req: Request) {
         }
 
         const systemPrompt = `
-Eres un experto en detección de fraudes y extracción de datos financieros de comprobantes de Nequi (Colombia).
-Tu misión es doble:
-1. **Detección de Fraude**: Analiza la imagen buscando señales de edición, fuentes inconsistentes, alineaciones extrañas, colores alterados o cualquier elemento que sugiera que el comprobante es falso.
-2. **Extracción de Datos**: Si el comprobante parece genuino, extrae el monto, la fecha (en formato YYYY-MM-DD) y el número de referencia.
+Eres un experto en detección de fraudes de Nequi (Colombia).
+Tu misión es detectar si el comprobante es genuino o generado por apps fraudulentas.
 
-Responde ÚNICAMENTE en formato JSON con la siguiente estructura:
+ANALIZA DETALLADAMENTE:
+1. **Fuentes**: Busca fuentes inconsistentes, pixeladas o que no coinciden con la tipografía oficial de Nequi.
+2. **Artefactos de Edición**: Bordes difusos, textos mal alineados, colores de fondo no uniformes cerca del texto.
+3. **Generadores**: Comprobantes con alineación "perfecta" milimétrica o que parecen sacados de una plantilla digital sin textura de pantalla real.
+4. **Coherencia**: La fecha, hora y referencia deben seguir el formato oficial.
+
+EXTRAE: Monto, Fecha (YYYY-MM-DD), Referencia.
+
+Responde ÚNICAMENTE en JSON:
 {
   "isAuthentic": boolean,
   "fraudReason": string | null,
-  "amount": number | null,
-  "date": string | null,
-  "reference": string | null
+  "amount": number,
+  "date": "YYYY-MM-DD",
+  "reference": "string"
 }
-
-Si isAuthentic es false, fraudReason debe explicar brevemente por qué.
         `;
 
         const response = await openai.chat.completions.create({

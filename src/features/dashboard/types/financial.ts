@@ -7,6 +7,13 @@ export interface FinancialStats {
     netIncome: number; // grossProfit - totalExpenses
     fixedExpenses: number;
     variableExpenses: number;
+    recentNequiSales: Array<{
+        id: string;
+        amount: number;
+        payment_reference?: string;
+        receipt_url?: string;
+        created_at: string;
+    }>;
 }
 
 export interface DailySalesData {
