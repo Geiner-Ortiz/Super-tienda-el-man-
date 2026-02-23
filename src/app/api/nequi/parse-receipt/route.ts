@@ -32,14 +32,14 @@ export async function POST(req: Request) {
             messages: [
                 {
                     role: "system",
-                    content: `Experto Anti-Fraude Nequi. Analiza imagen y extrae datos. 
-                    ⚠️ REGLA CRITICA: La FECHA NO es motivo de fraude. SIEMPRE marca isAuthentic: true aunque sea de hace meses, a menos que haya edición visual (fuentes falsas, pixeles movidos).
+                    content: `Experto en Comprobantes Bancarios. Analiza la imagen de cualquier banco o billetera digital (Nequi, Bancolombia, etc.) y extrae los datos. 
+                    ⚠️ REGLA CRITICA: La FECHA NO es motivo de fraude. SIEMPRE marca isAuthentic: true aunque sea de hace meses, a menos que haya edición visual descarada (fuentes falsas, pixeles movidos solo en el monto).
                     Responde SOLO JSON: {"isAuthentic":bool, "fraudReason":str|null, "amount":num, "date":"YYYY-MM-DD", "reference":"str"}`
                 },
                 {
                     role: "user",
                     content: [
-                        { type: "text", text: "Parse receipt. Focus on visual authenticity. Ignore old dates for fraud." },
+                        { type: "text", text: "Analiza este comprobante bancario. Extrae monto, fecha y referencia. Ignora fechas antiguas para el fraude." },
                         {
                             type: "image_url",
                             image_url: {

@@ -228,7 +228,7 @@ export function AddSaleForm() {
                                             {isScanning ? 'LEYENDO...' : 'ESCANEAR'}
                                         </span>
                                         <p className="text-primary-200 text-[10px] font-black uppercase tracking-[0.4em] mt-3 opacity-60">
-                                            Nequi • Galería • Cámara
+                                            Cualquier Banco • Galería • Cámara
                                         </p>
                                     </div>
                                 </div>
@@ -269,7 +269,7 @@ export function AddSaleForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
                         <label className="flex items-center gap-2 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                            <span className="w-2 h-2 rounded-full bg-primary-500" /> Monto Nequi (Scanner)
+                            <span className="w-2 h-2 rounded-full bg-primary-500" /> Monto Transferencia / Banco (Scanner)
                         </label>
                         <div className="relative">
                             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-primary-500 font-black text-2xl">$</span>
@@ -329,13 +329,16 @@ export function AddSaleForm() {
                         {isSubmitting ? 'GUARDANDO...' : 'FINALIZAR VENTA'}
                     </button>
 
-                    <div className="flex justify-center gap-4">
+                    <div className="flex flex-col items-center gap-4">
                         <input
                             type="date"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
                             className="bg-transparent border-0 text-[10px] font-black text-gray-400 uppercase tracking-widest focus:ring-0 cursor-pointer"
                         />
+                        <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] opacity-60">
+                            Comprobado por Súper Inteligencia Artificial
+                        </p>
                     </div>
                 </div>
             </form>
