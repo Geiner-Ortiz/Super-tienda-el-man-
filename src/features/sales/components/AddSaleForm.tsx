@@ -160,119 +160,84 @@ export function AddSaleForm() {
 
     return (
         <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl overflow-hidden transition-all duration-500">
-            {/* 1. SECCIÓN SUPERIOR EXTREMA: SELECTOR Y SCANNER (HEADER DEL COMPONENTE) */}
+            {/* 1. SECCIÓN SUPERIOR EXTREMA: HEADER Y SCANNER (FOCUS NEQUI) */}
             <div className="bg-gradient-to-br from-primary-600 to-primary-800 p-8 text-white relative">
-                <AnimatePresence mode="wait">
-                    {paymentMethod === 'nequi' ? (
-                        <motion.div
-                            key="nequi-scanner"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            className="relative mb-8"
-                        >
-                            {!receiptUrl ? (
-                                <div className="relative overflow-hidden group">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        ref={fileInputRef}
-                                        onChange={handleScanReceipt}
-                                        className="hidden"
-                                        id="receipt-upload-v3"
-                                        disabled={isScanning}
-                                    />
-                                    <label
-                                        htmlFor="receipt-upload-v3"
-                                        className={`relative flex flex-col items-center justify-center gap-4 w-full py-16 border-4 border-dashed border-white/30 rounded-[3rem] cursor-pointer transition-all duration-500 overflow-hidden ${isScanning ? 'bg-white/5 animate-pulse' : 'bg-white/5 hover:bg-white/10 hover:border-white/50'
-                                            }`}
-                                    >
-                                        {/* Efecto de Escaneo Moderno */}
-                                        {isScanning && (
-                                            <motion.div
-                                                className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent z-0"
-                                                animate={{ top: ['-100%', '100%'] }}
-                                                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                                            />
-                                        )}
+                <div className="flex flex-col mb-10">
+                    <h3 className="text-4xl font-black tracking-tighter leading-none">Nueva Venta</h3>
+                    <div className="flex items-center gap-2 mt-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary-300 animate-pulse" />
+                        <p className="text-[11px] text-primary-100 font-black uppercase tracking-[0.3em] opacity-80">Súper Tienda El Maná</p>
+                    </div>
+                </div>
 
-                                        <div className="relative z-10 flex flex-col items-center gap-4">
-                                            <div className="p-5 bg-white text-primary-600 rounded-[2rem] shadow-2xl transform group-hover:scale-110 transition-transform duration-500">
-                                                {isScanning ? <Loader2 className="animate-spin" size={40} /> : <Camera size={40} />}
-                                            </div>
-                                            <div className="text-center">
-                                                <span className="text-2xl font-black block uppercase tracking-tight">
-                                                    {isScanning ? 'ANALIZANDO...' : 'ESCANEAR RECIBO'}
-                                                </span>
-                                                <p className="text-primary-100/70 text-xs font-bold uppercase tracking-widest mt-1">Cámara o Galería</p>
-                                            </div>
-                                        </div>
-                                    </label>
+                <div className="relative">
+                    {!receiptUrl ? (
+                        <div className="relative overflow-hidden group">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                ref={fileInputRef}
+                                onChange={handleScanReceipt}
+                                className="hidden"
+                                id="receipt-upload-v3"
+                                disabled={isScanning}
+                            />
+                            <label
+                                htmlFor="receipt-upload-v3"
+                                className={`relative flex flex-col items-center justify-center gap-6 w-full py-20 border-4 border-dashed border-white/20 rounded-[3.5rem] cursor-pointer transition-all duration-500 overflow-hidden ${isScanning ? 'bg-white/5 animate-pulse' : 'bg-white/5 hover:bg-white/10 hover:border-white/40 shadow-2xl'
+                                    }`}
+                            >
+                                {/* Efecto de Escaneo Moderno */}
+                                {isScanning && (
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent z-0"
+                                        animate={{ top: ['-100%', '100%'] }}
+                                        transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                                    />
+                                )}
+
+                                <div className="relative z-10 flex flex-col items-center gap-6">
+                                    <div className="p-6 bg-white text-primary-600 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-700">
+                                        {isScanning ? <Loader2 className="animate-spin" size={48} /> : <Camera size={48} />}
+                                    </div>
+                                    <div className="text-center">
+                                        <span className="text-3xl font-black block uppercase tracking-tighter leading-none">
+                                            {isScanning ? 'LEYENDO...' : 'ESCANEAR'}
+                                        </span>
+                                        <p className="text-primary-200 text-[10px] font-black uppercase tracking-[0.4em] mt-3 opacity-60">
+                                            Nequi • Galería • Cámara
+                                        </p>
+                                    </div>
                                 </div>
-                            ) : (
-                                <motion.div
-                                    initial={{ scale: 0.9, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    className="flex items-center gap-6 bg-white/10 backdrop-blur-xl p-6 rounded-[2.5rem] border border-white/30 shadow-2xl"
-                                >
-                                    <div className="relative">
-                                        <div className="w-20 h-20 rounded-3xl bg-white/20 overflow-hidden border-2 border-white/40 shadow-inner">
-                                            <img src={receiptUrl} alt="Recibo" className="w-full h-full object-cover" />
-                                        </div>
-                                        <div className="absolute -top-2 -right-2 bg-green-500 text-white p-1.5 rounded-full shadow-lg border-2 border-white">
-                                            <CheckCircle2 size={14} />
-                                        </div>
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="text-xs font-black text-white/60 uppercase tracking-widest">Recibo Detectado</p>
-                                        <p className="text-xl font-black text-white truncate max-w-[150px]">{reference || 'Procesando...'}</p>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => { setReceiptUrl(null); setReference(''); }}
-                                        className="w-12 h-12 flex items-center justify-center bg-white/10 text-white rounded-full font-bold hover:bg-white hover:text-primary-600 transition-all duration-300"
-                                    >
-                                        <X size={24} />
-                                    </button>
-                                </motion.div>
-                            )}
-                        </motion.div>
+                            </label>
+                        </div>
                     ) : (
                         <motion.div
-                            key="cash-info"
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="py-12 text-center mb-8"
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="flex items-center gap-6 bg-white/10 backdrop-blur-2xl p-8 rounded-[3rem] border border-white/20 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]"
                         >
-                            <div className="inline-flex p-6 bg-white/10 rounded-[2.5rem] border border-white/10 mb-4">
-                                <DollarSign size={48} className="text-primary-100" />
+                            <div className="relative">
+                                <div className="w-24 h-24 rounded-[2rem] bg-white/20 overflow-hidden border-2 border-white/30 shadow-inner">
+                                    <img src={receiptUrl} alt="Recibo" className="w-full h-full object-cover" />
+                                </div>
+                                <div className="absolute -top-3 -right-3 bg-green-500 text-white p-2 rounded-full shadow-2xl border-4 border-primary-700">
+                                    <CheckCircle2 size={18} />
+                                </div>
                             </div>
-                            <p className="text-primary-100 text-lg font-medium">Registro manual de venta en efectivo</p>
+                            <div className="flex-1">
+                                <p className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-1">Comprobante Listo</p>
+                                <p className="text-2xl font-black text-white truncate tracking-tighter">{reference || 'Analizando...'}</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => { setReceiptUrl(null); setReference(''); }}
+                                className="w-14 h-14 flex items-center justify-center bg-white/10 text-white rounded-full font-bold hover:bg-white hover:text-primary-700 transition-all duration-300 shadow-lg"
+                            >
+                                <X size={28} />
+                            </button>
                         </motion.div>
                     )}
-                </AnimatePresence>
-
-                <div className="flex justify-between items-center">
-                    <div className="flex flex-col">
-                        <h3 className="text-2xl font-black tracking-tight leading-none">Nueva Venta</h3>
-                        <p className="text-[10px] text-primary-100 font-bold uppercase tracking-widest mt-1 opacity-70">Súper Tienda El Maná</p>
-                    </div>
-                    <div className="flex bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20">
-                        <button
-                            type="button"
-                            onClick={() => setPaymentMethod('cash')}
-                            className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 flex items-center gap-2 ${paymentMethod === 'cash' ? 'bg-white text-primary-700 shadow-lg' : 'text-primary-100 hover:bg-white/5'}`}
-                        >
-                            <DollarSign size={16} /> CASH
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setPaymentMethod('nequi')}
-                            className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 flex items-center gap-2 ${paymentMethod === 'nequi' ? 'bg-white text-primary-700 shadow-lg' : 'text-primary-100 hover:bg-white/5'}`}
-                        >
-                            <Smartphone size={16} /> NEQUI
-                        </button>
-                    </div>
                 </div>
             </div>
 
