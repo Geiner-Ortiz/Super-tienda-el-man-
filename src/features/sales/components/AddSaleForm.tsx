@@ -18,13 +18,16 @@ export function AddSaleForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
     const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
+    const [isLoaded, setIsLoaded] = useState(false);
     const { setFinancialData } = useDashboardStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // PERSISTENCIA: Cargar del día
     useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD Local
         const storedDate = localStorage.getItem('nequi_sales_date');
-        const today = new Date().toISOString().split('T')[0];
 
         if (storedDate === today) {
             const savedAmount = localStorage.getItem('nequi_sales_amount');
@@ -37,13 +40,25 @@ export function AddSaleForm() {
             localStorage.removeItem('nequi_sales_amount');
             localStorage.removeItem('nequi_sales_refs');
         }
+        setIsLoaded(true);
     }, []);
 
     // PERSISTENCIA: Guardar cambios
     useEffect(() => {
-        if (nequiAmount) localStorage.setItem('nequi_sales_amount', nequiAmount);
-        if (reference) localStorage.setItem('nequi_sales_refs', reference);
-    }, [nequiAmount, reference]);
+        if (!isLoaded) return;
+
+        if (nequiAmount) {
+            localStorage.setItem('nequi_sales_amount', nequiAmount);
+        } else {
+            localStorage.removeItem('nequi_sales_amount');
+        }
+
+        if (reference) {
+            localStorage.setItem('nequi_sales_refs', reference);
+        } else {
+            localStorage.removeItem('nequi_sales_refs');
+        }
+    }, [nequiAmount, reference, isLoaded]);
 
     // Auto-cálculo del TOTAL
     const totalAmount = (Number(nequiAmount) || 0) + (Number(cashAmount) || 0);
