@@ -85,13 +85,6 @@ export const salesService = {
             if (error) throw error;
             return data;
         }
-
-        if (error) {
-            console.error('Error creating sale:', error);
-            throw error;
-        }
-
-        return data;
     },
 
     async getSales(startDate?: string, endDate?: string, userId?: string): Promise<Sale[]> {
