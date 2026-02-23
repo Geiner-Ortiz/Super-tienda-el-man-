@@ -123,15 +123,15 @@ export function DashboardContainer({ overrideUserId }: Props) {
                 </div>
             </header>
 
+            <section className="animate-in fade-in slide-in-from-top duration-700">
+                <AddSaleForm />
+            </section>
+
             <section>
                 <DashboardStats />
             </section>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-10">
-                <aside className="lg:col-span-1">
-                    <AddSaleForm />
-                </aside>
-
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10">
                 <main className="lg:col-span-2 space-y-6">
                     <SalesList sales={recentSales} />
                 </main>
