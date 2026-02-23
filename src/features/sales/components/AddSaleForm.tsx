@@ -32,13 +32,16 @@ export function AddSaleForm() {
         if (storedDate === today) {
             const savedAmount = localStorage.getItem('nequi_sales_amount');
             const savedRef = localStorage.getItem('nequi_sales_refs');
+            const savedDate = localStorage.getItem('nequi_sales_form_date');
             if (savedAmount) setNequiAmount(savedAmount);
             if (savedRef) setReference(savedRef);
+            if (savedDate) setDate(savedDate);
         } else {
             // Es un nuevo día, limpiar memoria
             localStorage.setItem('nequi_sales_date', today);
             localStorage.removeItem('nequi_sales_amount');
             localStorage.removeItem('nequi_sales_refs');
+            localStorage.removeItem('nequi_sales_form_date');
         }
         setIsLoaded(true);
     }, []);
@@ -58,7 +61,11 @@ export function AddSaleForm() {
         } else {
             localStorage.removeItem('nequi_sales_refs');
         }
-    }, [nequiAmount, reference, isLoaded]);
+
+        if (date) {
+            localStorage.setItem('nequi_sales_form_date', date);
+        }
+    }, [nequiAmount, reference, date, isLoaded]);
 
     // Auto-cálculo del TOTAL
     const totalAmount = (Number(nequiAmount) || 0) + (Number(cashAmount) || 0);
@@ -228,6 +235,7 @@ export function AddSaleForm() {
             setReceiptUrl(null);
             localStorage.removeItem('nequi_sales_amount');
             localStorage.removeItem('nequi_sales_refs');
+            localStorage.removeItem('nequi_sales_form_date');
 
             toast.success('¡Venta acumulada registrada con éxito! 💰');
         } catch (error) {
@@ -314,9 +322,9 @@ export function AddSaleForm() {
                                     setReceiptUrl(null);
                                     // NO borramos nequiAmount aquí para permitir acumular múltiples recibos sin perder el total
                                 }}
-                                className="w-14 h-14 flex items-center justify-center bg-white/10 text-white rounded-full font-bold hover:bg-white hover:text-primary-700 transition-all duration-300 shadow-lg"
+                                className="w-14 h-14 flex items-center justify-center bg-red-500 text-white rounded-full font-bold hover:bg-red-600 transition-all duration-300 shadow-[0_0_20px_rgba(239,68,68,0.5)] border-4 border-white"
                             >
-                                <X size={28} />
+                                <X size={28} className="drop-shadow-lg" />
                             </button>
                         </motion.div>
                     )}
