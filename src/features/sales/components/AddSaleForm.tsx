@@ -26,22 +26,19 @@ export function AddSaleForm() {
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
-        const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD Local
+        const today = new Date().toLocaleDateString('en-CA');
         const storedDate = localStorage.getItem('nequi_sales_date');
 
         if (storedDate === today) {
             const savedAmount = localStorage.getItem('nequi_sales_amount');
             const savedRef = localStorage.getItem('nequi_sales_refs');
-            const savedDate = localStorage.getItem('nequi_sales_form_date');
             if (savedAmount) setNequiAmount(savedAmount);
             if (savedRef) setReference(savedRef);
-            if (savedDate) setDate(savedDate);
         } else {
-            // Es un nuevo día, limpiar memoria
+            // Nuevo día: borrar
             localStorage.setItem('nequi_sales_date', today);
             localStorage.removeItem('nequi_sales_amount');
             localStorage.removeItem('nequi_sales_refs');
-            localStorage.removeItem('nequi_sales_form_date');
         }
         setIsLoaded(true);
     }, []);
@@ -61,11 +58,7 @@ export function AddSaleForm() {
         } else {
             localStorage.removeItem('nequi_sales_refs');
         }
-
-        if (date) {
-            localStorage.setItem('nequi_sales_form_date', date);
-        }
-    }, [nequiAmount, reference, date, isLoaded]);
+    }, [nequiAmount, reference, isLoaded]);
 
     // Auto-cálculo del TOTAL
     const totalAmount = (Number(nequiAmount) || 0) + (Number(cashAmount) || 0);
@@ -234,7 +227,6 @@ export function AddSaleForm() {
             setReceiptUrl(null);
             localStorage.removeItem('nequi_sales_amount');
             localStorage.removeItem('nequi_sales_refs');
-            localStorage.removeItem('nequi_sales_form_date');
 
             toast.success('¡Venta acumulada registrada con éxito! 💰');
         } catch (error) {

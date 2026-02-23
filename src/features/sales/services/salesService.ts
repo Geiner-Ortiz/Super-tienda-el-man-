@@ -23,22 +23,68 @@ export const salesService = {
             .eq('id', userId)
             .single();
 
-        const margin = profile?.profit_margin || 0.20;
-        const profit = input.amount * margin;
+        const saleDate = input.sale_date || new Date().toLocaleDateString('en-CA');
 
-        const { data, error } = await supabase
+        // 1. Buscar si ya existe una venta para ese día y método
+        const { data: existingSale } = await supabase
             .from('sales')
-            .insert({
-                amount: input.amount,
-                profit: profit,
-                user_id: userId,
-                sale_date: input.sale_date || new Date().toISOString().split('T')[0],
-                payment_method: input.payment_method || 'cash',
-                payment_reference: input.payment_reference,
-                receipt_url: input.receipt_url,
-            })
-            .select()
-            .single();
+            .select('*')
+            .eq('user_id', userId)
+            .eq('sale_date', saleDate)
+            .eq('payment_method', input.payment_method || 'cash')
+            .maybeSingle();
+
+        const margin = profile?.profit_margin || 0.20;
+        const newAmount = input.amount;
+        const newProfit = newAmount * margin;
+
+        if (existingSale) {
+            // 2. ACTUALIZAR (CONSOLIDAR): Sumar nuevo monto al existente
+            const totalAmount = Number(existingSale.amount) + newAmount;
+            const totalProfit = Number(existingSale.profit) + newProfit;
+
+            // Combinar referencias si existen
+            let updatedRefs = existingSale.payment_reference;
+            if (input.payment_reference) {
+                updatedRefs = updatedRefs
+                    ? `${updatedRefs}, ${input.payment_reference}`
+                    : input.payment_reference;
+            }
+
+            const { data, error } = await supabase
+                .from('sales')
+                .update({
+                    amount: totalAmount,
+                    profit: totalProfit,
+                    payment_reference: updatedRefs,
+                    receipt_url: input.receipt_url || existingSale.receipt_url, // Mantener o actualizar
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', existingSale.id)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        } else {
+            // 3. INSERTAR: Primer registro del día para este método
+            const { data, error } = await supabase
+                .from('sales')
+                .insert({
+                    amount: newAmount,
+                    profit: newProfit,
+                    user_id: userId,
+                    sale_date: saleDate,
+                    payment_method: input.payment_method || 'cash',
+                    payment_reference: input.payment_reference,
+                    receipt_url: input.receipt_url,
+                })
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        }
 
         if (error) {
             console.error('Error creating sale:', error);
