@@ -32,13 +32,19 @@ export async function POST(req: Request) {
             messages: [
                 {
                     role: "system",
-                    content: "ERES UN EXPERTO EN DETECCIÓN DE FRAUDE DE NEQUI COLOMBIA. Analiza la imagen y extrae los datos. Responde SOLO en JSON."
+                    content: `Expert anti-fraud Nequi. Analyze image, extract data, detect fake receipts (check fonts, alignment, UI inconsistencies). 
+                    Respond ONLY valid JSON: {"isAuthentic":bool, "fraudReason":str|null, "amount":num, "date":"YYYY-MM-DD", "reference":"str"}`
                 },
                 {
                     role: "user",
                     content: [
-                        { type: "text", text: "Extrae el monto (amount), fecha (date en formato YYYY-MM-DD), y número de referencia (reference). También evalúa si es auténtico (isAuthentic) y si hay sospecha de fraude pon el motivo (fraudReason). Sé muy estricto con la detección de comprobantes falsos generados por aplicaciones." },
-                        { type: "image_url", image_url: { url: imageBase64 } }
+                        { type: "text", text: "Parse Nequi receipt. Be ultra-strict with fraud." },
+                        {
+                            type: "image_url",
+                            image_url: {
+                                url: `data:image/jpeg;base64,${imageBase64}`
+                            }
+                        }
                     ]
                 }
             ],

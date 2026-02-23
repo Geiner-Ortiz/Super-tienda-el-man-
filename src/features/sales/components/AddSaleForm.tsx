@@ -137,73 +137,92 @@ export function AddSaleForm() {
                 )}
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-                {/* 1. SECTOR DE ESCANEO RÁPIDO - AHORA AL PRINCIPIO */}
-                <div className="mb-8">
-                    <div className="grid grid-cols-2 gap-3 mb-6">
-                        <button
-                            type="button"
-                            onClick={() => setPaymentMethod('cash')}
-                            className={`py-4 px-4 rounded-2xl border-2 transition-all font-bold text-sm flex items-center justify-center gap-2 ${paymentMethod === 'cash'
-                                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-600'
-                                : 'border-gray-100 dark:border-gray-800 text-gray-400 hover:border-gray-200'
-                                }`}
-                        >
-                            <span className="text-xl">💵</span> Efectivo
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setPaymentMethod('nequi')}
-                            className={`py-4 px-4 rounded-2xl border-2 transition-all font-bold text-sm flex items-center justify-center gap-2 ${paymentMethod === 'nequi'
-                                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-600'
-                                : 'border-gray-100 dark:border-gray-800 text-gray-400 hover:border-gray-200'
-                                }`}
-                        >
-                            <span className="text-xl">📲</span> Nequi
-                        </button>
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* 1. SECCIÓN DE ESCANEO (PRIORIDAD ALTA) */}
+                <div className="bg-primary-50 px-6 py-8 rounded-[2.5rem] border-2 border-primary-100 shadow-inner">
+                    <div className="flex justify-between items-center mb-4">
+                        <label className="text-xs font-black text-primary-600 uppercase tracking-widest">
+                            {paymentMethod === 'nequi' ? '📲 Scanner Nequi Activo' : '💵 Registro en Efectivo'}
+                        </label>
+                        <div className="flex bg-white p-1 rounded-xl shadow-sm">
+                            <button
+                                type="button"
+                                onClick={() => setPaymentMethod('cash')}
+                                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${paymentMethod === 'cash' ? 'bg-primary-600 text-white shadow-md' : 'text-gray-400'}`}
+                            >
+                                Cash
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setPaymentMethod('nequi')}
+                                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${paymentMethod === 'nequi' ? 'bg-primary-600 text-white shadow-md' : 'text-gray-400'}`}
+                            >
+                                Nequi
+                            </button>
+                        </div>
                     </div>
 
-                    {paymentMethod === 'nequi' && (
-                        <div className="relative group">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                capture="environment"
-                                onChange={handleScanReceipt}
-                                className="hidden"
-                                id="receipt-upload"
-                                disabled={isScanning}
-                            />
-                            <label
-                                htmlFor="receipt-upload"
-                                className={`flex flex-col items-center justify-center gap-2 w-full py-10 border-4 border-dashed rounded-[2.5rem] cursor-pointer transition-all transform active:scale-[0.98] ${isScanning
-                                    ? 'bg-gray-50 dark:bg-gray-800 border-gray-200 animate-pulse'
-                                    : 'bg-primary-600 border-primary-400 dark:border-primary-700 hover:bg-primary-700 shadow-xl shadow-primary-500/20'
-                                    }`}
-                            >
-                                <span className="text-4xl mb-2">{isScanning ? '⏳' : '📷'}</span>
-                                <span className="text-lg font-black text-white">
-                                    {isScanning ? 'Analizando...' : 'ESCANEAR COMPROBANTE'}
-                                </span>
-                                {!isScanning && <span className="text-primary-100 text-xs font-bold uppercase tracking-widest opacity-80">Toma la foto ahora</span>}
-                            </label>
-                        </div>
-                    )}
-
-                    {reference && paymentMethod === 'nequi' && (
-                        <div className="mt-4 px-5 py-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-2xl text-sm font-bold flex justify-between items-center border border-green-100 dark:border-green-800 animate-in fade-in slide-in-from-top-2 duration-300">
-                            <div className="flex items-center gap-2">
-                                <span className="text-lg">✅</span>
-                                <div>
-                                    <p className="text-[10px] text-green-600/60 uppercase leading-none mb-1">Referencia</p>
-                                    <p className="leading-none">{reference}</p>
+                    {paymentMethod === 'nequi' ? (
+                        <div className="space-y-4">
+                            {!receiptUrl ? (
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleScanReceipt}
+                                        className="hidden"
+                                        id="receipt-upload"
+                                        disabled={isScanning}
+                                    />
+                                    <label
+                                        htmlFor="receipt-upload"
+                                        className={`flex flex-col items-center justify-center gap-2 w-full py-12 border-4 border-dashed rounded-[2rem] cursor-pointer transition-all transform active:scale-95 ${isScanning
+                                            ? 'bg-white/50 border-primary-200 animate-pulse'
+                                            : 'bg-white border-primary-300 hover:border-primary-500 hover:shadow-lg'
+                                            }`}
+                                    >
+                                        <span className="text-5xl">{isScanning ? '🔍' : '📸'}</span>
+                                        <span className="text-lg font-black text-primary-900">
+                                            {isScanning ? 'PROCESANDO...' : 'ESCANEAR O SUBIR'}
+                                        </span>
+                                        <p className="text-[10px] text-primary-500 font-bold uppercase tracking-tighter opacity-70">
+                                            Cámara o Galería (WhatsApp)
+                                        </p>
+                                    </label>
                                 </div>
-                            </div>
-                            <span className="text-[10px] bg-green-500 text-white px-2 py-1 rounded-md uppercase font-black">Validado</span>
+                            ) : (
+                                <div className="flex items-center gap-4 bg-white p-4 rounded-[1.5rem] shadow-sm animate-in zoom-in-95 duration-300">
+                                    <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden border-2 border-primary-100">
+                                        <img src={receiptUrl} alt="Recibo" className="w-full h-full object-cover" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-xs font-black text-primary-600 uppercase">Recibo Cargado ✅</p>
+                                        <p className="text-[10px] text-gray-400 font-bold uppercase truncate">Ref: {reference || 'Extrayendo...'}</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => { setReceiptUrl(null); setReference(''); }}
+                                        className="w-10 h-10 flex items-center justify-center bg-red-50 text-red-500 rounded-full font-bold hover:bg-red-500 hover:text-white transition-all"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            )}
+
+                            {reference && (
+                                <div className="bg-green-500 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase text-center animate-in fade-in slide-in-from-top-1">
+                                    ¡Comprobante Validado por IA! 🛡️
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="py-6 text-center italic text-primary-400 text-sm font-medium">
+                            Registra el monto manualmente a continuación
                         </div>
                     )}
                 </div>
 
+                {/* 2. DATOS DE VENTA */}
                 <div className="p-1 bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] space-y-4">
                     <div className="p-5 space-y-4">
                         <div>
