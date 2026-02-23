@@ -301,7 +301,7 @@ export function AddSaleForm() {
                         <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="flex items-center gap-6 bg-white/10 backdrop-blur-2xl p-8 rounded-[3rem] border border-white/20 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]"
+                            className="relative flex items-center gap-6 bg-white/10 backdrop-blur-2xl p-8 rounded-[3rem] border border-white/20 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]"
                         >
                             <div className="relative">
                                 <div className="w-24 h-24 rounded-[2rem] bg-white/20 overflow-hidden border-2 border-white/30 shadow-inner">
@@ -319,11 +319,10 @@ export function AddSaleForm() {
                                 type="button"
                                 onClick={() => {
                                     setReceiptUrl(null);
-                                    // NO borramos nequiAmount aquí para permitir acumular múltiples recibos sin perder el total
                                 }}
-                                className="w-14 h-14 flex items-center justify-center bg-red-500 text-white rounded-full font-bold hover:bg-red-600 transition-all duration-300 shadow-[0_0_20px_rgba(239,68,68,0.5)] border-4 border-white"
+                                className="absolute -top-4 -right-4 w-12 h-12 flex items-center justify-center bg-red-500 text-white rounded-full font-bold hover:bg-red-600 transition-all duration-300 shadow-[0_0_20px_rgba(239,68,68,0.5)] border-4 border-white z-20"
                             >
-                                <X size={28} className="drop-shadow-lg" />
+                                <X size={24} className="drop-shadow-lg" />
                             </button>
                         </motion.div>
                     )}
