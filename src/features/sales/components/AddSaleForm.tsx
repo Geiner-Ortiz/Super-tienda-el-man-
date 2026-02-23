@@ -106,12 +106,19 @@ export function AddSaleForm() {
                 return;
             }
 
-            // Auto-llenado instantáneo (Solo Nequi)
-            if (data.amount) setNequiAmount(data.amount.toString());
+            // Acumular el monto (Suma automática)
+            if (data.amount) {
+                setNequiAmount(prev => {
+                    const current = Number(prev) || 0;
+                    return (current + data.amount).toString();
+                });
+            }
             if (data.date) setDate(data.date);
-            if (data.reference) setReference(data.reference);
+            if (data.reference) {
+                setReference(prev => prev ? `${prev}, ${data.reference}` : data.reference);
+            }
 
-            toast.success('¡Comprobante procesado en tiempo récord! ⚡');
+            toast.success(`+ $${data.amount.toLocaleString()} sumado con éxito! ⚡`);
         } catch (error: any) {
             console.error('Error scanning receipt:', error);
             toast.error(`Error de Scanner: ${error.message || 'No se pudo procesar'}`);
@@ -269,7 +276,7 @@ export function AddSaleForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
                         <label className="flex items-center gap-2 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                            <span className="w-2 h-2 rounded-full bg-primary-500" /> Monto Transferencia / Banco (Scanner)
+                            <span className="w-2 h-2 rounded-full bg-primary-500" /> Monto Nequi/Transferencia (Scanner)
                         </label>
                         <div className="relative">
                             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-primary-500 font-black text-2xl">$</span>
