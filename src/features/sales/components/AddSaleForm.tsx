@@ -303,7 +303,10 @@ export function AddSaleForm() {
                             </div>
                             <button
                                 type="button"
-                                onClick={() => { setReceiptUrl(null); setReference(''); setNequiAmount(''); }}
+                                onClick={() => {
+                                    setReceiptUrl(null);
+                                    // NO borramos nequiAmount aquí para permitir acumular múltiples recibos sin perder el total
+                                }}
                                 className="w-14 h-14 flex items-center justify-center bg-white/10 text-white rounded-full font-bold hover:bg-white hover:text-primary-700 transition-all duration-300 shadow-lg"
                             >
                                 <X size={28} />
