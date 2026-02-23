@@ -33,6 +33,9 @@ export const salesService = {
                 profit: profit,
                 user_id: userId,
                 sale_date: input.sale_date || new Date().toISOString().split('T')[0],
+                payment_method: input.payment_method || 'cash',
+                payment_reference: input.payment_reference,
+                receipt_url: input.receipt_url,
             })
             .select()
             .single();

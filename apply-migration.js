@@ -13,13 +13,20 @@ if (!PROJECT_REF || !ACCESS_TOKEN) {
 }
 
 async function applyMigration() {
-    const sqlPath = path.resolve(__dirname, 'supabase/migrations/20260218_multiple_debts.sql');
+    const migrationFile = process.argv[2] || 'supabase/migrations/20260218_multiple_debts.sql';
+    const sqlPath = path.resolve(__dirname, migrationFile);
+
+    if (!fs.existsSync(sqlPath)) {
+        console.error(`❌ Error: El archivo ${sqlPath} no existe.`);
+        process.exit(1);
+    }
+
     const sql = fs.readFileSync(sqlPath, 'utf8');
 
-    console.log(`Aplicando migración a ${PROJECT_REF}...`);
+    console.log(`Aplicando migración ${migrationFile} a ${PROJECT_REF}...`);
 
     try {
-        const response = await fetch(`https://api.supabase.com/v1/projects/${PROJECT_REF}/query`, {
+        const response = await fetch(`https://api.supabase.com/v1/projects/${PROJECT_REF}/sql`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${ACCESS_TOKEN}`,

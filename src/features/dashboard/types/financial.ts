@@ -1,5 +1,7 @@
 export interface FinancialStats {
     totalSales: number;
+    nequiSales: number;
+    cashSales: number;
     grossProfit: number; // 20% of totalSales
     totalExpenses: number;
     netIncome: number; // grossProfit - totalExpenses

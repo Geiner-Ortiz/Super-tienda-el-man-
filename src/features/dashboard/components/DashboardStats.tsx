@@ -35,6 +35,11 @@ export function DashboardStats() {
     { name: 'Variables', value: financialStats.variableExpenses },
   ];
 
+  const paymentData = [
+    { name: '📲 Nequi', value: financialStats.nequiSales },
+    { name: '💵 Efectivo', value: financialStats.cashSales },
+  ];
+
   return (
     <div className="space-y-8">
       {/* Metrics Grid */}
@@ -43,7 +48,7 @@ export function DashboardStats() {
           label="Ventas Totales"
           value={formatCurrency(financialStats.totalSales)}
           color="text-primary-600"
-          trend="Impacto Bruto"
+          trend={`Nequi: ${formatCurrency(financialStats.nequiSales)}`}
         />
         <MetricCard
           label="Ganancia Bruta"
@@ -68,9 +73,9 @@ export function DashboardStats() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Main Sales Chart */}
-        <Card className="lg:col-span-2 p-6 md:p-8 overflow-hidden border-none shadow-sm dark:bg-gray-900">
+        <Card className="p-6 md:p-8 overflow-hidden border-none shadow-sm dark:bg-gray-900">
           <div className="mb-6">
             <h3 className="text-xl font-bold text-foreground">Tendencia de Ventas</h3>
             <p className="text-sm text-foreground-secondary">Historial de los últimos 7 días</p>
@@ -110,37 +115,68 @@ export function DashboardStats() {
           </div>
         </Card>
 
-        {/* Expenses Distribution */}
-        <Card className="p-6 md:p-8 border-none shadow-sm dark:bg-gray-900 flex flex-col items-center justify-center">
-          <div className="w-full mb-6">
-            <h3 className="text-xl font-bold text-foreground">Distribución de Gastos</h3>
-            <p className="text-sm text-foreground-secondary">Fijos vs Variables</p>
-          </div>
-          <div className="h-[250px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={expenseData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {expenseData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value: any) => formatCurrency(value)}
-                  contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                />
-                <Legend iconType="circle" />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Expenses Distribution */}
+          <Card className="p-6 border-none shadow-sm dark:bg-gray-900 flex flex-col items-center">
+            <div className="w-full mb-4">
+              <h4 className="font-bold text-foreground text-sm">Distribución de Gastos</h4>
+            </div>
+            <div className="h-[180px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={expenseData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={45}
+                    outerRadius={65}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {expenseData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: any) => formatCurrency(value)}
+                    contentStyle={{ borderRadius: '0.5rem', border: 'none' }}
+                  />
+                  <Legend iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+
+          {/* Payment Distribution */}
+          <Card className="p-6 border-none shadow-sm dark:bg-gray-900 flex flex-col items-center">
+            <div className="w-full mb-4">
+              <h4 className="font-bold text-foreground text-sm">Métodos de Pago</h4>
+            </div>
+            <div className="h-[180px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={paymentData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={45}
+                    outerRadius={65}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    <Cell fill="#8B5CF6" />
+                    <Cell fill="#10B981" />
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: any) => formatCurrency(value)}
+                    contentStyle={{ borderRadius: '0.5rem', border: 'none' }}
+                  />
+                  <Legend iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </div>
       </div>
 
       {/* Detail Area Chart */}

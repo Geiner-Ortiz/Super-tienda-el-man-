@@ -22,7 +22,7 @@ export const dashboardService = {
     // 1. Obtener ventas
     const { data: sales } = await supabase
       .from('sales')
-      .select('amount, profit')
+      .select('amount, profit, payment_method')
       .eq('user_id', userId)
 
     // 2. Obtener gastos
@@ -32,6 +32,8 @@ export const dashboardService = {
       .eq('user_id', userId)
 
     const totalSales = sales?.reduce((acc, s) => acc + Number(s.amount), 0) || 0
+    const nequiSales = sales?.filter(s => s.payment_method === 'nequi').reduce((acc, s) => acc + Number(s.amount), 0) || 0
+    const cashSales = sales?.filter(s => s.payment_method === 'cash').reduce((acc, s) => acc + Number(s.amount), 0) || 0
     const grossProfit = sales?.reduce((acc, s) => acc + Number(s.profit), 0) || 0 // Ya es el 20% segun salesService
 
     const fixedExpenses = expenses?.filter(e => e.category === 'fijo').reduce((acc, e) => acc + Number(e.amount), 0) || 0
@@ -40,6 +42,8 @@ export const dashboardService = {
 
     return {
       totalSales,
+      nequiSales,
+      cashSales,
       grossProfit,
       totalExpenses,
       netIncome: grossProfit - totalExpenses,
