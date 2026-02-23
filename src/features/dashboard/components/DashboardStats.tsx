@@ -97,7 +97,7 @@ export function DashboardStats() {
                   tickLine={false}
                   tick={{ fill: '#94A3B8', fontSize: 11 }}
                   tickFormatter={(str) => {
-                    const date = new Date(str);
+                    const date = new Date(str + 'T00:00:00');
                     return date.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' });
                   }}
                 />
@@ -235,7 +235,7 @@ export function DashboardStats() {
                   tickLine={false}
                   tick={{ fill: '#94A3B8', fontSize: 11 }}
                   tickFormatter={(str) => {
-                    const date = new Date(str);
+                    const date = new Date(str + 'T00:00:00');
                     return date.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' });
                   }}
                 />

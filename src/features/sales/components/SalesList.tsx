@@ -73,7 +73,8 @@ export function SalesList({ sales }: SalesListProps) {
                                         {formatCurrency(data.totalAmount)}
                                     </p>
                                     <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                                        {new Date(data.date).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                        {/* Evitar desfase de zona horaria: añadir la hora local o parsear a mano */}
+                                        {new Date(data.date + 'T00:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })}
                                     </p>
 
                                     {/* Desglose de Pago */}

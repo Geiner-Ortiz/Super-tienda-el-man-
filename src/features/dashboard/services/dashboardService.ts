@@ -85,7 +85,7 @@ export const dashboardService = {
       .from('sales')
       .select('amount, profit, sale_date')
       .eq('user_id', userId)
-      .gte('sale_date', startDate.toISOString().split('T')[0])
+      .gte('sale_date', startDate.toLocaleDateString('en-CA'))
       .order('sale_date', { ascending: true })
 
     // Agrupar por fecha
