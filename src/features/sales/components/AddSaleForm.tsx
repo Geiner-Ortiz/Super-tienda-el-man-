@@ -375,36 +375,37 @@ export function AddSaleForm() {
 
                                 <div className="grid grid-cols-1 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                                     {nequiScans.map((scan, idx) => (
-                                        <div key={idx} className="bg-white/5 border border-white/10 rounded-[2rem] p-5 flex items-center justify-between group hover:bg-white/10 transition-all duration-300">
-                                            <div className="flex-1 flex items-center justify-between pr-4 overflow-hidden">
-                                                <div className="min-w-0 flex flex-col gap-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] font-black text-primary-300 bg-primary-500/20 px-2 py-0.5 rounded-md uppercase">{scan.timestamp}</span>
-                                                        <p className="text-[10px] font-black text-white/30 uppercase tracking-tighter truncate">{scan.reference}</p>
+                                        <div key={idx} className="bg-white/5 border border-white/10 rounded-[2rem] p-5 flex items-center gap-4 group hover:bg-white/10 transition-all duration-300">
+                                            {scan.url && (
+                                                <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 border border-white/20 shadow-lg group-hover:scale-110 transition-transform cursor-zoom-in"
+                                                    onClick={() => window.open(scan.url, '_blank')}>
+                                                    <img src={scan.url} alt="Recibo" className="w-full h-full object-cover" />
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <ImageIcon size={14} className="text-white" />
                                                     </div>
-                                                    <p className="text-2xl font-black text-white tracking-tight">$ {scan.amount.toLocaleString()}</p>
                                                 </div>
+                                            )}
 
-                                                {scan.url && (
-                                                    <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 border border-white/20 shadow-lg group-hover:scale-110 transition-transform cursor-zoom-in"
-                                                        onClick={() => window.open(scan.url, '_blank')}>
-                                                        <img src={scan.url} alt="Recibo" className="w-full h-full object-cover" />
-                                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                            <ImageIcon size={14} className="text-white" />
-                                                        </div>
-                                                    </div>
-                                                )}
+                                            <div className="flex-1 min-w-0 flex flex-col gap-1">
+                                                <p className="text-[10px] font-black text-white/30 uppercase tracking-tighter truncate">{scan.reference}</p>
+                                                <p className="text-2xl font-black text-white tracking-tight">$ {scan.amount.toLocaleString()}</p>
                                             </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setNequiScans(prev => prev.filter((_, i) => i !== idx));
-                                                    toast.info('Comprobante descartado');
-                                                }}
-                                                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                                            >
-                                                <X size={18} />
-                                            </button>
+
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-[10px] font-black text-primary-300 bg-primary-500/20 px-3 py-1.5 rounded-lg uppercase whitespace-nowrap shadow-sm border border-primary-500/30">
+                                                    {scan.timestamp}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setNequiScans(prev => prev.filter((_, i) => i !== idx));
+                                                        toast.info('Comprobante descartado');
+                                                    }}
+                                                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                                                >
+                                                    <X size={18} />
+                                                </button>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
