@@ -159,15 +159,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </span>
               </div>
             </div>
-            {userId && (
-              <NotificationCenter userId={userId} />
+            {user?.id && (
+              <NotificationCenter userId={user.id} />
             )}
           </div>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {isLoading ? (
+          {authLoading ? (
             <div className="space-y-2">
               {[1, 2, 3, 4].map(i => (
                 <div key={i} className="h-12 bg-white/10 rounded-xl animate-pulse" />
