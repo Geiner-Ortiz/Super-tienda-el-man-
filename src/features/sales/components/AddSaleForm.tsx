@@ -12,6 +12,7 @@ import { Camera, Image as ImageIcon, CheckCircle2, AlertCircle, X, Loader2, Doll
 
 export function AddSaleForm() {
     const [nequiScans, setNequiScans] = useState<{ amount: number, reference: string, url: string }[]>([]);
+    const [nequiAmount, setNequiAmount] = useState('');
     const [cashAmount, setCashAmount] = useState('');
     const [othersAmount, setOthersAmount] = useState('');
     const [cashEntries, setCashEntries] = useState<{ amount: number, note: string }[]>([]);
@@ -36,6 +37,7 @@ export function AddSaleForm() {
 
         if (storedDate === today) {
             const savedNequiScans = localStorage.getItem('nequi_sales_history');
+            const savedNequiAmount = localStorage.getItem('nequi_sales_amount');
             const savedRef = localStorage.getItem('nequi_sales_refs');
             const savedCashEntries = localStorage.getItem('cash_sales_entries');
             const savedOthersEntries = localStorage.getItem('others_sales_entries');
@@ -43,6 +45,7 @@ export function AddSaleForm() {
             const savedOthersInput = localStorage.getItem('others_active_input');
 
             if (savedNequiScans) setNequiScans(JSON.parse(savedNequiScans));
+            if (savedNequiAmount) setNequiAmount(savedNequiAmount);
             if (savedRef) setReference(savedRef);
             if (savedCashEntries) setCashEntries(JSON.parse(savedCashEntries));
             if (savedOthersEntries) setOthersEntries(JSON.parse(savedOthersEntries));
@@ -70,6 +73,9 @@ export function AddSaleForm() {
         if (nequiScans.length > 0) localStorage.setItem('nequi_sales_history', JSON.stringify(nequiScans));
         else localStorage.removeItem('nequi_sales_history');
 
+        if (nequiAmount) localStorage.setItem('nequi_sales_amount', nequiAmount);
+        else localStorage.removeItem('nequi_sales_amount');
+
         if (reference) localStorage.setItem('nequi_sales_refs', reference);
         else localStorage.removeItem('nequi_sales_refs');
 
@@ -86,7 +92,7 @@ export function AddSaleForm() {
 
         if (othersEntries.length > 0) localStorage.setItem('others_sales_entries', JSON.stringify(othersEntries));
         else localStorage.removeItem('others_sales_entries');
-    }, [nequiScans, reference, cashAmount, cashEntries, othersAmount, othersEntries, isLoaded]);
+    }, [nequiScans, nequiAmount, reference, cashAmount, cashEntries, othersAmount, othersEntries, isLoaded]);
 
     // Auto-cálculo del TOTAL
     const nequiSum = nequiScans.reduce((acc, curr) => acc + curr.amount, 0);
@@ -306,7 +312,7 @@ export function AddSaleForm() {
                 </div>
 
                 <div className="relative">
-                    {!receiptUrl ? (
+                    {!receiptUrl && (
                         <div className="relative overflow-hidden group">
                             <input
                                 type="file"
@@ -346,34 +352,7 @@ export function AddSaleForm() {
                                 </div>
                             </label>
                         </div>
-                    ) : (
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            className="relative flex items-center gap-6 bg-white/10 backdrop-blur-2xl p-8 rounded-[3rem] border border-white/20 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]"
-                        >
-                            <div className="relative">
-                                <div className="w-24 h-24 rounded-[2rem] bg-white/20 overflow-hidden border-2 border-white/30 shadow-inner">
-                                    <img src={receiptUrl} alt="Recibo" className="w-full h-full object-cover" />
-                                </div>
-                                <div className="absolute -top-3 -right-3 bg-green-500 text-white p-2 rounded-full shadow-2xl border-4 border-primary-700">
-                                    <CheckCircle2 size={18} />
-                                </div>
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-1">Comprobante Listo</p>
-                                <p className="text-2xl font-black text-white truncate tracking-tighter">{reference || 'Analizando...'}</p>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setReceiptUrl(null);
-                                }}
-                                className="absolute -top-4 -right-4 w-12 h-12 flex items-center justify-center bg-red-500 text-white rounded-full font-bold hover:bg-red-600 transition-all duration-300 shadow-[0_0_20px_rgba(239,68,68,0.5)] border-4 border-white z-20"
-                            >
-                                <X size={24} className="drop-shadow-lg" />
-                            </button>
-                        </motion.div>
+                    )}
                     {/* Historial de Escaneos Nequi */}
                     <AnimatePresence>
                         {nequiScans.length > 0 && (
