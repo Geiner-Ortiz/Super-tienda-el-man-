@@ -360,52 +360,52 @@ export function AddSaleForm() {
                             <motion.div
                                 initial={{ y: 20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
-                                className="mt-12 bg-white/10 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/20 space-y-6 shadow-2xl overflow-hidden"
+                                className="mt-12 bg-white/10 backdrop-blur-md rounded-[2.5rem] p-3 border border-white/20 space-y-6 shadow-2xl overflow-hidden"
                             >
                                 <div className="flex items-center justify-between px-2">
                                     <div className="flex flex-col">
-                                        <h3 className="text-sm font-black text-white uppercase tracking-widest">Comprobantes de Hoy</h3>
-                                        <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">Registrados al Instante</p>
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="text-xs font-black text-white uppercase tracking-widest">Cierres de Hoy</h3>
+                                            <span className="text-[9px] font-black bg-white/20 text-white px-2 py-0.5 rounded-full border border-white/10 uppercase tracking-tighter">
+                                                {nequiScans.length} {nequiScans.length === 1 ? 'comprobante' : 'comprobantes'}
+                                            </span>
+                                        </div>
+                                        <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest mt-0.5">Renueva cada 24h</p>
                                     </div>
-                                    <div className="bg-white/10 px-4 py-2 rounded-2xl border border-white/10 text-right">
-                                        <p className="text-[10px] font-black text-white/40 uppercase">Total Nequi</p>
-                                        <p className="text-xl font-black text-white">${nequiSum.toLocaleString()}</p>
+                                    <div className="bg-white/5 px-4 py-2 rounded-2xl border border-white/10 text-right">
+                                        <p className="text-[9px] font-black text-white/40 uppercase">Total Día</p>
+                                        <p className="text-lg font-black text-white">${nequiSum.toLocaleString()}</p>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                                     {nequiScans.map((scan, idx) => (
-                                        <div key={idx} className="bg-white/5 border border-white/10 rounded-[2rem] p-5 flex items-center gap-4 group hover:bg-white/10 transition-all duration-300">
+                                        <div key={idx} className="bg-white/5 border border-white/5 rounded-2xl p-3 flex items-center gap-3 group hover:bg-white/10 transition-all duration-300">
                                             {scan.url && (
-                                                <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 border border-white/20 shadow-lg group-hover:scale-110 transition-transform cursor-zoom-in"
+                                                <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-white/10 shadow-sm group-hover:scale-105 transition-transform cursor-zoom-in"
                                                     onClick={() => window.open(scan.url, '_blank')}>
                                                     <img src={scan.url} alt="Recibo" className="w-full h-full object-cover" />
-                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                        <ImageIcon size={14} className="text-white" />
-                                                    </div>
                                                 </div>
                                             )}
 
-                                            <div className="flex-1 min-w-0 flex flex-col gap-1">
-                                                <p className="text-[10px] font-black text-white/30 uppercase tracking-tighter truncate">{scan.reference}</p>
-                                                <p className="text-2xl font-black text-white tracking-tight">$ {scan.amount.toLocaleString()}</p>
+                                            <div className="flex-1 min-w-0 flex flex-col">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <p className="text-[10px] font-black text-white tracking-tight">$ {scan.amount.toLocaleString()}</p>
+                                                    <span className="text-[8px] font-black text-primary-300 bg-primary-500/20 px-1.5 py-0.5 rounded uppercase">{scan.timestamp}</span>
+                                                </div>
+                                                <p className="text-[8px] font-bold text-white/30 uppercase tracking-tighter truncate">{scan.reference}</p>
                                             </div>
 
-                                            <div className="flex items-center gap-3">
-                                                <span className="text-[10px] font-black text-primary-300 bg-primary-500/20 px-3 py-1.5 rounded-lg uppercase whitespace-nowrap shadow-sm border border-primary-500/30">
-                                                    {scan.timestamp}
-                                                </span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setNequiScans(prev => prev.filter((_, i) => i !== idx));
-                                                        toast.info('Comprobante descartado');
-                                                    }}
-                                                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                                                >
-                                                    <X size={18} />
-                                                </button>
-                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setNequiScans(prev => prev.filter((_, i) => i !== idx));
+                                                    toast.info('Comprobante descartado');
+                                                }}
+                                                className="w-7 h-7 flex items-center justify-center rounded-full bg-white/5 text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                                            >
+                                                <X size={14} />
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
