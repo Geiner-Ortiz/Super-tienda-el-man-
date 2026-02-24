@@ -105,12 +105,30 @@ function ClosureCard({ item, formatCurrency }: { item: MonthlyClosure, formatCur
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden bg-gray-50/50 dark:bg-gray-800/20 border-t border-gray-100 dark:border-gray-800"
                     >
-                        <div className="p-6 grid grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="p-6 grid grid-cols-2 lg:grid-cols-4 gap-6 border-b border-gray-100 dark:border-gray-800">
                             <DetailItem label="Ventas Totales" value={formatCurrency(item.totalSales)} color="text-primary-600" />
                             <DetailItem label="Gastos Totales" value={formatCurrency(item.totalExpenses)} color="text-red-500" />
                             <DetailItem label="Ganancia Bruta" value={formatCurrency(item.grossProfit)} color="text-amber-600" />
                             <DetailItem label="Utilidad Neta" value={formatCurrency(item.netIncome)} color={isPositive ? 'text-success-600' : 'text-red-600'} />
                         </div>
+
+                        {/* Expense Breakdown */}
+                        {item.totalExpenses > 0 && item.expenseBreakdown && (
+                            <div className="p-6 bg-gray-50/30 dark:bg-gray-900/10">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Desglose de Gastos</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {Object.entries(item.expenseBreakdown).map(([type, amount]) => (
+                                        <div key={type} className="flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-2 h-2 rounded-full bg-red-400" />
+                                                <span className="text-xs font-bold text-gray-700 dark:text-gray-300 capitalize">{type}</span>
+                                            </div>
+                                            <span className="text-sm font-black text-gray-900 dark:text-white">{formatCurrency(amount)}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>

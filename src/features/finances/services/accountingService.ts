@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { useAdminStore } from '@/features/admin/store/adminStore';
+import { ExpenseType } from '../types';
 
 export interface MonthlyClosure {
     month: string;
@@ -8,6 +9,7 @@ export interface MonthlyClosure {
     totalExpenses: number;
     grossProfit: number;
     netIncome: number;
+    expenseBreakdown: Record<string, number>;
 }
 
 export const accountingService = {
@@ -25,10 +27,9 @@ export const accountingService = {
         }
 
         // Fetch all sales and expenses for the user
-        // In a real app we might want to aggregate in SQL, but for now we'll do it in JS
         const [{ data: sales }, { data: expenses }] = await Promise.all([
             supabase.from('sales').select('amount, profit, sale_date').eq('user_id', userId),
-            supabase.from('expenses').select('amount, expense_date').eq('user_id', userId)
+            supabase.from('expenses').select('amount, expense_date, type').eq('user_id', userId)
         ]);
 
         const history: Record<string, MonthlyClosure> = {};
@@ -47,7 +48,8 @@ export const accountingService = {
                     totalSales: 0,
                     totalExpenses: 0,
                     grossProfit: 0,
-                    netIncome: 0
+                    netIncome: 0,
+                    expenseBreakdown: {}
                 };
             }
             history[key].totalSales += Number(s.amount);
@@ -66,10 +68,16 @@ export const accountingService = {
                     totalSales: 0,
                     totalExpenses: 0,
                     grossProfit: 0,
-                    netIncome: 0
+                    netIncome: 0,
+                    expenseBreakdown: {}
                 };
             }
-            history[key].totalExpenses += Number(e.amount);
+            const amount = Number(e.amount);
+            history[key].totalExpenses += amount;
+
+            // Breakdown
+            const type = e.type || 'otros';
+            history[key].expenseBreakdown[type] = (history[key].expenseBreakdown[type] || 0) + amount;
         });
 
         return Object.values(history)
