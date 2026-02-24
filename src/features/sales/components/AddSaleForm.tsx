@@ -181,11 +181,11 @@ export function AddSaleForm() {
             // Guardar en el historial de escaneos
             const scannedAmount = Number(data.amount) || 0;
             if (scannedAmount > 0) {
-                setNequiScans(prev => [...prev, {
+                setNequiScans(prev => [{
                     amount: scannedAmount,
                     reference: data.reference || 'Sin referencia',
                     url: publicUrl
-                }]);
+                }, ...prev]);
             }
 
             toast.success(`¡Comprobante guardado! + $${scannedAmount.toLocaleString()} ⚡`);
@@ -451,14 +451,14 @@ export function AddSaleForm() {
                                     const amountToAdd = Number(cashAmount) || 0;
                                     if (amountToAdd > 0) {
                                         const note = prompt('Descripción para este monto (opcional):');
-                                        setCashEntries(prev => [...prev, { amount: amountToAdd, note: note || '' }]);
+                                        setCashEntries(prev => [{ amount: amountToAdd, note: note || '' }, ...prev]);
                                         setCashAmount('');
                                         toast.success(`+ $${amountToAdd.toLocaleString()} sumado!`);
                                     } else {
                                         const val = prompt('¿Qué monto deseas sumar al Efectivo?');
                                         if (val && !isNaN(Number(val))) {
                                             const note = prompt('Descripción para este monto (opcional):');
-                                            setCashEntries(prev => [...prev, { amount: Number(val), note: note || '' }]);
+                                            setCashEntries(prev => [{ amount: Number(val), note: note || '' }, ...prev]);
                                             toast.success(`+ $${Number(val).toLocaleString()} sumado!`);
                                         }
                                     }
@@ -533,14 +533,14 @@ export function AddSaleForm() {
                                     const amountToAdd = Number(othersAmount) || 0;
                                     if (amountToAdd > 0) {
                                         const note = prompt('Descripción para este pago del día (opcional):');
-                                        setOthersEntries(prev => [...prev, { amount: amountToAdd, note: note || '' }]);
+                                        setOthersEntries(prev => [{ amount: amountToAdd, note: note || '' }, ...prev]);
                                         setOthersAmount('');
                                         toast.success(`+ $${amountToAdd.toLocaleString()} sumado!`);
                                     } else {
                                         const val = prompt('¿Qué monto deseas sumar a Pagos del día?');
                                         if (val && !isNaN(Number(val))) {
                                             const note = prompt('Descripción para este pago (opcional):');
-                                            setOthersEntries(prev => [...prev, { amount: Number(val), note: note || '' }]);
+                                            setOthersEntries(prev => [{ amount: Number(val), note: note || '' }, ...prev]);
                                             toast.success(`+ $${Number(val).toLocaleString()} sumado!`);
                                         }
                                     }
