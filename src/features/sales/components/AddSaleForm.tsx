@@ -14,8 +14,8 @@ export function AddSaleForm() {
     const [nequiAmount, setNequiAmount] = useState('');
     const [cashAmount, setCashAmount] = useState('');
     const [othersAmount, setOthersAmount] = useState('');
-    const [cashAccumulated, setCashAccumulated] = useState('0');
-    const [othersAccumulated, setOthersAccumulated] = useState('0');
+    const [cashEntries, setCashEntries] = useState<{ amount: number, note: string }[]>([]);
+    const [othersEntries, setOthersEntries] = useState<{ amount: number, note: string }[]>([]);
     const [date, setDate] = useState(new Date().toLocaleDateString('en-CA'));
     const [paymentMethod, setPaymentMethod] = useState<'cash' | 'nequi'>('nequi');
     const [reference, setReference] = useState('');
@@ -37,15 +37,15 @@ export function AddSaleForm() {
         if (storedDate === today) {
             const savedNequi = localStorage.getItem('nequi_sales_amount');
             const savedRef = localStorage.getItem('nequi_sales_refs');
-            const savedCashAcc = localStorage.getItem('cash_sales_amount');
-            const savedOthersAcc = localStorage.getItem('others_sales_amount');
+            const savedCashEntries = localStorage.getItem('cash_sales_entries');
+            const savedOthersEntries = localStorage.getItem('others_sales_entries');
             const savedCashInput = localStorage.getItem('cash_active_input');
             const savedOthersInput = localStorage.getItem('others_active_input');
 
             if (savedNequi) setNequiAmount(savedNequi);
             if (savedRef) setReference(savedRef);
-            if (savedCashAcc) setCashAccumulated(savedCashAcc);
-            if (savedOthersAcc) setOthersAccumulated(savedOthersAcc);
+            if (savedCashEntries) setCashEntries(JSON.parse(savedCashEntries));
+            if (savedOthersEntries) setOthersEntries(JSON.parse(savedOthersEntries));
             if (savedCashInput) setCashAmount(savedCashInput);
             if (savedOthersInput) setOthersAmount(savedOthersInput);
         } else {
@@ -53,11 +53,11 @@ export function AddSaleForm() {
             localStorage.setItem('nequi_sales_date', today);
             localStorage.removeItem('nequi_sales_amount');
             localStorage.removeItem('nequi_sales_refs');
-            localStorage.removeItem('cash_sales_amount');
-            localStorage.removeItem('others_sales_amount');
+            localStorage.removeItem('cash_sales_entries');
+            localStorage.removeItem('others_sales_entries');
             localStorage.removeItem('cash_active_input');
             localStorage.removeItem('others_active_input');
-            setDate(today); // <-- IMPORTANTE: Sincronizar UI con el tiempo real
+            setDate(today);
         }
         setIsLoaded(true);
     }, []);
@@ -237,22 +237,26 @@ export function AddSaleForm() {
             }
 
             // 2. Registro de Efectivo si existe
-            const finalCash = (Number(cashAmount) || 0) + (Number(cashAccumulated) || 0);
+            const finalCash = (Number(cashAmount) || 0) + cashSum;
             if (finalCash > 0) {
+                const notes = cashEntries.map(e => e.note).filter(Boolean).join(', ');
                 promises.push(salesService.createSale({
                     amount: finalCash,
                     sale_date: date,
-                    payment_method: 'cash'
+                    payment_method: 'cash',
+                    payment_reference: notes || undefined
                 }));
             }
 
             // 3. Registro de Pagos del día si existe
-            const finalOthers = (Number(othersAmount) || 0) + (Number(othersAccumulated) || 0);
+            const finalOthers = (Number(othersAmount) || 0) + othersSum;
             if (finalOthers > 0) {
+                const notes = othersEntries.map(e => e.note).filter(Boolean).join(', ');
                 promises.push(salesService.createSale({
                     amount: finalOthers,
                     sale_date: date,
-                    payment_method: 'others'
+                    payment_method: 'others',
+                    payment_reference: notes || undefined
                 }));
             }
 
@@ -263,14 +267,16 @@ export function AddSaleForm() {
             setNequiAmount('');
             setCashAmount('');
             setOthersAmount('');
-            setCashAccumulated('0');
-            setOthersAccumulated('0');
+            setCashEntries([]);
+            setOthersEntries([]);
             setReference('');
             setReceiptUrl(null);
             localStorage.removeItem('nequi_sales_amount');
             localStorage.removeItem('nequi_sales_refs');
-            localStorage.removeItem('cash_sales_amount');
-            localStorage.removeItem('others_sales_amount');
+            localStorage.removeItem('cash_sales_entries');
+            localStorage.removeItem('others_sales_entries');
+            localStorage.removeItem('cash_active_input');
+            localStorage.removeItem('others_active_input');
 
             toast.success('¡Venta registrada con éxito! 💰');
         } catch (error) {
@@ -388,14 +394,13 @@ export function AddSaleForm() {
                         </div>
                     </div>
 
-                    <div className="space-y-4">
                         <label className="flex items-center justify-between gap-2 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                             <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500" /> Monto Efectivo (Manual)
                             </div>
-                            {Number(cashAccumulated) > 0 && (
+                            {cashSum > 0 && (
                                 <span className="text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-100 dark:border-emerald-500/20">
-                                    Acumulado: ${Number(cashAccumulated).toLocaleString()}
+                                    Acumulado: ${cashSum.toLocaleString()}
                                 </span>
                             )}
                         </label>
@@ -412,43 +417,62 @@ export function AddSaleForm() {
                                     disabled={isScanning}
                                 />
                             </div>
-                            <div className="flex flex-col gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const amountToAdd = Number(cashAmount) || 0;
-                                        if (amountToAdd > 0) {
-                                            setCashAmount('');
-                                            localStorage.removeItem('cash_sales_amount');
-                                            setCashAccumulated(prev => (Number(prev || 0) + amountToAdd).toString());
-                                            toast.success(`+ $${amountToAdd.toLocaleString()} sumado!`);
-                                        } else {
-                                            const val = prompt('Monto a SUMAR al Efectivo:');
-                                            if (val && !isNaN(Number(val))) {
-                                                setCashAccumulated(prev => (Number(prev || 0) + Number(val)).toString());
-                                                toast.success(`+ $${Number(val).toLocaleString()} sumado!`);
-                                            }
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const amountToAdd = Number(cashAmount) || 0;
+                                    if (amountToAdd > 0) {
+                                        const note = prompt('Descripción para este monto (opcional):');
+                                        setCashEntries(prev => [...prev, { amount: amountToAdd, note: note || '' }]);
+                                        setCashAmount('');
+                                        toast.success(`+ $${amountToAdd.toLocaleString()} sumado!`);
+                                    } else {
+                                        const val = prompt('¿Qué monto deseas sumar al Efectivo?');
+                                        if (val && !isNaN(Number(val))) {
+                                            const note = prompt('Descripción para este monto (opcional):');
+                                            setCashEntries(prev => [...prev, { amount: Number(val), note: note || '' }]);
+                                            toast.success(`+ $${Number(val).toLocaleString()} sumado!`);
                                         }
-                                    }}
-                                    className="w-14 h-14 flex items-center justify-center bg-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 active:scale-95 transition-all outline-none"
-                                >
-                                    <span className="text-2xl font-black">+</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const note = prompt('Nota o Descripción del Gasto/Venta:');
-                                        if (note) {
-                                            setReference(prev => prev ? `${prev}, [EFECTIVO: ${note}]` : `[EFECTIVO: ${note}]`);
-                                            toast.info('Descripción añadida a la venta 📝');
-                                        }
-                                    }}
-                                    className="w-14 h-10 flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-400 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all outline-none"
-                                >
-                                    <Settings size={18} />
-                                </button>
-                            </div>
+                                    }
+                                }}
+                                className="w-16 h-[68px] flex items-center justify-center bg-emerald-500 text-white rounded-3xl shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 active:scale-95 transition-all outline-none"
+                            >
+                                <span className="text-3xl font-black">+</span>
+                            </button>
                         </div>
+                        {/* Historial de Efectivo */}
+                        <AnimatePresence>
+                            {cashEntries.length > 0 && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className="bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 space-y-2 mt-2 max-h-32 overflow-y-auto">
+                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Historial del día</p>
+                                        {cashEntries.map((entry, idx) => (
+                                            <div key={idx} className="flex justify-between items-center bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700/50 group">
+                                                <div className="flex-1 min-w-0 pr-2">
+                                                    <p className="text-xs font-black text-gray-700 dark:text-gray-200 truncate">{entry.note || 'Sin nota'}</p>
+                                                    <p className="text-[10px] font-bold text-emerald-500">${entry.amount.toLocaleString()}</p>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setCashEntries(prev => prev.filter((_, i) => i !== idx));
+                                                        toast.info('Entrada eliminada');
+                                                    }}
+                                                    className="p-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
 
                     <div className="space-y-4">
@@ -456,9 +480,9 @@ export function AddSaleForm() {
                             <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-amber-500" /> Pagos del día (Manual)
                             </div>
-                            {Number(othersAccumulated) > 0 && (
+                            {othersSum > 0 && (
                                 <span className="text-amber-500 bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-100 dark:border-amber-500/20">
-                                    Acumulado: ${Number(othersAccumulated).toLocaleString()}
+                                    Acumulado: ${othersSum.toLocaleString()}
                                 </span>
                             )}
                         </label>
@@ -475,43 +499,62 @@ export function AddSaleForm() {
                                     disabled={isScanning}
                                 />
                             </div>
-                            <div className="flex flex-col gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const amountToAdd = Number(othersAmount) || 0;
-                                        if (amountToAdd > 0) {
-                                            setOthersAmount('');
-                                            localStorage.removeItem('others_sales_amount');
-                                            setOthersAccumulated(prev => (Number(prev || 0) + amountToAdd).toString());
-                                            toast.success(`+ $${amountToAdd.toLocaleString()} sumado!`);
-                                        } else {
-                                            const val = prompt('Monto a SUMAR a Pagos del día:');
-                                            if (val && !isNaN(Number(val))) {
-                                                setOthersAccumulated(prev => (Number(prev || 0) + Number(val)).toString());
-                                                toast.success(`+ $${Number(val).toLocaleString()} sumado!`);
-                                            }
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const amountToAdd = Number(othersAmount) || 0;
+                                    if (amountToAdd > 0) {
+                                        const note = prompt('Descripción para este pago del día (opcional):');
+                                        setOthersEntries(prev => [...prev, { amount: amountToAdd, note: note || '' }]);
+                                        setOthersAmount('');
+                                        toast.success(`+ $${amountToAdd.toLocaleString()} sumado!`);
+                                    } else {
+                                        const val = prompt('¿Qué monto deseas sumar a Pagos del día?');
+                                        if (val && !isNaN(Number(val))) {
+                                            const note = prompt('Descripción para este pago (opcional):');
+                                            setOthersEntries(prev => [...prev, { amount: Number(val), note: note || '' }]);
+                                            toast.success(`+ $${Number(val).toLocaleString()} sumado!`);
                                         }
-                                    }}
-                                    className="w-14 h-14 flex items-center justify-center bg-amber-500 text-white rounded-2xl shadow-lg shadow-amber-500/20 hover:bg-amber-600 active:scale-95 transition-all outline-none"
-                                >
-                                    <span className="text-2xl font-black">+</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const note = prompt('Nota o Descripción del Pago del día:');
-                                        if (note) {
-                                            setReference(prev => prev ? `${prev}, [PAGOS DÍA: ${note}]` : `[PAGOS DÍA: ${note}]`);
-                                            toast.info('Descripción añadida a la venta 📝');
-                                        }
-                                    }}
-                                    className="w-14 h-10 flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-400 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all outline-none"
-                                >
-                                    <Settings size={18} />
-                                </button>
-                            </div>
+                                    }
+                                }}
+                                className="w-16 h-[68px] flex items-center justify-center bg-amber-500 text-white rounded-3xl shadow-lg shadow-amber-500/20 hover:bg-amber-600 active:scale-95 transition-all outline-none"
+                            >
+                                <span className="text-3xl font-black">+</span>
+                            </button>
                         </div>
+                        {/* Historial de Pagos del día */}
+                        <AnimatePresence>
+                            {othersEntries.length > 0 && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className="bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 space-y-2 mt-2 max-h-32 overflow-y-auto">
+                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Historial del día</p>
+                                        {othersEntries.map((entry, idx) => (
+                                            <div key={idx} className="flex justify-between items-center bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700/50 group">
+                                                <div className="flex-1 min-w-0 pr-2">
+                                                    <p className="text-xs font-black text-gray-700 dark:text-gray-200 truncate">{entry.note || 'Sin nota'}</p>
+                                                    <p className="text-[10px] font-bold text-amber-500">${entry.amount.toLocaleString()}</p>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setOthersEntries(prev => prev.filter((_, i) => i !== idx));
+                                                        toast.info('Entrada eliminada');
+                                                    }}
+                                                    className="p-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 </div>
 
@@ -560,7 +603,7 @@ export function AddSaleForm() {
                         </p>
                     </div>
                 </div>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 }
