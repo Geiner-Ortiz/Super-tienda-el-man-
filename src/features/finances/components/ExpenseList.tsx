@@ -60,13 +60,15 @@ export function ExpenseList({ expenses, loading, onDeleted }: Props) {
                 {expenses.map((expense) => (
                     <div key={expense.id} className="p-4 md:p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
                         <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-2xl font-bold text-xs uppercase ${expense.category === 'fijo' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'}`}>
-                                {expense.type.substring(0, 3)}
+                            <div className={`px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-sm ${expense.category === 'fijo' ? 'bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600' : 'bg-amber-50 dark:bg-amber-950/30 text-amber-600'}`}>
+                                {expense.type}
                             </div>
                             <div>
-                                <h4 className="text-lg font-bold text-foreground capitalize">{expense.type}</h4>
-                                <p className="text-sm text-foreground-secondary flex items-center gap-2">
-                                    {expense.expense_date} • {expense.description || 'Sin descripción'}
+                                <h4 className="text-sm font-black text-gray-900 dark:text-white capitalize tracking-tight leading-none mb-1">
+                                    {expense.description || expense.type}
+                                </h4>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                    {new Date(expense.expense_date + 'T00:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}
                                 </p>
                             </div>
                         </div>
