@@ -11,12 +11,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Image as ImageIcon, CheckCircle2, AlertCircle, X, Loader2, DollarSign, Smartphone, ArrowRightLeft, Calendar, Settings } from 'lucide-react';
 
 export function AddSaleForm() {
-    const [nequiScans, setNequiScans] = useState<{ amount: number, reference: string, url: string, timestamp: string }[]>([]);
+    const [nequiScans, setNequiScans] = useState<{ amount: number, reference: string, url: string, timestamp: string, submitted?: boolean }[]>([]);
     const [nequiAmount, setNequiAmount] = useState('');
     const [cashAmount, setCashAmount] = useState('');
     const [othersAmount, setOthersAmount] = useState('');
-    const [cashEntries, setCashEntries] = useState<{ amount: number, note: string }[]>([]);
-    const [othersEntries, setOthersEntries] = useState<{ amount: number, note: string }[]>([]);
+    const [cashEntries, setCashEntries] = useState<{ amount: number, note: string, submitted?: boolean }[]>([]);
+    const [othersEntries, setOthersEntries] = useState<{ amount: number, note: string, submitted?: boolean }[]>([]);
     const [date, setDate] = useState(new Date().toLocaleDateString('en-CA'));
     const [paymentMethod, setPaymentMethod] = useState<'cash' | 'nequi'>('nequi');
     const [reference, setReference] = useState('');
@@ -185,7 +185,8 @@ export function AddSaleForm() {
                     amount: scannedAmount,
                     reference: data.reference || 'Sin referencia',
                     url: publicUrl,
-                    timestamp: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+                    timestamp: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+                    submitted: false
                 }, ...prev]);
             }
 
@@ -223,9 +224,10 @@ export function AddSaleForm() {
             setIsSubmitting(true);
             const promises = [];
 
-            // 1. Registro de Nequi desde historial
-            if (nequiScans.length > 0) {
-                nequiScans.forEach(scan => {
+            // 1. Registro de Nequi desde historial (Solo nuevos)
+            const nequiToSubmit = nequiScans.filter(s => !s.submitted);
+            if (nequiToSubmit.length > 0) {
+                nequiToSubmit.forEach(scan => {
                     promises.push(salesService.createSale({
                         amount: scan.amount,
                         sale_date: date,
@@ -236,7 +238,7 @@ export function AddSaleForm() {
                 });
             }
 
-            // Registro manual de Nequi si existe algo en el input (opcional)
+            // Registro manual residual (si no se agregó al historial por error)
             if (Number(nequiAmount) > 0) {
                 promises.push(salesService.createSale({
                     amount: Number(nequiAmount),
@@ -246,24 +248,30 @@ export function AddSaleForm() {
                 }));
             }
 
-            // 2. Registro de Efectivo si existe
-            const finalCash = (Number(cashAmount) || 0) + cashSum;
-            if (finalCash > 0) {
-                const notes = cashEntries.map(e => e.note).filter(Boolean).join(', ');
+            // 2. Registro de Efectivo (Solo nuevos)
+            const cashToSubmit = cashEntries.filter(e => !e.submitted);
+            const pendingCashAmount = Number(cashAmount) || 0;
+            const totalCashToSubmit = cashToSubmit.reduce((acc, curr) => acc + curr.amount, 0) + pendingCashAmount;
+
+            if (totalCashToSubmit > 0) {
+                const notes = cashToSubmit.map(e => e.note).filter(Boolean).join(', ');
                 promises.push(salesService.createSale({
-                    amount: finalCash,
+                    amount: totalCashToSubmit,
                     sale_date: date,
                     payment_method: 'cash',
                     payment_reference: notes || undefined
                 }));
             }
 
-            // 3. Registro de Pagos del día si existe
-            const finalOthers = (Number(othersAmount) || 0) + othersSum;
-            if (finalOthers > 0) {
-                const notes = othersEntries.map(e => e.note).filter(Boolean).join(', ');
+            // 3. Registro de Otros (Solo nuevos)
+            const othersToSubmit = othersEntries.filter(e => !e.submitted);
+            const pendingOthersAmount = Number(othersAmount) || 0;
+            const totalOthersToSubmit = othersToSubmit.reduce((acc, curr) => acc + curr.amount, 0) + pendingOthersAmount;
+
+            if (totalOthersToSubmit > 0) {
+                const notes = othersToSubmit.map(e => e.note).filter(Boolean).join(', ');
                 promises.push(salesService.createSale({
-                    amount: finalOthers,
+                    amount: totalOthersToSubmit,
                     sale_date: date,
                     payment_method: 'others',
                     payment_reference: notes || undefined
@@ -422,17 +430,39 @@ export function AddSaleForm() {
                         <label className="flex items-center gap-2 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                             <span className="w-2 h-2 rounded-full bg-primary-500" /> Monto Nequi/Transferencia (Scanner)
                         </label>
-                        <div className="relative">
-                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-primary-500 font-black text-2xl">$</span>
-                            <input
-                                type="number"
-                                step="any"
-                                value={nequiAmount}
-                                onChange={(e) => setNequiAmount(e.target.value)}
-                                placeholder="0.00"
-                                className="block w-full pl-12 pr-6 py-4 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 text-primary-600 dark:text-primary-400 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-2xl font-black"
-                                disabled={isScanning}
-                            />
+                        <div className="flex gap-2">
+                            <div className="relative flex-1">
+                                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-primary-500 font-black text-2xl">$</span>
+                                <input
+                                    type="number"
+                                    step="any"
+                                    value={nequiAmount}
+                                    onChange={(e) => setNequiAmount(e.target.value)}
+                                    placeholder="0.00"
+                                    className="block w-full pl-12 pr-6 py-4 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 text-primary-600 dark:text-primary-400 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-2xl font-black"
+                                    disabled={isScanning}
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const amountToAdd = Number(nequiAmount) || 0;
+                                    if (amountToAdd > 0) {
+                                        setNequiScans(prev => [{
+                                            amount: amountToAdd,
+                                            reference: 'Transferencia Manual',
+                                            url: '',
+                                            timestamp: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+                                            submitted: false
+                                        }, ...prev]);
+                                        setNequiAmount('');
+                                        toast.success(`+ $${amountToAdd.toLocaleString()} agregado al historial`);
+                                    }
+                                }}
+                                className="w-14 h-14 flex items-center justify-center bg-primary-600 text-white rounded-3xl hover:bg-primary-700 transition-all shadow-lg shadow-primary-500/30 font-black text-3xl"
+                            >
+                                +
+                            </button>
                         </div>
                     </div>
 
@@ -466,14 +496,14 @@ export function AddSaleForm() {
                                     const amountToAdd = Number(cashAmount) || 0;
                                     if (amountToAdd > 0) {
                                         const note = prompt('Descripción para este monto (opcional):');
-                                        setCashEntries(prev => [{ amount: amountToAdd, note: note || '' }, ...prev]);
+                                        setCashEntries(prev => [{ amount: amountToAdd, note: note || '', submitted: false }, ...prev]);
                                         setCashAmount('');
                                         toast.success(`+ $${amountToAdd.toLocaleString()} sumado!`);
                                     } else {
                                         const val = prompt('¿Qué monto deseas sumar al Efectivo?');
                                         if (val && !isNaN(Number(val))) {
                                             const note = prompt('Descripción para este monto (opcional):');
-                                            setCashEntries(prev => [{ amount: Number(val), note: note || '' }, ...prev]);
+                                            setCashEntries(prev => [{ amount: Number(val), note: note || '', submitted: false }, ...prev]);
                                             toast.success(`+ $${Number(val).toLocaleString()} sumado!`);
                                         }
                                     }
@@ -548,14 +578,14 @@ export function AddSaleForm() {
                                     const amountToAdd = Number(othersAmount) || 0;
                                     if (amountToAdd > 0) {
                                         const note = prompt('Descripción para este pago del día (opcional):');
-                                        setOthersEntries(prev => [{ amount: amountToAdd, note: note || '' }, ...prev]);
+                                        setOthersEntries(prev => [{ amount: amountToAdd, note: note || '', submitted: false }, ...prev]);
                                         setOthersAmount('');
                                         toast.success(`+ $${amountToAdd.toLocaleString()} sumado!`);
                                     } else {
                                         const val = prompt('¿Qué monto deseas sumar a Pagos del día?');
                                         if (val && !isNaN(Number(val))) {
                                             const note = prompt('Descripción para este pago (opcional):');
-                                            setOthersEntries(prev => [{ amount: Number(val), note: note || '' }, ...prev]);
+                                            setOthersEntries(prev => [{ amount: Number(val), note: note || '', submitted: false }, ...prev]);
                                             toast.success(`+ $${Number(val).toLocaleString()} sumado!`);
                                         }
                                     }
