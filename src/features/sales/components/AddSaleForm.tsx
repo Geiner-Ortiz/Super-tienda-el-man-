@@ -37,13 +37,17 @@ export function AddSaleForm() {
         if (storedDate === today) {
             const savedNequi = localStorage.getItem('nequi_sales_amount');
             const savedRef = localStorage.getItem('nequi_sales_refs');
-            const savedCash = localStorage.getItem('cash_sales_amount');
-            const savedOthers = localStorage.getItem('others_sales_amount');
+            const savedCashAcc = localStorage.getItem('cash_sales_amount');
+            const savedOthersAcc = localStorage.getItem('others_sales_amount');
+            const savedCashInput = localStorage.getItem('cash_active_input');
+            const savedOthersInput = localStorage.getItem('others_active_input');
 
             if (savedNequi) setNequiAmount(savedNequi);
             if (savedRef) setReference(savedRef);
-            if (savedCash) setCashAccumulated(savedCash);
-            if (savedOthers) setOthersAccumulated(savedOthers);
+            if (savedCashAcc) setCashAccumulated(savedCashAcc);
+            if (savedOthersAcc) setOthersAccumulated(savedOthersAcc);
+            if (savedCashInput) setCashAmount(savedCashInput);
+            if (savedOthersInput) setOthersAmount(savedOthersInput);
         } else {
             // Nuevo día: borrar y ACTUALIZAR FECHA
             localStorage.setItem('nequi_sales_date', today);
@@ -51,6 +55,8 @@ export function AddSaleForm() {
             localStorage.removeItem('nequi_sales_refs');
             localStorage.removeItem('cash_sales_amount');
             localStorage.removeItem('others_sales_amount');
+            localStorage.removeItem('cash_active_input');
+            localStorage.removeItem('others_active_input');
             setDate(today); // <-- IMPORTANTE: Sincronizar UI con el tiempo real
         }
         setIsLoaded(true);
@@ -68,13 +74,19 @@ export function AddSaleForm() {
         else localStorage.removeItem('nequi_sales_refs');
 
         // Cash
+        if (cashAmount) localStorage.setItem('cash_active_input', cashAmount);
+        else localStorage.removeItem('cash_active_input');
+
         if (cashAccumulated !== '0') localStorage.setItem('cash_sales_amount', cashAccumulated);
         else localStorage.removeItem('cash_sales_amount');
 
         // Others
+        if (othersAmount) localStorage.setItem('others_active_input', othersAmount);
+        else localStorage.removeItem('others_active_input');
+
         if (othersAccumulated !== '0') localStorage.setItem('others_sales_amount', othersAccumulated);
         else localStorage.removeItem('others_sales_amount');
-    }, [nequiAmount, reference, cashAccumulated, othersAccumulated, isLoaded]);
+    }, [nequiAmount, reference, cashAmount, cashAccumulated, othersAmount, othersAccumulated, isLoaded]);
 
     // Auto-cálculo del TOTAL
     const totalAmount = (Number(nequiAmount) || 0) + (Number(cashAmount) || 0) + (Number(cashAccumulated) || 0) + (Number(othersAmount) || 0) + (Number(othersAccumulated) || 0);
@@ -377,8 +389,15 @@ export function AddSaleForm() {
                     </div>
 
                     <div className="space-y-4">
-                        <label className="flex items-center gap-2 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500" /> Monto Efectivo (Manual)
+                        <label className="flex items-center justify-between gap-2 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                            <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500" /> Monto Efectivo (Manual)
+                            </div>
+                            {Number(cashAccumulated) > 0 && (
+                                <span className="text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-100 dark:border-emerald-500/20">
+                                    Acumulado: ${Number(cashAccumulated).toLocaleString()}
+                                </span>
+                            )}
                         </label>
                         <div className="flex gap-2">
                             <div className="relative flex-1">
@@ -433,8 +452,15 @@ export function AddSaleForm() {
                     </div>
 
                     <div className="space-y-4">
-                        <label className="flex items-center gap-2 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                            <span className="w-2 h-2 rounded-full bg-amber-500" /> Pagos del día (Manual)
+                        <label className="flex items-center justify-between gap-2 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                            <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-amber-500" /> Pagos del día (Manual)
+                            </div>
+                            {Number(othersAccumulated) > 0 && (
+                                <span className="text-amber-500 bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-100 dark:border-amber-500/20">
+                                    Acumulado: ${Number(othersAccumulated).toLocaleString()}
+                                </span>
+                            )}
                         </label>
                         <div className="flex gap-2">
                             <div className="relative flex-1">
