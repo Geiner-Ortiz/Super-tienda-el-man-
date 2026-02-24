@@ -33,11 +33,20 @@ export function DashboardContainer({ overrideUserId }: Props) {
     // Determine store name and profit margin safely
     const storeName = isSupportMode && impersonatedUser
         ? impersonatedUser.storeName
-        : (profile?.store_name || 'Tu Súper Tienda');
+        : (currentProfile?.store_name || remoteProfile?.store_name || 'Tu Súper Tienda');
 
-    const profitMargin = profile?.profit_margin !== undefined
-        ? `${(profile.profit_margin * 100).toFixed(0)}%`
-        : '20%';
+    // Use a safe way to get profit margin
+    const getProfitMargin = () => {
+        if (!isSupportMode && currentProfile?.profit_margin !== undefined) {
+            return `${(currentProfile.profit_margin * 100).toFixed(0)}%`;
+        }
+        if (isMaestroView && remoteProfile?.profit_margin !== undefined) {
+            return `${(remoteProfile.profit_margin * 100).toFixed(0)}%`;
+        }
+        return '20%';
+    };
+
+    const profitMargin = getProfitMargin();
 
     const MOTIVATIONAL_PHRASES = [
         "Un negocio organizado es el primer paso hacia la libertad financiera.",
