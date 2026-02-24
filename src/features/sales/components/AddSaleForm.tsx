@@ -242,7 +242,7 @@ export function AddSaleForm() {
             localStorage.removeItem('nequi_sales_amount');
             localStorage.removeItem('nequi_sales_refs');
 
-            toast.success('¡Transferencia registrada con éxito! 💰');
+            toast.success('¡Venta registrada con éxito! 💰');
         } catch (error) {
             toast.error('Error al registrar la transferencia. Por favor intenta de nuevo.');
         } finally {
@@ -255,7 +255,7 @@ export function AddSaleForm() {
             {/* 1. SECCIÓN SUPERIOR EXTREMA: HEADER Y SCANNER (FOCUS NEQUI) */}
             <div className="bg-gradient-to-br from-primary-600 to-primary-800 p-8 text-white relative">
                 <div className="flex flex-col mb-10">
-                    <h3 className="text-4xl font-black tracking-tighter leading-none">Nueva Transferencia</h3>
+                    <h3 className="text-4xl font-black tracking-tighter leading-none">Nueva Venta</h3>
                     <div className="flex items-center gap-2 mt-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-primary-300 animate-pulse" />
                         <p className="text-[11px] text-primary-100 font-black uppercase tracking-[0.3em] opacity-80">
@@ -397,7 +397,7 @@ export function AddSaleForm() {
 
                 <div className="bg-white dark:bg-gray-900/50 p-6 rounded-[2rem] border-2 border-primary-500/20 shadow-inner flex justify-between items-center group hover:border-primary-500/40 transition-all">
                     <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Total Transferencia</p>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Total Venta</p>
                         <p className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">
                             ${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 0 })}
                         </p>
@@ -417,7 +417,7 @@ export function AddSaleForm() {
                             }`}
                     >
                         {isSubmitting ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}
-                        {isSubmitting ? 'GUARDANDO...' : 'FINALIZAR TRANSFERENCIA'}
+                        {isSubmitting ? 'GUARDANDO...' : 'FINALIZAR VENTA'}
                     </button>
 
                     <div className="flex flex-col items-center gap-6 mt-4">
