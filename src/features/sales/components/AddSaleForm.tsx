@@ -8,7 +8,7 @@ import { useDashboardStore } from '../../dashboard/store/dashboardStore';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Image as ImageIcon, CheckCircle2, AlertCircle, X, Loader2, DollarSign, Smartphone, ArrowRightLeft } from 'lucide-react';
+import { Camera, Image as ImageIcon, CheckCircle2, AlertCircle, X, Loader2, DollarSign, Smartphone, ArrowRightLeft, Calendar } from 'lucide-react';
 
 export function AddSaleForm() {
     const [nequiAmount, setNequiAmount] = useState('');
@@ -420,13 +420,21 @@ export function AddSaleForm() {
                         {isSubmitting ? 'GUARDANDO...' : 'FINALIZAR TRANSFERENCIA'}
                     </button>
 
-                    <div className="flex flex-col items-center gap-4">
-                        <input
-                            type="date"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
-                            className="bg-transparent border-0 text-[10px] font-black text-gray-400 uppercase tracking-widest focus:ring-0 cursor-pointer"
-                        />
+                    <div className="flex flex-col items-center gap-6 mt-4">
+                        <div className="relative group">
+                            <label className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 bg-white dark:bg-gray-900 text-[9px] font-black text-primary-500 uppercase tracking-[0.2em] z-10 whitespace-nowrap border border-primary-100 dark:border-primary-800 rounded-full">
+                                Fecha de Operación
+                            </label>
+                            <div className="flex items-center gap-3 bg-white dark:bg-gray-900 border-2 border-primary-100 dark:border-primary-800/50 rounded-2xl px-6 py-3 shadow-sm group-hover:border-primary-500 transition-all duration-300">
+                                <Calendar size={16} className="text-primary-400 group-hover:animate-bounce" />
+                                <input
+                                    type="date"
+                                    value={date}
+                                    onChange={(e) => setDate(e.target.value)}
+                                    className="bg-transparent border-0 p-0 text-sm font-black text-gray-700 dark:text-gray-200 uppercase tracking-widest focus:ring-0 cursor-pointer"
+                                />
+                            </div>
+                        </div>
                         <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] opacity-60">
                             Comprobado por Súper Inteligencia Artificial
                         </p>
