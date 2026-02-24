@@ -281,20 +281,29 @@ export function AddSaleForm() {
             await Promise.all(promises);
             await refreshDashboard();
 
-            // Reset UI y persistencia
+            // Reset UI y persistencia (Sin limpiar historiales)
             setNequiAmount('');
             setCashAmount('');
             setOthersAmount('');
-            setNequiScans([]);
-            setCashEntries([]);
-            setOthersEntries([]);
+            setNequiScans(prev => {
+                const updated = prev.map(s => ({ ...s, submitted: true }));
+                localStorage.setItem('nequi_sales_history', JSON.stringify(updated));
+                return updated;
+            });
+            setCashEntries(prev => {
+                const updated = prev.map(e => ({ ...e, submitted: true }));
+                localStorage.setItem('cash_sales_entries', JSON.stringify(updated));
+                return updated;
+            });
+            setOthersEntries(prev => {
+                const updated = prev.map(e => ({ ...e, submitted: true }));
+                localStorage.setItem('others_sales_entries', JSON.stringify(updated));
+                return updated;
+            });
             setReference('');
             setReceiptUrl(null);
             localStorage.removeItem('nequi_sales_amount');
-            localStorage.removeItem('nequi_sales_history');
             localStorage.removeItem('nequi_sales_refs');
-            localStorage.removeItem('cash_sales_entries');
-            localStorage.removeItem('others_sales_entries');
             localStorage.removeItem('cash_active_input');
             localStorage.removeItem('others_active_input');
 
@@ -388,9 +397,9 @@ export function AddSaleForm() {
 
                                 <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                                     {nequiScans.map((scan, idx) => (
-                                        <div key={idx} className="bg-white/5 border border-white/5 rounded-2xl p-3 flex items-center gap-3 group hover:bg-white/10 transition-all duration-300">
+                                        <div key={idx} className={`bg-white/5 border border-white/5 rounded-2xl p-3 flex items-center gap-3 transition-all duration-300 ${scan.submitted ? 'opacity-60 grayscale-[0.3]' : 'hover:bg-white/10 group'}`}>
                                             {scan.url && (
-                                                <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-white/10 shadow-sm group-hover:scale-105 transition-transform cursor-zoom-in"
+                                                <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-white/10 shadow-sm transition-transform cursor-zoom-in"
                                                     onClick={() => window.open(scan.url, '_blank')}>
                                                     <img src={scan.url} alt="Recibo" className="w-full h-full object-cover" />
                                                 </div>
@@ -398,22 +407,27 @@ export function AddSaleForm() {
 
                                             <div className="flex-1 min-w-0 flex flex-col">
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <p className="text-[10px] font-black text-white tracking-tight">$ {scan.amount.toLocaleString()}</p>
+                                                    <div className="flex items-center gap-1.5 min-w-0">
+                                                        <p className="text-[10px] font-black text-white tracking-tight">$ {scan.amount.toLocaleString()}</p>
+                                                        {scan.submitted && <CheckCircle2 size={10} className="text-emerald-400 flex-shrink-0" />}
+                                                    </div>
                                                     <span className="text-[8px] font-black text-primary-300 bg-primary-500/20 px-1.5 py-0.5 rounded uppercase">{scan.timestamp}</span>
                                                 </div>
                                                 <p className="text-[8px] font-bold text-white/30 uppercase tracking-tighter truncate">{scan.reference}</p>
                                             </div>
 
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setNequiScans(prev => prev.filter((_, i) => i !== idx));
-                                                    toast.info('Comprobante descartado');
-                                                }}
-                                                className="w-7 h-7 flex items-center justify-center rounded-full bg-white/5 text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                                            >
-                                                <X size={14} />
-                                            </button>
+                                            {!scan.submitted && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setNequiScans(prev => prev.filter((_, i) => i !== idx));
+                                                        toast.info('Comprobante descartado');
+                                                    }}
+                                                    className="w-7 h-7 flex items-center justify-center rounded-full bg-white/5 text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -525,21 +539,26 @@ export function AddSaleForm() {
                                     <div className="bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 space-y-2 mt-2 max-h-32 overflow-y-auto">
                                         <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Historial del día</p>
                                         {cashEntries.map((entry, idx) => (
-                                            <div key={idx} className="flex justify-between items-center bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700/50 group">
+                                            <div key={idx} className={`flex justify-between items-center bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700/50 transition-all duration-300 ${entry.submitted ? 'opacity-60 grayscale-[0.3]' : 'group'}`}>
                                                 <div className="flex-1 min-w-0 pr-2">
-                                                    <p className="text-xs font-black text-gray-700 dark:text-gray-200 truncate">{entry.note || 'Sin nota'}</p>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <p className="text-xs font-black text-gray-700 dark:text-gray-200 truncate">{entry.note || 'Sin nota'}</p>
+                                                        {entry.submitted && <CheckCircle2 size={10} className="text-emerald-400 flex-shrink-0" />}
+                                                    </div>
                                                     <p className="text-[10px] font-bold text-emerald-500">${entry.amount.toLocaleString()}</p>
                                                 </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setCashEntries(prev => prev.filter((_, i) => i !== idx));
-                                                        toast.info('Entrada eliminada');
-                                                    }}
-                                                    className="p-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                                                >
-                                                    <X size={14} />
-                                                </button>
+                                                {!entry.submitted && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setCashEntries(prev => prev.filter((_, i) => i !== idx));
+                                                            toast.info('Entrada eliminada');
+                                                        }}
+                                                        className="p-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                                                    >
+                                                        <X size={14} />
+                                                    </button>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -607,21 +626,26 @@ export function AddSaleForm() {
                                     <div className="bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 space-y-2 mt-2 max-h-32 overflow-y-auto">
                                         <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Historial del día</p>
                                         {othersEntries.map((entry, idx) => (
-                                            <div key={idx} className="flex justify-between items-center bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700/50 group">
+                                            <div key={idx} className={`flex justify-between items-center bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700/50 transition-all duration-300 ${entry.submitted ? 'opacity-60 grayscale-[0.3]' : 'group'}`}>
                                                 <div className="flex-1 min-w-0 pr-2">
-                                                    <p className="text-xs font-black text-gray-700 dark:text-gray-200 truncate">{entry.note || 'Sin nota'}</p>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <p className="text-xs font-black text-gray-700 dark:text-gray-200 truncate">{entry.note || 'Sin nota'}</p>
+                                                        {entry.submitted && <CheckCircle2 size={10} className="text-emerald-400 flex-shrink-0" />}
+                                                    </div>
                                                     <p className="text-[10px] font-bold text-amber-500">${entry.amount.toLocaleString()}</p>
                                                 </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setOthersEntries(prev => prev.filter((_, i) => i !== idx));
-                                                        toast.info('Entrada eliminada');
-                                                    }}
-                                                    className="p-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                                                >
-                                                    <X size={14} />
-                                                </button>
+                                                {!entry.submitted && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setOthersEntries(prev => prev.filter((_, i) => i !== idx));
+                                                            toast.info('Entrada eliminada');
+                                                        }}
+                                                        className="p-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                                                    >
+                                                        <X size={14} />
+                                                    </button>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
