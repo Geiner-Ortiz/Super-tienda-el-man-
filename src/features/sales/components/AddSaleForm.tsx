@@ -77,19 +77,21 @@ export function AddSaleForm() {
         if (cashAmount) localStorage.setItem('cash_active_input', cashAmount);
         else localStorage.removeItem('cash_active_input');
 
-        if (cashAccumulated !== '0') localStorage.setItem('cash_sales_amount', cashAccumulated);
-        else localStorage.removeItem('cash_sales_amount');
+        if (cashEntries.length > 0) localStorage.setItem('cash_sales_entries', JSON.stringify(cashEntries));
+        else localStorage.removeItem('cash_sales_entries');
 
         // Others
         if (othersAmount) localStorage.setItem('others_active_input', othersAmount);
         else localStorage.removeItem('others_active_input');
 
-        if (othersAccumulated !== '0') localStorage.setItem('others_sales_amount', othersAccumulated);
-        else localStorage.removeItem('others_sales_amount');
-    }, [nequiAmount, reference, cashAmount, cashAccumulated, othersAmount, othersAccumulated, isLoaded]);
+        if (othersEntries.length > 0) localStorage.setItem('others_sales_entries', JSON.stringify(othersEntries));
+        else localStorage.removeItem('others_sales_entries');
+    }, [nequiAmount, reference, cashAmount, cashEntries, othersAmount, othersEntries, isLoaded]);
 
     // Auto-cálculo del TOTAL
-    const totalAmount = (Number(nequiAmount) || 0) + (Number(cashAmount) || 0) + (Number(cashAccumulated) || 0) + (Number(othersAmount) || 0) + (Number(othersAccumulated) || 0);
+    const cashSum = cashEntries.reduce((acc, curr) => acc + curr.amount, 0);
+    const othersSum = othersEntries.reduce((acc, curr) => acc + curr.amount, 0);
+    const totalAmount = (Number(nequiAmount) || 0) + (Number(cashAmount) || 0) + cashSum + (Number(othersAmount) || 0) + othersSum;
 
     // Helper: Comprimir imagen usando Canvas
     const compressImage = (file: File): Promise<string> => {
