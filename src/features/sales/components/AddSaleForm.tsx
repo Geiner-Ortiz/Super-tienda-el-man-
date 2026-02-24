@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Image as ImageIcon, CheckCircle2, AlertCircle, X, Loader2, DollarSign, Smartphone, ArrowRightLeft, Calendar, Settings } from 'lucide-react';
 
 export function AddSaleForm() {
-    const [nequiScans, setNequiScans] = useState<{ amount: number, reference: string, url: string }[]>([]);
+    const [nequiScans, setNequiScans] = useState<{ amount: number, reference: string, url: string, timestamp: string }[]>([]);
     const [nequiAmount, setNequiAmount] = useState('');
     const [cashAmount, setCashAmount] = useState('');
     const [othersAmount, setOthersAmount] = useState('');
@@ -184,7 +184,8 @@ export function AddSaleForm() {
                 setNequiScans(prev => [{
                     amount: scannedAmount,
                     reference: data.reference || 'Sin referencia',
-                    url: publicUrl
+                    url: publicUrl,
+                    timestamp: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
                 }, ...prev]);
             }
 
@@ -359,26 +360,38 @@ export function AddSaleForm() {
                             <motion.div
                                 initial={{ y: 20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
-                                className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 space-y-4 max-h-60 overflow-y-auto"
+                                className="mt-12 bg-white/10 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/20 space-y-6 shadow-2xl overflow-hidden"
                             >
                                 <div className="flex items-center justify-between px-2">
-                                    <h3 className="text-xs font-black text-white/50 uppercase tracking-widest">Registros Escaneados</h3>
-                                    <span className="text-xs font-black text-white bg-primary-500 px-3 py-1 rounded-full shadow-lg">
-                                        Total: ${nequiSum.toLocaleString()}
-                                    </span>
+                                    <div className="flex flex-col">
+                                        <h3 className="text-sm font-black text-white uppercase tracking-widest">Comprobantes de Hoy</h3>
+                                        <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">Registrados al Instante</p>
+                                    </div>
+                                    <div className="bg-white/10 px-4 py-2 rounded-2xl border border-white/10 text-right">
+                                        <p className="text-[10px] font-black text-white/40 uppercase">Total Nequi</p>
+                                        <p className="text-xl font-black text-white">${nequiSum.toLocaleString()}</p>
+                                    </div>
                                 </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                                <div className="grid grid-cols-1 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                                     {nequiScans.map((scan, idx) => (
-                                        <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between group">
-                                            <div className="flex items-center gap-3 overflow-hidden">
+                                        <div key={idx} className="bg-white/5 border border-white/10 rounded-[2rem] p-5 flex items-center justify-between group hover:bg-white/10 transition-all duration-300">
+                                            <div className="flex items-center gap-6 overflow-hidden">
                                                 {scan.url && (
-                                                    <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-white/20">
+                                                    <div className="relative w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 border-2 border-white/20 shadow-lg group-hover:scale-105 transition-transform cursor-zoom-in"
+                                                        onClick={() => window.open(scan.url, '_blank')}>
                                                         <img src={scan.url} alt="Recibo" className="w-full h-full object-cover" />
+                                                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                            <ImageIcon size={20} className="text-white" />
+                                                        </div>
                                                     </div>
                                                 )}
-                                                <div className="min-w-0">
-                                                    <p className="text-[10px] font-black text-white/40 uppercase tracking-tighter truncate">{scan.reference}</p>
-                                                    <p className="text-sm font-black text-white">$ {scan.amount.toLocaleString()}</p>
+                                                <div className="min-w-0 flex flex-col gap-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[10px] font-black text-primary-300 bg-primary-500/20 px-2 py-0.5 rounded-md uppercase">{scan.timestamp}</span>
+                                                        <p className="text-[10px] font-black text-white/30 uppercase tracking-tighter truncate">{scan.reference}</p>
+                                                    </div>
+                                                    <p className="text-2xl font-black text-white tracking-tight">$ {scan.amount.toLocaleString()}</p>
                                                 </div>
                                             </div>
                                             <button
@@ -387,9 +400,9 @@ export function AddSaleForm() {
                                                     setNequiScans(prev => prev.filter((_, i) => i !== idx));
                                                     toast.info('Comprobante descartado');
                                                 }}
-                                                className="p-2 text-white/20 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                                                className="w-12 h-12 flex items-center justify-center bg-white/5 text-white/20 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-all group-hover:opacity-100"
                                             >
-                                                <X size={16} />
+                                                <X size={20} />
                                             </button>
                                         </div>
                                     ))}
