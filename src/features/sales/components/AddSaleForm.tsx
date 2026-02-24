@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Image as ImageIcon, CheckCircle2, AlertCircle, X, Loader2, DollarSign, Smartphone, ArrowRightLeft, Calendar, Settings } from 'lucide-react';
 
 export function AddSaleForm() {
-    const [nequiAmount, setNequiAmount] = useState('');
+    const [nequiScans, setNequiScans] = useState<{ amount: number, reference: string, url: string }[]>([]);
     const [cashAmount, setCashAmount] = useState('');
     const [othersAmount, setOthersAmount] = useState('');
     const [cashEntries, setCashEntries] = useState<{ amount: number, note: string }[]>([]);
@@ -35,14 +35,14 @@ export function AddSaleForm() {
         const storedDate = localStorage.getItem('nequi_sales_date');
 
         if (storedDate === today) {
-            const savedNequi = localStorage.getItem('nequi_sales_amount');
+            const savedNequiScans = localStorage.getItem('nequi_sales_history');
             const savedRef = localStorage.getItem('nequi_sales_refs');
             const savedCashEntries = localStorage.getItem('cash_sales_entries');
             const savedOthersEntries = localStorage.getItem('others_sales_entries');
             const savedCashInput = localStorage.getItem('cash_active_input');
             const savedOthersInput = localStorage.getItem('others_active_input');
 
-            if (savedNequi) setNequiAmount(savedNequi);
+            if (savedNequiScans) setNequiScans(JSON.parse(savedNequiScans));
             if (savedRef) setReference(savedRef);
             if (savedCashEntries) setCashEntries(JSON.parse(savedCashEntries));
             if (savedOthersEntries) setOthersEntries(JSON.parse(savedOthersEntries));
@@ -51,7 +51,7 @@ export function AddSaleForm() {
         } else {
             // Nuevo día: borrar y ACTUALIZAR FECHA
             localStorage.setItem('nequi_sales_date', today);
-            localStorage.removeItem('nequi_sales_amount');
+            localStorage.removeItem('nequi_sales_history');
             localStorage.removeItem('nequi_sales_refs');
             localStorage.removeItem('cash_sales_entries');
             localStorage.removeItem('others_sales_entries');
@@ -67,8 +67,8 @@ export function AddSaleForm() {
         if (!isLoaded) return;
 
         // Nequi
-        if (nequiAmount) localStorage.setItem('nequi_sales_amount', nequiAmount);
-        else localStorage.removeItem('nequi_sales_amount');
+        if (nequiScans.length > 0) localStorage.setItem('nequi_sales_history', JSON.stringify(nequiScans));
+        else localStorage.removeItem('nequi_sales_history');
 
         if (reference) localStorage.setItem('nequi_sales_refs', reference);
         else localStorage.removeItem('nequi_sales_refs');
@@ -86,12 +86,13 @@ export function AddSaleForm() {
 
         if (othersEntries.length > 0) localStorage.setItem('others_sales_entries', JSON.stringify(othersEntries));
         else localStorage.removeItem('others_sales_entries');
-    }, [nequiAmount, reference, cashAmount, cashEntries, othersAmount, othersEntries, isLoaded]);
+    }, [nequiScans, reference, cashAmount, cashEntries, othersAmount, othersEntries, isLoaded]);
 
     // Auto-cálculo del TOTAL
+    const nequiSum = nequiScans.reduce((acc, curr) => acc + curr.amount, 0);
     const cashSum = cashEntries.reduce((acc, curr) => acc + curr.amount, 0);
     const othersSum = othersEntries.reduce((acc, curr) => acc + curr.amount, 0);
-    const totalAmount = (Number(nequiAmount) || 0) + (Number(cashAmount) || 0) + cashSum + (Number(othersAmount) || 0) + othersSum;
+    const totalAmount = nequiSum + (Number(cashAmount) || 0) + cashSum + (Number(othersAmount) || 0) + othersSum;
 
     // Helper: Comprimir imagen usando Canvas
     const compressImage = (file: File): Promise<string> => {
@@ -148,15 +149,12 @@ export function AddSaleForm() {
                     .upload(fileName, file)
             ]);
 
-            // Manejo de errores de Upload
-            if (uploadResult.error) {
-                console.error('Upload Error:', uploadResult.error);
-                // No detenemos el flujo si la IA respondió bien, pero avisamos
-            } else {
-                const { data: { publicUrl } } = supabase.storage
+            let publicUrl = '';
+            if (!uploadResult.error) {
+                const { data } = supabase.storage
                     .from('receipts')
                     .getPublicUrl(fileName);
-                setReceiptUrl(publicUrl);
+                publicUrl = data.publicUrl;
             }
 
             // Manejo de respuesta IA
@@ -174,26 +172,17 @@ export function AddSaleForm() {
                 return;
             }
 
-            // Acumular el monto (Suma numérica forzada V11)
+            // Guardar en el historial de escaneos
             const scannedAmount = Number(data.amount) || 0;
             if (scannedAmount > 0) {
-                setNequiAmount(prev => {
-                    const current = Number(prev) || 0;
-                    const total = current + scannedAmount;
-                    return total.toString();
-                });
+                setNequiScans(prev => [...prev, {
+                    amount: scannedAmount,
+                    reference: data.reference || 'Sin referencia',
+                    url: publicUrl
+                }]);
             }
 
-            if (data.reference) {
-                setReference(prev => {
-                    const newRef = data.reference;
-                    if (!prev) return newRef;
-                    if (prev.includes(newRef)) return prev; // Evitar duplicados
-                    return `${prev}, ${newRef}`;
-                });
-            }
-
-            toast.success(`+ $${scannedAmount.toLocaleString()} sumado al día! ⚡`);
+            toast.success(`¡Comprobante guardado! + $${scannedAmount.toLocaleString()} ⚡`);
         } catch (error: any) {
             console.error('Error scanning receipt:', error);
             toast.error(`Error de Scanner: ${error.message || 'No se pudo procesar'}`);
@@ -227,14 +216,26 @@ export function AddSaleForm() {
             setIsSubmitting(true);
             const promises = [];
 
-            // 1. Registro de Nequi si existe
+            // 1. Registro de Nequi desde historial
+            if (nequiScans.length > 0) {
+                nequiScans.forEach(scan => {
+                    promises.push(salesService.createSale({
+                        amount: scan.amount,
+                        sale_date: date,
+                        payment_method: 'nequi',
+                        payment_reference: scan.reference,
+                        receipt_url: scan.url || undefined
+                    }));
+                });
+            }
+
+            // Registro manual de Nequi si existe algo en el input (opcional)
             if (Number(nequiAmount) > 0) {
                 promises.push(salesService.createSale({
                     amount: Number(nequiAmount),
                     sale_date: date,
                     payment_method: 'nequi',
-                    payment_reference: reference,
-                    receipt_url: receiptUrl || undefined
+                    payment_reference: reference || 'Venta manual'
                 }));
             }
 
@@ -269,11 +270,13 @@ export function AddSaleForm() {
             setNequiAmount('');
             setCashAmount('');
             setOthersAmount('');
+            setNequiScans([]);
             setCashEntries([]);
             setOthersEntries([]);
             setReference('');
             setReceiptUrl(null);
             localStorage.removeItem('nequi_sales_amount');
+            localStorage.removeItem('nequi_sales_history');
             localStorage.removeItem('nequi_sales_refs');
             localStorage.removeItem('cash_sales_entries');
             localStorage.removeItem('others_sales_entries');
@@ -371,7 +374,50 @@ export function AddSaleForm() {
                                 <X size={24} className="drop-shadow-lg" />
                             </button>
                         </motion.div>
-                    )}
+                    {/* Historial de Escaneos Nequi */}
+                    <AnimatePresence>
+                        {nequiScans.length > 0 && (
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 space-y-4 max-h-60 overflow-y-auto"
+                            >
+                                <div className="flex items-center justify-between px-2">
+                                    <h3 className="text-xs font-black text-white/50 uppercase tracking-widest">Registros Escaneados</h3>
+                                    <span className="text-xs font-black text-white bg-primary-500 px-3 py-1 rounded-full shadow-lg">
+                                        Total: ${nequiSum.toLocaleString()}
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {nequiScans.map((scan, idx) => (
+                                        <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between group">
+                                            <div className="flex items-center gap-3 overflow-hidden">
+                                                {scan.url && (
+                                                    <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-white/20">
+                                                        <img src={scan.url} alt="Recibo" className="w-full h-full object-cover" />
+                                                    </div>
+                                                )}
+                                                <div className="min-w-0">
+                                                    <p className="text-[10px] font-black text-white/40 uppercase tracking-tighter truncate">{scan.reference}</p>
+                                                    <p className="text-sm font-black text-white">$ {scan.amount.toLocaleString()}</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setNequiScans(prev => prev.filter((_, i) => i !== idx));
+                                                    toast.info('Comprobante descartado');
+                                                }}
+                                                className="p-2 text-white/20 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
 
