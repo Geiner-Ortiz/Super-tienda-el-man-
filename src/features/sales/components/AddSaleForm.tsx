@@ -33,15 +33,22 @@ export function AddSaleForm() {
         const storedDate = localStorage.getItem('nequi_sales_date');
 
         if (storedDate === today) {
-            const savedAmount = localStorage.getItem('nequi_sales_amount');
+            const savedNequi = localStorage.getItem('nequi_sales_amount');
             const savedRef = localStorage.getItem('nequi_sales_refs');
-            if (savedAmount) setNequiAmount(savedAmount);
+            const savedCash = localStorage.getItem('cash_sales_amount');
+            const savedOthers = localStorage.getItem('others_sales_amount');
+
+            if (savedNequi) setNequiAmount(savedNequi);
             if (savedRef) setReference(savedRef);
+            if (savedCash) setCashAmount(savedCash);
+            if (savedOthers) setOthersAmount(savedOthers);
         } else {
             // Nuevo día: borrar y ACTUALIZAR FECHA
             localStorage.setItem('nequi_sales_date', today);
             localStorage.removeItem('nequi_sales_amount');
             localStorage.removeItem('nequi_sales_refs');
+            localStorage.removeItem('cash_sales_amount');
+            localStorage.removeItem('others_sales_amount');
             setDate(today); // <-- IMPORTANTE: Sincronizar UI con el tiempo real
         }
         setIsLoaded(true);
@@ -51,18 +58,21 @@ export function AddSaleForm() {
     useEffect(() => {
         if (!isLoaded) return;
 
-        if (nequiAmount) {
-            localStorage.setItem('nequi_sales_amount', nequiAmount);
-        } else {
-            localStorage.removeItem('nequi_sales_amount');
-        }
+        // Nequi
+        if (nequiAmount) localStorage.setItem('nequi_sales_amount', nequiAmount);
+        else localStorage.removeItem('nequi_sales_amount');
 
-        if (reference) {
-            localStorage.setItem('nequi_sales_refs', reference);
-        } else {
-            localStorage.removeItem('nequi_sales_refs');
-        }
-    }, [nequiAmount, reference, isLoaded]);
+        if (reference) localStorage.setItem('nequi_sales_refs', reference);
+        else localStorage.removeItem('nequi_sales_refs');
+
+        // Cash
+        if (cashAmount) localStorage.setItem('cash_sales_amount', cashAmount);
+        else localStorage.removeItem('cash_sales_amount');
+
+        // Others
+        if (othersAmount) localStorage.setItem('others_sales_amount', othersAmount);
+        else localStorage.removeItem('others_sales_amount');
+    }, [nequiAmount, reference, cashAmount, othersAmount, isLoaded]);
 
     // Auto-cálculo del TOTAL
     const totalAmount = (Number(nequiAmount) || 0) + (Number(cashAmount) || 0) + (Number(othersAmount) || 0);
@@ -241,6 +251,8 @@ export function AddSaleForm() {
             setReceiptUrl(null);
             localStorage.removeItem('nequi_sales_amount');
             localStorage.removeItem('nequi_sales_refs');
+            localStorage.removeItem('cash_sales_amount');
+            localStorage.removeItem('others_sales_amount');
 
             toast.success('¡Venta registrada con éxito! 💰');
         } catch (error) {
@@ -362,17 +374,32 @@ export function AddSaleForm() {
                         <label className="flex items-center gap-2 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                             <span className="w-2 h-2 rounded-full bg-emerald-500" /> Monto Efectivo (Manual)
                         </label>
-                        <div className="relative">
-                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-emerald-500 font-black text-2xl">$</span>
-                            <input
-                                type="number"
-                                step="any"
-                                value={cashAmount}
-                                onChange={(e) => setCashAmount(e.target.value)}
-                                placeholder="0.00"
-                                className="block w-full pl-12 pr-6 py-4 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 text-emerald-600 dark:text-emerald-400 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-2xl font-black"
-                                disabled={isScanning}
-                            />
+                        <div className="flex gap-2">
+                            <div className="relative flex-1">
+                                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-emerald-500 font-black text-2xl">$</span>
+                                <input
+                                    type="number"
+                                    step="any"
+                                    value={cashAmount}
+                                    onChange={(e) => setCashAmount(e.target.value)}
+                                    placeholder="0"
+                                    className="block w-full pl-12 pr-6 py-4 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 text-emerald-600 dark:text-emerald-400 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-2xl font-black"
+                                    disabled={isScanning}
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const val = prompt('Monto a SUMAR al Efectivo:');
+                                    if (val && !isNaN(Number(val))) {
+                                        setCashAmount(prev => (Number(prev || 0) + Number(val)).toString());
+                                        toast.success(`+ $${Number(val).toLocaleString()} sumado al Efectivo!`);
+                                    }
+                                }}
+                                className="w-14 h-[68px] flex items-center justify-center bg-emerald-500 text-white rounded-3xl shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 active:scale-95 transition-all"
+                            >
+                                <span className="text-2xl font-black">+</span>
+                            </button>
                         </div>
                     </div>
 
@@ -380,17 +407,32 @@ export function AddSaleForm() {
                         <label className="flex items-center gap-2 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                             <span className="w-2 h-2 rounded-full bg-amber-500" /> Pagos del día (Manual)
                         </label>
-                        <div className="relative">
-                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-amber-500 font-black text-2xl">$</span>
-                            <input
-                                type="number"
-                                step="any"
-                                value={othersAmount}
-                                onChange={(e) => setOthersAmount(e.target.value)}
-                                placeholder="0.00"
-                                className="block w-full pl-12 pr-6 py-4 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 text-amber-600 dark:text-amber-400 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all text-2xl font-black"
-                                disabled={isScanning}
-                            />
+                        <div className="flex gap-2">
+                            <div className="relative flex-1">
+                                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-amber-500 font-black text-2xl">$</span>
+                                <input
+                                    type="number"
+                                    step="any"
+                                    value={othersAmount}
+                                    onChange={(e) => setOthersAmount(e.target.value)}
+                                    placeholder="0"
+                                    className="block w-full pl-12 pr-6 py-4 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 text-amber-600 dark:text-amber-400 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all text-2xl font-black"
+                                    disabled={isScanning}
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const val = prompt('Monto a SUMAR a Pagos del día:');
+                                    if (val && !isNaN(Number(val))) {
+                                        setOthersAmount(prev => (Number(prev || 0) + Number(val)).toString());
+                                        toast.success(`+ $${Number(val).toLocaleString()} sumado a Pagos del día!`);
+                                    }
+                                }}
+                                className="w-14 h-[68px] flex items-center justify-center bg-amber-500 text-white rounded-3xl shadow-lg shadow-amber-500/20 hover:bg-amber-600 active:scale-95 transition-all"
+                            >
+                                <span className="text-2xl font-black">+</span>
+                            </button>
                         </div>
                     </div>
                 </div>
