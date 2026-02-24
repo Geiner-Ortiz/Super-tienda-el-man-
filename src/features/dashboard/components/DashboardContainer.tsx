@@ -31,23 +31,13 @@ export function DashboardContainer({ overrideUserId }: Props) {
     const profile = isSupportMode ? impersonatedUser : (isMaestroView ? remoteProfile : currentProfile);
 
     // Determine store name and profit margin safely
-    let displayStoreName = 'Tu Súper Tienda';
-    let displayProfitMargin = '20%';
+    const storeName = isSupportMode && impersonatedUser
+        ? impersonatedUser.storeName
+        : (profile?.store_name || 'Tu Súper Tienda');
 
-    if (isSupportMode && impersonatedUser) {
-        displayStoreName = impersonatedUser.storeName;
-        // In support mode, we use a default for now or we could fetch the full profile
-    } else if (profile) {
-        if ('store_name' in profile && profile.store_name) {
-            displayStoreName = profile.store_name;
-        }
-        if ('profit_margin' in profile && profile.profit_margin !== undefined) {
-            displayProfitMargin = `${(profile.profit_margin * 100).toFixed(0)}%`;
-        }
-    }
-
-    const storeName = displayStoreName;
-    const profitMargin = displayProfitMargin;
+    const profitMargin = profile?.profit_margin !== undefined
+        ? `${(profile.profit_margin * 100).toFixed(0)}%`
+        : '20%';
 
     const MOTIVATIONAL_PHRASES = [
         "Un negocio organizado es el primer paso hacia la libertad financiera.",

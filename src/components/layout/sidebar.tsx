@@ -25,6 +25,7 @@ import {
 } from '@/components/public/icons'
 import { useTheme } from '@/shared/components/ThemeProvider'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/hooks/useAuth'
 
 interface NavItem {
   href: string
@@ -61,43 +62,23 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { openPWAHelp } = useUIStore()
   // ... (rest same)
 
-  const [userRole, setUserRole] = useState<UserRole | null>(null)
-  const [userName, setUserName] = useState<string>('')
-  const [storeName, setStoreName] = useState<string>('Tu Súper Tienda')
-  const [userId, setUserId] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const { user, profile, loading: authLoading } = useAuth()
   const { isSupportMode, impersonatedUser, _hasHydrated } = useAdminStore()
 
-  useEffect(() => {
-    const fetchUserRole = async () => {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+  // Overrides for Support Mode or regular profile
+  const displayUserName = isSupportMode && impersonatedUser
+    ? impersonatedUser.fullName
+    : (profile?.full_name || user?.email?.split('@')[0] || 'Usuario')
 
-      if (user) {
-        setUserId(user.id)
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role, full_name, store_name')
-          .eq('id', user.id)
-          .single()
+  const displayStoreName = isSupportMode && impersonatedUser
+    ? impersonatedUser.storeName
+    : (profile?.store_name || 'Tu Súper Tienda')
 
-        if (profile) {
-          setUserRole(profile.role as UserRole)
-          setUserName(profile.full_name || user.email?.split('@')[0] || 'Usuario')
-          setStoreName(profile.store_name || 'Tu Súper Tienda')
-        }
-      }
-      setIsLoading(false)
-    }
+  const displayUserId = isSupportMode && impersonatedUser
+    ? impersonatedUser.id
+    : (user?.id || null)
 
-    fetchUserRole()
-  }, [])
-
-  // Overrides for Support Mode
-  const displayUserName = isSupportMode && impersonatedUser ? impersonatedUser.fullName : userName
-  const displayStoreName = isSupportMode && impersonatedUser ? impersonatedUser.storeName : storeName
-  const displayUserId = isSupportMode && impersonatedUser ? impersonatedUser.id : userId
+  const isLoading = authLoading || !_hasHydrated
 
   const handleLogoutClick = () => {
     setShowLogoutConfirm(true)
@@ -110,9 +91,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   }
 
   const filteredNavItems = navItems.filter(item => {
-    if (!userRole) return false;
-    return item.roles.includes(userRole);
+    const role = profile?.role as UserRole || 'client';
+    return item.roles.includes(role);
   })
+
+  // Añadir logica de cierre de sesión
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
   return (
     <>

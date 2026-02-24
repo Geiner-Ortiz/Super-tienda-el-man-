@@ -299,10 +299,10 @@ test('should calculate total with tax', () => {
 
 > Esta sección CRECE con cada error encontrado.
 
-### 2026-02-14: MCP Supabase - Error 'ajv' no encontrado
-- **Error**: `Cannot find module 'ajv'` al ejecutar `npx @supabase/mcp-server-supabase`. Ocurre porque `npx` a veces no resuelve correctamente las dependencias secundarias en entornos aislados.
-- **Fix**: Usar la instalación local de `node_modules` en lugar de `npx` en el archivo `.mcp.json`.
-- **Aplicar en**: Cualquier configuración de MCP que use `npx` y presente errores de módulos faltantes.
+### 2026-02-24: Filtración de Secretos en Scripts de Migración
+- **Error**: Se hardcodeó un `SUPABASE_ACCESS_TOKEN` en `apply-migration.js` para pruebas rápidas y se commiteó al historial de Git.
+- **Fix**: Reemplazar con `process.env` y cargar con `dotenv`. Usar `.env.local` (ignorado en git) para valores sensibles.
+- **Aplicar en**: TO_DO los scripts de utilidad, herramientas de base de datos y configuraciones locales. NUNCA hardcodear, ni siquiera para "pruebas rápidas".
 
 ---
 

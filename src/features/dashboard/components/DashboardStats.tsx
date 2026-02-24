@@ -42,10 +42,24 @@ export function DashboardStats() {
     { name: '💵 Efectivo', value: financialStats.cashSales },
   ];
 
+  const currentMonthName = new Intl.DateTimeFormat('es-CO', { month: 'long' }).format(new Date());
+  const capitalizedMonth = currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1);
+
   return (
     <div className="space-y-8">
+      {/* Dynamic Month Header */}
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-success-500 animate-pulse" />
+          <h2 className="text-sm font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em]">
+            Resultados del mes de {capitalizedMonth}
+          </h2>
+        </div>
+        <p className="text-xs text-gray-400/60 font-medium">Actualizado en tiempo real</p>
+      </div>
+
       {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
         <MetricCard
           label="Ventas Totales"
           value={formatCurrency(financialStats.totalSales)}
@@ -63,6 +77,12 @@ export function DashboardStats() {
           value={formatCurrency(financialStats.cashSales)}
           color="text-emerald-600"
           trend="Dinero Físico"
+        />
+        <MetricCard
+          label="Ganancias Brutas"
+          value={formatCurrency(financialStats.grossProfit)}
+          color="text-amber-600"
+          trend="Antes de Gastos"
         />
         <MetricCard
           label="Ingreso Neto"

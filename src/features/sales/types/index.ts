@@ -5,7 +5,7 @@ export interface Sale {
     sale_date: string;
     user_id: string;
     created_at: string;
-    payment_method: 'cash' | 'nequi';
+    payment_method: 'cash' | 'nequi' | 'others';
     payment_reference?: string;
     receipt_url?: string;
     profiles?: {
@@ -16,7 +16,7 @@ export interface Sale {
 export interface CreateSaleInput {
     amount: number;
     sale_date?: string;
-    payment_method?: 'cash' | 'nequi';
+    payment_method?: 'cash' | 'nequi' | 'others';
     payment_reference?: string;
     receipt_url?: string;
 }

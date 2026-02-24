@@ -9,36 +9,42 @@ import { Card } from '@/components/ui/card';
 import { Calculator } from 'lucide-react';
 import { useAdminStore } from '@/features/admin/store/adminStore';
 import { useAuth } from '@/hooks/useAuth';
+import { MonthlyHistoryList } from './MonthlyHistoryList';
+import { accountingService, MonthlyClosure } from '../services/accountingService';
 
 export function AccountingContainer() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
+    const [history, setHistory] = useState<MonthlyClosure[]>([]);
     const [loading, setLoading] = useState(true);
+    const [historyLoading, setHistoryLoading] = useState(true);
     const { isSupportMode, impersonatedUser, _hasHydrated } = useAdminStore();
     const { loading: authLoading } = useAuth();
 
-    const loadExpenses = async () => {
+    const loadData = async () => {
         try {
             setLoading(true);
-            const data = await expenseService.getExpenses();
-            setExpenses(data);
+            setHistoryLoading(true);
+            const [expenseData, historyData] = await Promise.all([
+                expenseService.getExpenses(),
+                accountingService.getMonthlyHistory()
+            ]);
+            setExpenses(expenseData);
+            setHistory(historyData);
         } catch (error) {
-            console.error('Error loading expenses:', error);
+            console.error('Error loading finance data:', error);
         } finally {
             setLoading(false);
+            setHistoryLoading(false);
         }
     };
 
     useEffect(() => {
         if (authLoading || !_hasHydrated) return;
-        loadExpenses();
+        loadData();
     }, [isSupportMode, impersonatedUser?.id, _hasHydrated, authLoading]);
 
-    const handleExpenseAdded = () => {
-        loadExpenses();
-    };
-
-    const handleDeleted = () => {
-        loadExpenses();
+    const handleDataUpdate = () => {
+        loadData();
     };
 
     return (
@@ -57,10 +63,11 @@ export function AccountingContainer() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-10">
                 <div className="lg:col-span-1">
-                    <ExpenseForm onExpenseAdded={handleExpenseAdded} />
+                    <ExpenseForm onExpenseAdded={handleDataUpdate} />
                 </div>
-                <div className="lg:col-span-2">
-                    <ExpenseList expenses={expenses} loading={loading} onDeleted={handleDeleted} />
+                <div className="lg:col-span-2 space-y-12">
+                    <MonthlyHistoryList history={history} loading={historyLoading} />
+                    <ExpenseList expenses={expenses} loading={loading} onDeleted={handleDataUpdate} />
                 </div>
             </div>
         </div>

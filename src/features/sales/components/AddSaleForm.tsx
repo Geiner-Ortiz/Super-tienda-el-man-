@@ -5,13 +5,15 @@ import { createClient } from '@/lib/supabase/client';
 import { salesService } from '../services/salesService';
 import { dashboardService } from '../../dashboard/services/dashboardService';
 import { useDashboardStore } from '../../dashboard/store/dashboardStore';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Image as ImageIcon, CheckCircle2, AlertCircle, X, Loader2, DollarSign, Smartphone } from 'lucide-react';
+import { Camera, Image as ImageIcon, CheckCircle2, AlertCircle, X, Loader2, DollarSign, Smartphone, ArrowRightLeft } from 'lucide-react';
 
 export function AddSaleForm() {
     const [nequiAmount, setNequiAmount] = useState('');
     const [cashAmount, setCashAmount] = useState('');
+    const [othersAmount, setOthersAmount] = useState('');
     const [date, setDate] = useState(new Date().toLocaleDateString('en-CA'));
     const [paymentMethod, setPaymentMethod] = useState<'cash' | 'nequi'>('nequi');
     const [reference, setReference] = useState('');
@@ -20,6 +22,7 @@ export function AddSaleForm() {
     const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const { setFinancialData } = useDashboardStore();
+    const { profile } = useAuth();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // PERSISTENCIA: Cargar del día
@@ -62,7 +65,7 @@ export function AddSaleForm() {
     }, [nequiAmount, reference, isLoaded]);
 
     // Auto-cálculo del TOTAL
-    const totalAmount = (Number(nequiAmount) || 0) + (Number(cashAmount) || 0);
+    const totalAmount = (Number(nequiAmount) || 0) + (Number(cashAmount) || 0) + (Number(othersAmount) || 0);
 
     // Helper: Comprimir imagen usando Canvas
     const compressImage = (file: File): Promise<string> => {
@@ -218,20 +221,30 @@ export function AddSaleForm() {
                 }));
             }
 
+            // 3. Registro de Pagos del día si existe
+            if (Number(othersAmount) > 0) {
+                promises.push(salesService.createSale({
+                    amount: Number(othersAmount),
+                    sale_date: date,
+                    payment_method: 'others'
+                }));
+            }
+
             await Promise.all(promises);
             await refreshDashboard();
 
             // Reset UI y persistencia
             setNequiAmount('');
             setCashAmount('');
+            setOthersAmount('');
             setReference('');
             setReceiptUrl(null);
             localStorage.removeItem('nequi_sales_amount');
             localStorage.removeItem('nequi_sales_refs');
 
-            toast.success('¡Venta acumulada registrada con éxito! 💰');
+            toast.success('¡Transferencia registrada con éxito! 💰');
         } catch (error) {
-            toast.error('Error al registrar la venta. Por favor intenta de nuevo.');
+            toast.error('Error al registrar la transferencia. Por favor intenta de nuevo.');
         } finally {
             setIsSubmitting(false);
         }
@@ -242,10 +255,12 @@ export function AddSaleForm() {
             {/* 1. SECCIÓN SUPERIOR EXTREMA: HEADER Y SCANNER (FOCUS NEQUI) */}
             <div className="bg-gradient-to-br from-primary-600 to-primary-800 p-8 text-white relative">
                 <div className="flex flex-col mb-10">
-                    <h3 className="text-4xl font-black tracking-tighter leading-none">Nueva Venta</h3>
+                    <h3 className="text-4xl font-black tracking-tighter leading-none">Nueva Transferencia</h3>
                     <div className="flex items-center gap-2 mt-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-primary-300 animate-pulse" />
-                        <p className="text-[11px] text-primary-100 font-black uppercase tracking-[0.3em] opacity-80">Súper Tienda El Maná</p>
+                        <p className="text-[11px] text-primary-100 font-black uppercase tracking-[0.3em] opacity-80">
+                            {profile?.store_name || 'Tu Súper Tienda'}
+                        </p>
                     </div>
                 </div>
 
@@ -360,17 +375,35 @@ export function AddSaleForm() {
                             />
                         </div>
                     </div>
+
+                    <div className="space-y-4">
+                        <label className="flex items-center gap-2 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                            <span className="w-2 h-2 rounded-full bg-amber-500" /> Pagos del día (Manual)
+                        </label>
+                        <div className="relative">
+                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-amber-500 font-black text-2xl">$</span>
+                            <input
+                                type="number"
+                                step="any"
+                                value={othersAmount}
+                                onChange={(e) => setOthersAmount(e.target.value)}
+                                placeholder="0.00"
+                                className="block w-full pl-12 pr-6 py-4 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 text-amber-600 dark:text-amber-400 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all text-2xl font-black"
+                                disabled={isScanning}
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 <div className="bg-white dark:bg-gray-900/50 p-6 rounded-[2rem] border-2 border-primary-500/20 shadow-inner flex justify-between items-center group hover:border-primary-500/40 transition-all">
                     <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Total de Venta</p>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Total Transferencia</p>
                         <p className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">
                             ${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 0 })}
                         </p>
                     </div>
                     <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600">
-                        <DollarSign size={32} />
+                        <ArrowRightLeft size={32} />
                     </div>
                 </div>
 
@@ -384,7 +417,7 @@ export function AddSaleForm() {
                             }`}
                     >
                         {isSubmitting ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}
-                        {isSubmitting ? 'GUARDANDO...' : 'FINALIZAR VENTA'}
+                        {isSubmitting ? 'GUARDANDO...' : 'FINALIZAR TRANSFERENCIA'}
                     </button>
 
                     <div className="flex flex-col items-center gap-4">

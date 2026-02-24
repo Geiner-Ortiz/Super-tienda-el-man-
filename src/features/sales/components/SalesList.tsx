@@ -2,12 +2,14 @@
 
 import { Sale } from '../types';
 import { Card } from '@/components/ui/card';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SalesListProps {
     sales: Sale[];
 }
 
 export function SalesList({ sales }: SalesListProps) {
+    const { profile } = useAuth();
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('es-CO', {
             style: 'currency',
@@ -97,7 +99,7 @@ export function SalesList({ sales }: SalesListProps) {
                                     +{formatCurrency(data.totalProfit)}
                                 </p>
                                 <p className="text-[10px] font-bold text-emerald-500/60 uppercase tracking-widest leading-none mt-1">
-                                    20% Ganancia Día
+                                    {((profile?.profit_margin || 0.2) * 100).toFixed(0)}% Ganancia Día
                                 </p>
                             </div>
                         </div>
